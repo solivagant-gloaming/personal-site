@@ -74,11 +74,11 @@ export const COURSES: Course[] = [
   {
     slug: 'advanced-db', title: '高级数据库', category: '编程与数据',
     color: '#a3e635', glow: 'rgba(163,230,53,0.12)', emoji: '🗄️',
-    summary: 'SQL 语言、事务与并发控制、索引与查询优化、数据库设计，配套浏览器内 SQL 判分练习（20 题）',
-    practice: { engine: 'pyodide', path: '/advanced-db', label: '浏览器 SQL 实操', progressKey: 'advanced-db-progress' },
+    summary: '高级数据模型（对象关系/面向对象/时态/空间）、分布式数据库、数据仓库与 OLAP、智能数据处理与大数据应用，配套知识点测验',
+    practice: { engine: 'quiz', path: '/quiz/advanced-db', label: '知识点测验', progressKey: 'advanced-db-quiz-progress' },
     modules: [
-      { no: '01', name: 'SQL 基础' }, { no: '02', name: '高级查询' }, { no: '03', name: '多表查询' },
-      { no: '04', name: '增删改' }, { no: '05', name: '约束与事务' }, { no: '06', name: '综合实战' },
+      { no: '01', name: '高级数据库导论' }, { no: '02', name: '分布式数据库' }, { no: '03', name: '对象关系与面向对象数据库' },
+      { no: '04', name: '时态与空间数据库' }, { no: '05', name: '数据仓库与 OLAP' }, { no: '06', name: '智能数据处理与大数据' },
     ],
   },
   {
