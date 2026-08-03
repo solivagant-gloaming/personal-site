@@ -1,0 +1,70 @@
+{
+  "modules": [
+    {
+      "no": "01",
+      "name": "前端基础",
+      "questions": [
+        { "id": "mv01_01", "q": "HTML 中，下列哪个标签用于定义一级标题？", "options": ["<h1>", "<p>", "<div>", "<a>"], "answer": 0, "explain": "<h1> 是一级标题；<p> 是段落，<div> 是通用容器，<a> 是链接。" },
+        { "id": "mv01_02", "q": "CSS 盒模型中，从内到外的最外层是哪一层？", "options": ["内容（content）", "内边距（padding）", "边框（border）", "外边距（margin）"], "answer": 3, "explain": "盒模型从内到外依次是内容、内边距、边框、外边距，最外层是外边距（margin）。" },
+        { "id": "mv01_03", "q": "下列 CSS 选择器中，优先级最高的是？", "options": ["ID 选择器", "类选择器", "标签选择器", "后代选择器"], "answer": 0, "explain": "ID 选择器（#id）优先级最高，其次类选择器（.class），标签选择器最低。" },
+        { "id": "mv01_04", "q": "下列哪个方法可以获取所有匹配选择器的元素列表？", "options": ["document.querySelector()", "document.querySelectorAll()", "document.createElement()", "document.body"], "answer": 1, "explain": "querySelectorAll 返回所有匹配的元素集合；querySelector 只返回第一个匹配项。" },
+        { "id": "mv01_05", "q": "要给按钮绑定点击事件，规范的写法是？", "options": ["onclick=\"alert()\"", "在 CSS 里设置 cursor", "addEventListener('click', fn)", "用 <a> 标签包裹"], "answer": 2, "explain": "addEventListener 是规范的事件绑定方式；onclick 写在 HTML 里耦合度高，CSS 不负责事件。" }
+      ]
+    },
+    {
+      "no": "02",
+      "name": "MVVM 思想",
+      "questions": [
+        { "id": "mv02_01", "q": "MVVM 架构中，哪个角色负责将状态转换为视图所需的展示数据？", "options": ["Model", "ViewModel", "View", "Controller"], "answer": 1, "explain": "ViewModel 是 View 与 Model 之间的桥梁，负责把状态整理成视图需要的数据，并实现数据绑定。" },
+        { "id": "mv02_02", "q": "下列哪句话最能概括 MVVM 的核心理念？", "options": ["数据驱动视图，状态变化时视图自动更新", "视图决定数据", "手动操作 DOM 保持同步", "页面完全静态"], "answer": 0, "explain": "MVVM 的核心是数据驱动视图：状态是唯一事实来源，状态变了视图自动更新。" },
+        { "id": "mv02_03", "q": "在 Vue 中，下列哪个指令实现表单元素的双向绑定？", "options": ["v-if", "v-for", "v-show", "v-model"], "answer": 3, "explain": "v-model 在表单元素上实现双向绑定；v-if/v-for/v-show 分别是条件与列表渲染。" },
+        { "id": "mv02_04", "q": "单向绑定与双向绑定的本质区别是？", "options": ["绑定速度不同", "绑定的标签不同", "数据流向是否包含视图回写数据", "是否需要网络"], "answer": 2, "explain": "单向绑定数据只从数据流向视图；双向绑定还包含用户输入回写数据的过程，即视图也能改数据。" },
+        { "id": "mv02_05", "q": "在 MVVM 中，“视图是状态的函数”意味着？", "options": ["给定一份状态，视图随之确定，状态变视图变", "状态随视图变化而变化", "视图与状态相互独立", "状态可以被视图任意覆盖"], "answer": 0, "explain": "视图=f(状态)：状态是唯一事实来源，状态确定视图就确定，状态变化视图自动重渲染。" }
+      ]
+    },
+    {
+      "no": "03",
+      "name": "模板与渲染",
+      "questions": [
+        { "id": "mv03_01", "q": "在 Vue 模板中，下列哪种写法可以输出变量的值？", "options": ["[变量名]", "{{ 变量名 }}", "(变量名)", "&变量名;"], "answer": 1, "explain": "双大括号 {{ }} 是插值语法，把表达式的值渲染到页面；其余写法都不是 Vue 插值。" },
+        { "id": "mv03_02", "q": "v-if 与 v-show 的主要区别是？", "options": ["v-if 更常用于表单", "v-show 只能用于图片", "v-if 条件不成立时不渲染元素，v-show 只是用 display:none 隐藏", "两者完全相同"], "answer": 2, "explain": "v-if 为假时元素不在 DOM 中；v-show 为假时元素仍在 DOM，只是 display:none 隐藏。频繁切换用 v-show。" },
+        { "id": "mv03_03", "q": "v-for 遍历列表时，:key 的作用是？", "options": ["给每一项提供稳定唯一的标识，帮助 Vue 精准更新", "让列表样式更漂亮", "控制列表的高度", "为列表添加事件"], "answer": 0, "explain": "key 是列表项的身份证，帮助 Vue 高效复用和精确更新，应使用数据中唯一的 id 而不是索引。" },
+        { "id": "mv03_04", "q": "下列哪个指令用于条件渲染，且在条件为假时元素不会出现在 DOM 中？", "options": ["v-bind", "v-model", "v-for", "v-if"], "answer": 3, "explain": "v-if 条件为假时元素完全不渲染；v-bind 绑定属性，v-model 双向绑定，v-for 列表渲染。" },
+        { "id": "mv03_05", "q": "模板中直接使用 v-html 渲染用户输入的内容，存在什么风险？", "options": ["可能被注入恶意代码（XSS）", "会让页面无法加载", "会导致样式丢失", "没有风险"], "answer": 0, "explain": "v-html 会把字符串当作 HTML 解析执行，用户输入可能包含恶意标签，因此用户输入的内容应使用插值或 v-text。" }
+      ]
+    },
+    {
+      "no": "04",
+      "name": "组件化开发",
+      "questions": [
+        { "id": "mv04_01", "q": "单文件组件（SFC）的文件扩展名是？", "options": [".vue", ".js", ".html", ".css"], "answer": 0, "explain": "SFC 用 .vue 后缀，一个文件包含 <template>、<script>、<style> 三部分。" },
+        { "id": "mv04_02", "q": "父组件向子组件传递数据，使用的机制是？", "options": ["事件 $emit", "props", "插槽 slot", "生命周期钩子"], "answer": 1, "explain": "props 是父传子的单向数据流通道；$emit 是子传父，slot 是内容分发。" },
+        { "id": "mv04_03", "q": "子组件向父组件通信，应使用？", "options": ["props", "computed", "watch", "事件 $emit"], "answer": 3, "explain": "子组件用 $emit 抛出事件，父组件用 @事件名 监听处理，实现子传父通信。" },
+        { "id": "mv04_04", "q": "在 Vue 中，下列哪个生命周期钩子适合在组件挂载到 DOM 后操作 DOM？", "options": ["created", "beforeMount", "mounted", "unmounted"], "answer": 2, "explain": "mounted 时组件已挂载到 DOM，可以安全操作 DOM；created 时还没渲染。" },
+        { "id": "mv04_05", "q": "组件中为什么 data 必须是函数？", "options": ["保证每个组件实例有独立的数据副本", "提高运行速度", "让数据可以全局共享", "没有特别原因"], "answer": 0, "explain": "data 用函数返回新对象，每个组件实例各自拥有一份数据，互不影响；写成对象会共享同一份。" }
+      ]
+    },
+    {
+      "no": "05",
+      "name": "数据与状态",
+      "questions": [
+        { "id": "mv05_01", "q": "计算属性（computed）最重要的特性是？", "options": ["每次调用都会重新计算", "只能用于异步操作", "依赖不变时结果会被缓存", "不能读取 data 中的数据"], "answer": 2, "explain": "计算属性具有缓存特性：依赖数据不变时多次访问直接返回缓存结果，不重复执行。" },
+        { "id": "mv05_02", "q": "下列场景中，最适合使用侦听器（watch）的是？", "options": ["监听关键词变化后发起搜索请求", "展示列表的过滤结果", "计算购物车总价", "定义静态配置"], "answer": 0, "explain": "watch 适合“值变化后执行副作用”（如发请求、存本地）；派生展示值应优先用 computed。" },
+        { "id": "mv05_03", "q": "Vue 3 的响应式系统是基于什么实现的？", "options": ["Object.defineProperty", "Proxy", "setTimeout", "事件冒泡"], "answer": 1, "explain": "Vue 3 使用 Proxy 代理对象，拦截属性的读取与写入，实现依赖收集与更新派发。" },
+        { "id": "mv05_04", "q": "多个互不相关的组件需要共享一份数据时，通常的做法是？", "options": ["层层传递 props", "每个组件各自存一份", "用全局定时器同步", "使用状态管理（如 Pinia）"], "answer": 3, "explain": "共享状态应集中到状态管理库（Pinia/Vuex），保证单一数据源，避免层层传递 props。" },
+        { "id": "mv05_05", "q": "关于响应式原理，下列说法正确的是？", "options": ["读取属性时收集依赖，修改属性时通知依赖更新", "修改属性时收集依赖", "响应式只作用于静态页面", "数据变化后需要手动刷新页面"], "answer": 0, "explain": "响应式核心是 get 时收集依赖、set 时派发更新，数据一变，依赖它的视图自动更新。" }
+      ]
+    },
+    {
+      "no": "06",
+      "name": "路由与工程化",
+      "questions": [
+        { "id": "mv06_01", "q": "单页面应用（SPA）切换页面的方式是？", "options": ["请求服务器并刷新整个页面", "不刷新页面，用 JS 切换显示内容", "跳转到新的 HTML 文件", "弹出新窗口"], "answer": 1, "explain": "SPA 只有一个 HTML 页面，路由根据 URL 用 JS 切换显示的组件，无需整页刷新。" },
+        { "id": "mv06_02", "q": "hash 模式路由的 URL 特点是？", "options": ["包含 # 号，变化时不向服务器发请求", "不包含任何特殊字符", "每次跳转都会刷新页面", "只能用于多页面应用"], "answer": 0, "explain": "hash 模式 URL 带 #，hash 变化不触发服务器请求，由前端监听 hashchange 切换内容。" },
+        { "id": "mv06_03", "q": "Vue Router 中，当前路由对应的组件渲染在哪个元素中？", "options": ["<router-link>", "<a>", "<router-view>", "<keep-alive>"], "answer": 2, "explain": "<router-view> 是路由出口，当前路由对应的组件渲染在这里；router-link 是跳转链接。" },
+        { "id": "mv06_04", "q": "使用 Vite 构建的项目，打包生产产物的命令是？", "options": ["npm run dev", "npm start", "npm test", "npm run build"], "answer": 3, "explain": "npm run build 调用 vite build，把源码编译打包到 dist/ 目录；dev 是本地开发服务器。" },
+        { "id": "mv06_05", "q": "history 模式路由部署后，刷新子路由页面返回 404，最可能的原因是？", "options": ["服务器未配置所有路径回退到 index.html", "页面代码写错", "浏览器太旧", "没有使用路由"], "answer": 0, "explain": "history 模式刷新会真实请求该路径，若服务器没有将未知路径重定向到 index.html，就会 404。" }
+      ]
+    }
+  ]
+}

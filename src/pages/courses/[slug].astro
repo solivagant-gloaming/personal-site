@@ -15,7 +15,7 @@ if (course) {
     notes = await query(
       `SELECT id, title, slug, excerpt, course, tags, created_at
        FROM notes WHERE type='note' AND status='published' AND course = ?
-       ORDER BY created_at DESC`,
+       ORDER BY title ASC`,
       [course.title]
     );
   } catch (e) {
@@ -39,12 +39,15 @@ const shortTitle = (t) => t.replace(/^.*?·\s*/, '');
   </Base>
 ) : (
   <Base title={`${course.title} · 课程中心`} description={course.summary} wide={true}>
-    <style>
-      :global([data-theme]) {
+    <style is:global>
+      [data-theme] {
         --cc: {course.color};
         --cg: {course.glow};
       }
     </style>
+
+    <!-- CSS 变量内联兜底：保证课程色在 SSR 下生效 -->
+    <div style={`--cc:${course.color};--cg:${course.glow}`}>
 
     <!-- 课程横幅 -->
     <div class="ch-banner" data-reveal="bottom">
@@ -112,7 +115,7 @@ const shortTitle = (t) => t.replace(/^.*?·\s*/, '');
               <div class="ch-live">
                 <div class="ch-live-engine">{course.practice.label}</div>
                 {course.practice.progressKey && course.practice.path && (
-                  <div class="ch-progress" data-progress-key={course.practice.progressKey} data-progress-path={course.practice.path}>
+                  <div class="ch-progress" data-progress-key={course.practice.progressKey} data-progress-path={course.practice.path} data-progress-engine={course.practice.engine}>
                     <div class="ch-progress-bar"><i></i></div>
                     <div class="ch-progress-text">加载进度…</div>
                   </div>
@@ -139,6 +142,7 @@ const shortTitle = (t) => t.replace(/^.*?·\s*/, '');
           </div>
         )}
       </aside>
+    </div>
     </div>
 
     <style>
@@ -281,11 +285,24 @@ const shortTitle = (t) => t.replace(/^.*?·\s*/, '');
         let done = 0;
         try { done = Object.keys(JSON.parse(localStorage.getItem(key) || '{}')).length; } catch (e) {}
         (async () => {
+          const engine = box.dataset.progressEngine;
           let total = null;
           try {
-            const r = await fetch(path + '/exercises.json');
-            const j = await r.json();
-            total = (j.modules || []).reduce((s, m) => s + (m.exercises || []).length, 0);
+            if (engine === 'quiz') {
+              // quiz 引擎：从 quiz 数据取题数（/quiz/network → /quiz/network.json）
+              const r = await fetch(path + '.json');
+              if (r.ok) {
+                const j = await r.json();
+                total = (j.modules || []).reduce((s, m) => s + (m.questions || []).length, 0);
+              }
+            } else {
+              // pyodide/sqlite 引擎：从 exercises.json 取题数
+              const r = await fetch(path + '/exercises.json');
+              if (r.ok) {
+                const j = await r.json();
+                total = (j.modules || []).reduce((s, m) => s + (m.exercises || []).length, 0);
+              }
+            }
           } catch (e) {}
           const bar = box.querySelector('.ch-progress-bar i');
           const text = box.querySelector('.ch-progress-text');

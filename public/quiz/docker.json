@@ -1,0 +1,70 @@
+{
+  "modules": [
+    {
+      "no": "01",
+      "name": "容器与镜像",
+      "questions": [
+        { "id": "dk01_01", "q": "与虚拟机相比，容器最本质的特点是？", "options": ["共享宿主机操作系统内核", "每个容器带一个完整操作系统", "需要 Hypervisor 虚拟化硬件", "启动耗时按分钟计"], "answer": 0, "explain": "容器共享宿主机内核，只隔离用户态资源，这是它轻量、秒级启动的根本原因。" },
+        { "id": "dk01_02", "q": "镜像（image）与容器（container）的关系，最贴切的比喻是？", "options": ["菜谱与做好的菜", "印章与盖出的章", "家具与集装箱", "钥匙与锁"], "answer": 1, "explain": "镜像像印章（只读模板），容器是盖章盖出来的成品（运行实例），一个镜像可盖出多个容器。" },
+        { "id": "dk01_03", "q": "镜像采用分层存储后，容器运行时对文件的修改发生在哪里？", "options": ["最底层的操作系统层", "镜像的每一层", "容器顶部的可写容器层", "镜像仓库中"], "answer": 2, "explain": "写时复制（CoW）机制下，修改都写入容器顶部的可写层，镜像层保持不变。" },
+        { "id": "dk01_04", "q": "在 Docker 的 Client/Daemon 架构中，真正执行镜像拉取、容器创建等工作的角色是？", "options": ["docker 客户端", "镜像仓库 Registry", "守护进程 dockerd", "容器自身"], "answer": 2, "explain": "docker 命令只负责转发指令，真正的执行者是守护进程 dockerd，Registry 只提供镜像源。" },
+        { "id": "dk01_05", "q": "容器在什么情况下会自动停止？", "options": ["宿主机内存不足时", "容器内的主进程退出时", "超过 24 小时未操作时", "访问量过高时"], "answer": 1, "explain": "容器由主进程决定生死，主进程退出容器即进入 exited 状态，和操作时长无关。" }
+      ]
+    },
+    {
+      "no": "02",
+      "name": "常用命令",
+      "questions": [
+        { "id": "dk02_01", "q": "从镜像仓库下载镜像的命令是？", "options": ["docker pull", "docker run", "docker push", "docker load"], "answer": 0, "explain": "docker pull 从仓库拉取镜像；run 是创建并运行容器，push 是上传镜像到仓库。" },
+        { "id": "dk02_02", "q": "docker run 与 docker start 的主要区别是？", "options": ["run 新建并启动容器，start 启动已存在的容器", "start 会新建容器", "两者完全等价", "run 只能运行停止的容器"], "answer": 0, "explain": "run = 创建新容器并启动；start 启动一个已经存在的、处于停止状态的容器。" },
+        { "id": "dk02_03", "q": "查看本机所有容器（含已停止的）应使用？", "options": ["docker ps", "docker ps -a", "docker images", "docker stats"], "answer": 1, "explain": "docker ps 只看运行中的，加 -a 才显示包括已停止在内的所有容器。" },
+        { "id": "dk02_04", "q": "进入正在运行的容器内部打开交互式终端的命令是？", "options": ["docker logs web", "docker exec -it web bash", "docker attach web --shell", "docker run -it web bash"], "answer": 1, "explain": "docker exec -it 容器名 bash 可进入运行中的容器开交互式 shell；exit 退出不影响容器运行。" },
+        { "id": "dk02_05", "q": "关于 docker rm 与 docker rmi，正确的是？", "options": ["rm 删容器，rmi 删镜像", "两者都删镜像", "rmi 删容器，rm 删镜像", "两者都删容器"], "answer": 0, "explain": "docker rm 删除容器，docker rmi（remove image）删除镜像，别把二者搞混。" }
+      ]
+    },
+    {
+      "no": "03",
+      "name": "数据卷与网络",
+      "questions": [
+        { "id": "dk03_01", "q": "以下哪种方式可以让容器删除后数据仍然保留？", "options": ["把数据写在容器根目录", "把数据写在镜像构建层", "使用数据卷并挂载到容器", "把数据写进环境变量"], "answer": 2, "explain": "容器文件系统是临时的，容器删除数据即丢；数据卷把数据存在宿主机上，删除容器数据仍在。" },
+        { "id": "dk03_02", "q": "命令 docker run -v /home/user/app:/app 中，冒号前后分别表示？", "options": ["前容器内路径，后宿主机路径", "前宿主机路径，后容器内路径", "前后都是卷名", "前卷名，后容器内路径"], "answer": 1, "explain": "-v 语法是 宿主机路径:容器内路径，开发时宿主机改代码容器内即时生效。" },
+        { "id": "dk03_03", "q": "host 网络模式下，以下说法正确的是？", "options": ["容器共享宿主机网络栈，-p 映射无效", "容器有独立网络栈，必须用 -p 映射", "容器无任何网络", "容器只能通过 NAT 出网"], "answer": 0, "explain": "host 模式容器直接用宿主机网络栈和端口，端口已共享，因此 -p 参数会被忽略。" },
+        { "id": "dk03_04", "q": "要使宿主机 8080 端口访问容器的 80 端口，正确的参数是？", "options": ["-p 80:8080", "-p 8080:80", "-p 8080", "-P 8080:80"], "answer": 1, "explain": "-p 语法为 宿主机端口:容器端口，即 8080:80；写反或只写一个端口都不对。" },
+        { "id": "dk03_05", "q": "同一自定义网络内，容器 A 想访问容器 B（名为 db），应使用？", "options": ["直接访问容器名 db", "必须知道 B 的 MAC 地址", "只能通过宿主机 IP 中转", "必须使用 --link 且只能访问 IP"], "answer": 0, "explain": "自定义网络内置 DNS，容器之间直接用容器名互相访问，无需 --link。" }
+      ]
+    },
+    {
+      "no": "04",
+      "name": "Dockerfile",
+      "questions": [
+        { "id": "dk04_01", "q": "Dockerfile 必须放在第一条的指令是？", "options": ["RUN", "FROM", "CMD", "EXPOSE"], "answer": 1, "explain": "镜像的每一层都叠在上一层之上，FROM 指定基础镜像，必须作为第一行。" },
+        { "id": "dk04_02", "q": "RUN 与 CMD 的区别是？", "options": ["RUN 构建时执行，CMD 容器启动时执行", "RUN 容器启动时执行，CMD 构建时执行", "两者都在构建时执行", "两者都在运行时执行"], "answer": 0, "explain": "RUN 把操作固化进镜像层（构建时）；CMD 是容器启动时的默认命令（运行时）。" },
+        { "id": "dk04_03", "q": "关于 EXPOSE，下列说法正确的是？", "options": ["真正把端口映射到宿主机", "只是声明端口，映射要靠 -p/-P", "会暴露容器内所有端口", "只能在 CMD 之后使用"], "answer": 1, "explain": "EXPOSE 只是文档式声明容器监听哪个端口，真正对外映射由运行时 docker run -p 或 -P 完成。" },
+        { "id": "dk04_04", "q": "希望固定容器启动入口、且运行参数追加在其后，应使用？", "options": ["CMD", "RUN", "ENTRYPOINT", "WORKDIR"], "answer": 2, "explain": "ENTRYPOINT 是固定入口，docker run 后的参数会追加其后；CMD 会被 docker run 参数覆盖。" },
+        { "id": "dk04_05", "q": "多阶段构建的主要目的是？", "options": ["让构建过程更安全", "把最终镜像瘦身，只保留运行所需产物", "加快容器启动速度", "减少环境变量数量"], "answer": 1, "explain": "多阶段构建在构建阶段使用完整工具链，最终阶段只 COPY 产物进小基础镜像，镜像显著变小也更安全。" }
+      ]
+    },
+    {
+      "no": "05",
+      "name": "Compose编排",
+      "questions": [
+        { "id": "dk05_01", "q": "Docker Compose 使用什么格式的文件描述多容器应用？", "options": ["JSON", "YAML", "XML", "INI"], "answer": 1, "explain": "Compose 用 YAML 文件（compose.yaml）描述服务，注意缩进只能用空格。" },
+        { "id": "dk05_02", "q": "用 docker compose 后台启动整组服务的命令是？", "options": ["docker compose start", "docker compose up -d", "docker compose run", "docker compose exec"], "answer": 1, "explain": "up -d 后台创建并启动所有服务；start 只启动已存在的服务，run 是运行一次性命令。" },
+        { "id": "dk05_03", "q": "depends_on 字段的作用是？", "options": ["保证被依赖服务完全就绪后再启动", "只控制服务的启动顺序", "设置服务的重启策略", "指定服务的资源上限"], "answer": 1, "explain": "depends_on 只保证启动顺序，不保证服务内部就绪；真正的就绪等待要用健康检查的 service_healthy。" },
+        { "id": "dk05_04", "q": "docker compose down 默认会删除哪些内容？", "options": ["容器和项目网络", "命名卷中的数据", "本地镜像", "构建缓存"], "answer": 0, "explain": "down 删除容器和项目网络，命名卷默认保留以保护数据，加 -v 才会连卷一起删除。" },
+        { "id": "dk05_05", "q": "同一 Compose 项目内，web 服务访问 db 数据库时，应使用什么地址？", "options": ["宿主机的 IP 地址", "容器 ID", "服务名 db", "数据库的 MAC 地址"], "answer": 2, "explain": "Compose 默认创建项目网络，服务间通过服务名互相解析访问，例如 DB_HOST: db。" }
+      ]
+    },
+    {
+      "no": "06",
+      "name": "部署实践",
+      "questions": [
+        { "id": "dk06_01", "q": "为容器运行时注入单个环境变量，正确的参数是？", "options": ["-e KEY=value", "-v KEY=value", "-p KEY=value", "-i KEY=value"], "answer": 0, "explain": "-e（或 --env）用于运行时注入环境变量；-v 是挂载卷，-p 是端口映射。" },
+        { "id": "dk06_02", "q": "关于敏感信息（如数据库密码）的正确处理方式是？", "options": ["直接写进 Dockerfile 的 ENV", "写进 .env 并提交到 Git 仓库", "运行时用环境变量注入或 secret 机制", "写进镜像标签"], "answer": 2, "explain": "密钥不能进镜像、不能进 Git 仓库；应在运行时用环境变量注入，生产环境用 secret 或密钥管理服务。" },
+        { "id": "dk06_03", "q": "HEALTHCHECK 指令的作用是？", "options": ["限制容器的 CPU 使用", "定期探测容器服务是否真正就绪", "自动清理容器日志", "给容器分配固定 IP"], "answer": 1, "explain": "HEALTHCHECK 定期执行探测命令，把容器标记为 healthy/unhealthy，供编排和负载均衡使用。" },
+        { "id": "dk06_04", "q": "防止容器日志无限增长撑满磁盘，正确的做法是？", "options": ["禁止应用输出日志", "配置 --log-opt max-size 限制日志大小", "定期删除镜像", "增大容器内存限制"], "answer": 1, "explain": "默认 json-file 驱动不限制日志大小，应配置 max-size 和 max-file 做日志轮转，防止磁盘被写满。" },
+        { "id": "dk06_05", "q": "关于生产镜像优化与安全，正确的是？", "options": ["用 root 用户运行应用容器", "基础镜像一律用 latest 标签", "用 USER 切换到非 root 用户运行", "把所有工具链都装进最终镜像"], "answer": 2, "explain": "应避免以 root 运行，用 USER 切普通用户；同时锁定版本标签、使用多阶段构建瘦身，减少攻击面。" }
+      ]
+    }
+  ]
+}

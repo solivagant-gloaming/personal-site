@@ -17,27 +17,36 @@ const course = slug ? courseBySlug(slug) : undefined;
   </Base>
 ) : (
   <Base title={`${course.title} · 概念测验`} description={course.summary} wide={true}>
-    <style>
-      :global([data-theme]) {
+    <style is:global>
+      [data-theme] {
         --cc: {course.color};
         --cg: {course.glow};
       }
     </style>
+
+    <div style={`--cc:${course.color};--cg:${course.glow}`}>
 
     <div class="qz-header">
       <div>
         <h1>{course.emoji} {course.title} · 概念测验</h1>
         <div class="qz-sub">选择答案即时判分，答对自动记录进度 · 进度保存在本浏览器</div>
       </div>
-      <a class="qz-link" href={`/courses/${course.slug}`}>📖 课程中心</a>
+      <div class="qz-actions-top">
+        <button class="qz-link qz-reset" id="resetBtn" type="button">⟳ 重置进度</button>
+        <a class="qz-link" href={`/courses/${course.slug}`}>📖 课程中心</a>
+      </div>
     </div>
 
     <div class="qz-layout">
       <!-- 左：模块 + 题目列表 -->
       <aside class="qz-side">
         <div class="qz-modules" id="moduleTabs"></div>
+        <div class="qz-cur-mod" id="curMod"></div>
         <div class="qz-qlist" id="qList"></div>
-        <div class="qz-side-foot" id="progressFoot">加载中…</div>
+        <div class="qz-side-foot">
+          <div class="qz-progress-track"><i id="progressBar"></i></div>
+          <div class="qz-side-foot-txt" id="progressFoot">加载中…</div>
+        </div>
       </aside>
 
       <!-- 右：题目 + 选项 + 反馈 -->
@@ -59,6 +68,7 @@ const course = slug ? courseBySlug(slug) : undefined;
     </div>
 
     <div class="qz-footnote">题目随课程推进持续补充 · 概念测验不需运行环境，打开即可用</div>
+    </div>
   </Base>
 )}
 
@@ -118,6 +128,8 @@ const course = slug ? courseBySlug(slug) : undefined;
     $('moduleTabs').innerHTML = state.modules.map((m) =>
       `<button class="qz-mod${m.no === state.currentModule ? ' active' : ''}" data-no="${m.no}" title="${m.name}">${m.no}</button>`
     ).join('');
+    const cm = state.modules.find((m) => m.no === state.currentModule);
+    $('curMod').textContent = cm ? '当前模块：' + cm.name : '';
     $('moduleTabs').querySelectorAll('.qz-mod').forEach((b) => {
       b.onclick = () => {
         state.currentModule = b.dataset.no;
@@ -203,6 +215,8 @@ const course = slug ? courseBySlug(slug) : undefined;
     const all = allQuestions();
     const done = all.filter((x) => progress[x.q.id]).length;
     $('progressFoot').textContent = '已答对 ' + done + '/' + all.length + ' 题';
+    const bar = $('progressBar');
+    if (bar) bar.style.width = all.length ? Math.round((done / all.length) * 100) + '%' : '0%';
   }
 
   /* ── 上/下一题 ── */
@@ -223,10 +237,20 @@ const course = slug ? courseBySlug(slug) : undefined;
   $('prevBtn').onclick = () => goto(-1);
   $('nextBtn').onclick = () => goto(1);
 
+  /* ── 重置进度 ── */
+  $('resetBtn').onclick = () => {
+    if (confirm('确定要清空这门课的答题进度吗？')) {
+      localStorage.removeItem(PROG_KEY);
+      progress = {};
+      renderList(); renderQuestion(); updateProgress();
+    }
+  };
+
   loadQuiz();
 </script>
 
-<style>
+<!-- is:global：模块/题目/选项为 JS 动态生成，scoped 选择器带 data-astro-cid 不匹配动态元素 -->
+<style is:global>
   .qz-header {
     display: flex; justify-content: space-between; align-items: flex-start;
     margin-bottom: 1.2rem;
@@ -239,6 +263,12 @@ const course = slug ? courseBySlug(slug) : undefined;
     padding: 0.4rem 0.8rem; border-radius: 8px; white-space: nowrap;
   }
   .qz-link:hover { background: var(--cg); }
+  .qz-actions-top { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+  .qz-reset { cursor: pointer; background: transparent; font-size: 0.78rem; }
+  .qz-reset:hover {
+    background: color-mix(in srgb, #ff6b5e 10%, transparent);
+    border-color: #ff6b5e; color: #ff6b5e;
+  }
 
   .qz-layout {
     display: grid; grid-template-columns: 280px 1fr; gap: 1rem;
@@ -274,7 +304,19 @@ const course = slug ? courseBySlug(slug) : undefined;
   }
   .qz-qstatus.done { background: var(--cc); border-color: var(--cc); }
   .qz-qtitle { flex: 1; }
-  .qz-side-foot { font-size: 0.7rem; color: var(--text-muted); }
+  .qz-cur-mod { font-size: 0.7rem; color: var(--text-muted); }
+  .qz-progress-track {
+    height: 5px; border-radius: 3px;
+    background: var(--bg-hover); border: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .qz-progress-track i {
+    display: block; height: 100%; width: 0;
+    background: linear-gradient(90deg, var(--cg), var(--cc));
+    transition: width 0.4s ease;
+  }
+  .qz-side-foot { display: flex; flex-direction: column; gap: 0.35rem; }
+  .qz-side-foot-txt { font-size: 0.7rem; color: var(--text-muted); }
 
   .qz-question {
     border: 1px solid var(--border); border-radius: 12px;

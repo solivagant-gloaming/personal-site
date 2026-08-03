@@ -95,22 +95,42 @@ export const COURSES: Course[] = [
   {
     slug: 'software-eng', title: '软件工程', category: '工程与架构',
     color: '#a78bfa', glow: 'rgba(167,139,250,0.12)', emoji: '🧱',
-    summary: '软件过程模型、需求工程、软件设计与测试、项目管理',
+    summary: '软件过程模型、需求工程、软件设计与测试、项目管理，配套知识点测验',
+    practice: { engine: 'quiz', path: '/quiz/software-eng', label: '知识点测验', progressKey: 'software-eng-quiz-progress' },
+    modules: [
+      { no: '01', name: '软件过程模型' }, { no: '02', name: '需求工程' }, { no: '03', name: '软件设计' },
+      { no: '04', name: '软件测试' }, { no: '05', name: '项目管理' }, { no: '06', name: '软件质量与维护' },
+    ],
   },
   {
     slug: 'software-design', title: '软件设计与体系结构', category: '工程与架构',
     color: '#94a3b8', glow: 'rgba(148,163,184,0.12)', emoji: '🏗️',
-    summary: '设计模式与软件体系结构风格、组件化系统设计',
+    summary: '设计模式与软件体系结构风格、组件化系统设计，配套知识点测验',
+    practice: { engine: 'quiz', path: '/quiz/software-design', label: '知识点测验', progressKey: 'software-design-quiz-progress' },
+    modules: [
+      { no: '01', name: '设计原则' }, { no: '02', name: '创建型模式' }, { no: '03', name: '结构型模式' },
+      { no: '04', name: '行为型模式' }, { no: '05', name: '体系结构风格' }, { no: '06', name: '组件化与演进' },
+    ],
   },
   {
     slug: 'docker', title: 'Docker 云容器', category: '工程与架构',
     color: '#38bdf8', glow: 'rgba(56,189,248,0.12)', emoji: '🐳',
-    summary: '容器与镜像、Docker 常用命令与容器化部署',
+    summary: '容器与镜像、Docker 常用命令与容器化部署，配套知识点测验',
+    practice: { engine: 'quiz', path: '/quiz/docker', label: '知识点测验', progressKey: 'docker-quiz-progress' },
+    modules: [
+      { no: '01', name: '容器与镜像' }, { no: '02', name: '常用命令' }, { no: '03', name: '数据卷与网络' },
+      { no: '04', name: 'Dockerfile' }, { no: '05', name: 'Compose 编排' }, { no: '06', name: '部署实践' },
+    ],
   },
   {
     slug: 'mvvm', title: 'MVVM 前端', category: '工程与架构',
     color: '#e879f9', glow: 'rgba(232,121,249,0.12)', emoji: '🖥️',
-    summary: '前端基础与 MVVM 架构模式、数据绑定与组件化开发',
+    summary: '前端基础与 MVVM 架构模式、数据绑定与组件化开发，配套知识点测验',
+    practice: { engine: 'quiz', path: '/quiz/mvvm', label: '知识点测验', progressKey: 'mvvm-quiz-progress' },
+    modules: [
+      { no: '01', name: '前端基础' }, { no: '02', name: 'MVVM 思想' }, { no: '03', name: '模板与渲染' },
+      { no: '04', name: '组件化开发' }, { no: '05', name: '数据与状态' }, { no: '06', name: '路由与工程化' },
+    ],
   },
 ];
 

@@ -209,11 +209,15 @@ import Base from '../../layouts/Base.astro';
   init();
 </script>
 
-<style>
-  :global([data-theme]) {
+<style is:global>
+  [data-theme] {
     --adb: #a3e635;
     --adb-glow: rgba(163, 230, 53, 0.12);
   }
+</style>
+
+<!-- is:global：题目面板为 JS 动态生成 -->
+<style is:global>
   .py-header {
     display: flex; justify-content: space-between; align-items: flex-start;
     margin-bottom: 1.2rem;

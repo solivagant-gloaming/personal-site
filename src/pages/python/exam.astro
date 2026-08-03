@@ -429,7 +429,8 @@ import Base from '../../layouts/Base.astro';
   init();
 </script>
 
-<style>
+<!-- is:global：考试题目面板为 JS 动态生成 -->
+<style is:global>
   .ex-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
   .ex-header h1 { font-size: 1.6rem; margin: 0; }
   .ex-sub { font-size: 0.82rem; color: var(--text-muted); margin-top: 0.1rem; }
