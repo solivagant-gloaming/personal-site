@@ -1,0 +1,348 @@
+---
+export const prerender = false;
+
+import Base from '../../layouts/Base.astro';
+import { courseBySlug } from '../../data/courses';
+
+const slug = Astro.params.slug;
+const course = slug ? courseBySlug(slug) : undefined;
+---
+
+{!course ? (
+  <Base title="测验不存在">
+    <div class="page-header">
+      <h1>测验不存在</h1>
+      <p><a href="/courses">← 返回课程列表</a></p>
+    </div>
+  </Base>
+) : (
+  <Base title={`${course.title} · 概念测验`} description={course.summary} wide={true}>
+    <style>
+      :global([data-theme]) {
+        --cc: {course.color};
+        --cg: {course.glow};
+      }
+    </style>
+
+    <div class="qz-header">
+      <div>
+        <h1>{course.emoji} {course.title} · 概念测验</h1>
+        <div class="qz-sub">选择答案即时判分，答对自动记录进度 · 进度保存在本浏览器</div>
+      </div>
+      <a class="qz-link" href={`/courses/${course.slug}`}>📖 课程中心</a>
+    </div>
+
+    <div class="qz-layout">
+      <!-- 左：模块 + 题目列表 -->
+      <aside class="qz-side">
+        <div class="qz-modules" id="moduleTabs"></div>
+        <div class="qz-qlist" id="qList"></div>
+        <div class="qz-side-foot" id="progressFoot">加载中…</div>
+      </aside>
+
+      <!-- 右：题目 + 选项 + 反馈 -->
+      <section class="qz-main">
+        <div class="qz-question">
+          <div class="qz-qhead">
+            <span class="qz-tag">第 <span id="qIdx">1</span> 题</span>
+            <span class="qz-meta" id="qMeta"></span>
+          </div>
+          <div class="qz-qtext" id="qText">题目加载中…</div>
+          <div class="qz-options" id="qOptions"></div>
+          <div class="qz-feedback" id="qFeedback" hidden></div>
+          <div class="qz-actions">
+            <button class="qz-btn" id="prevBtn">← 上一题</button>
+            <button class="qz-btn qz-btn-primary" id="nextBtn">下一题 →</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="qz-footnote">题目随课程推进持续补充 · 概念测验不需运行环境，打开即可用</div>
+  </Base>
+)}
+
+<script>
+  const slug = window.location.pathname.split('/').filter(Boolean).pop();
+  const PROG_KEY = slug + '-quiz-progress';
+
+  const state = { modules: [], currentModule: null, currentQ: null, answered: false };
+  let progress = {};
+  try { progress = JSON.parse(localStorage.getItem(PROG_KEY) || '{}'); } catch (e) {}
+
+  const $ = (id) => document.getElementById(id);
+
+  /* ── 加载题目（带超时兜底，避免卡在"加载中"） ── */
+  async function loadQuiz() {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 8000);
+    try {
+      const res = await fetch('/quiz/' + slug + '.json', { signal: ctrl.signal });
+      if (!res.ok) throw new Error('未找到题目数据');
+      state.modules = (await res.json()).modules || [];
+    } catch (e) {
+      const isTimeout = e.name === 'AbortError';
+      $('qText').textContent = isTimeout ? '题目加载超时。' : '题目加载失败。';
+      $('qOptions').innerHTML = '<div class="qz-empty">网络或浏览器缓存可能导致题目未加载。请强制刷新（Ctrl+Shift+R）后重试。</div>';
+      $('progressFoot').textContent = '加载失败';
+      return;
+    } finally {
+      clearTimeout(timer);
+    }
+    if (!state.modules.length) {
+      $('qText').textContent = '这门课的题目还在准备中。';
+      $('qOptions').innerHTML = '<div class="qz-empty">先学讲义，题目会随课程推进补充。</div>';
+      return;
+    }
+    const m = state.modules[0];
+    state.currentModule = m.no;
+    state.currentQ = m.questions[0].id;
+    renderModules();
+    renderList();
+    renderQuestion();
+    updateProgress();
+  }
+
+  function allQuestions() {
+    return state.modules.flatMap((m) => m.questions.map((q) => ({ q, m })));
+  }
+
+  function current() {
+    for (const m of state.modules)
+      for (const q of m.questions)
+        if (q.id === state.currentQ) return { q, m };
+    return null;
+  }
+
+  function renderModules() {
+    $('moduleTabs').innerHTML = state.modules.map((m) =>
+      `<button class="qz-mod${m.no === state.currentModule ? ' active' : ''}" data-no="${m.no}" title="${m.name}">${m.no}</button>`
+    ).join('');
+    $('moduleTabs').querySelectorAll('.qz-mod').forEach((b) => {
+      b.onclick = () => {
+        state.currentModule = b.dataset.no;
+        const mod = state.modules.find((x) => x.no === state.currentModule);
+        state.currentQ = mod.questions[0].id;
+        renderModules(); renderList(); renderQuestion();
+      };
+    });
+  }
+
+  function renderList() {
+    const mod = state.modules.find((m) => m.no === state.currentModule);
+    $('qList').innerHTML = mod.questions.map((q, i) => {
+      const done = !!progress[q.id];
+      return `<button class="qz-q${q.id === state.currentQ ? ' active' : ''}" data-id="${q.id}">
+        <span class="qz-qstatus${done ? ' done' : ''}">${done ? '✓' : ''}</span>
+        <span class="qz-qtitle">${i + 1}. ${q.q.length > 34 ? q.q.slice(0, 34) + '…' : q.q}</span>
+      </button>`;
+    }).join('');
+    $('qList').querySelectorAll('.qz-q').forEach((b) => {
+      b.onclick = () => { state.currentQ = b.dataset.id; renderList(); renderQuestion(); };
+    });
+  }
+
+  function renderQuestion() {
+    const { q } = current();
+    state.answered = false;
+    const all = allQuestions();
+    const idx = all.findIndex((x) => x.q.id === q.id);
+    $('qIdx').textContent = idx + 1;
+    $('qMeta').textContent = (progress[q.id] ? '✓ 已答对' : '未完成');
+    $('qText').textContent = q.q;
+    $('qOptions').innerHTML = q.options.map((opt, i) =>
+      `<button class="qz-opt" data-i="${i}"><span class="qz-opt-idx">${String.fromCharCode(65 + i)}</span><span>${opt}</span></button>`
+    ).join('');
+    $('qFeedback').hidden = true;
+    $('qFeedback').textContent = '';
+    // 已答对的题直接显示答案状态
+    if (progress[q.id]) {
+      markCorrect(q);
+      $('qOptions').querySelectorAll('.qz-opt').forEach((b, i) => {
+        if (i === q.answer) b.classList.add('correct');
+        b.disabled = true;
+      });
+    }
+    $('qOptions').querySelectorAll('.qz-opt').forEach((b) => {
+      b.onclick = () => { if (progress[q.id]) return; answer(q, Number(b.dataset.i)); };
+    });
+    $('prevBtn').disabled = idx === 0;
+    $('nextBtn').disabled = idx === all.length - 1;
+  }
+
+  function answer(q, picked) {
+    state.answered = true;
+    const btns = $('qOptions').querySelectorAll('.qz-opt');
+    btns.forEach((b) => (b.disabled = true));
+    const fb = $('qFeedback');
+    fb.hidden = false;
+    if (picked === q.answer) {
+      progress[q.id] = 1;
+      localStorage.setItem(PROG_KEY, JSON.stringify(progress));
+      btns[picked].classList.add('correct');
+      fb.innerHTML = '<div class="fb-ok">✓ 回答正确</div><div class="fb-explain">' + esc(q.explain || '') + '</div>';
+      $('qMeta').textContent = '✓ 已答对';
+      renderList();
+    } else {
+      btns[picked].classList.add('wrong');
+      btns[q.answer].classList.add('correct');
+      fb.innerHTML = '<div class="fb-wrong">✗ 回答错误 · 正确答案：' + esc(q.options[q.answer]) + '</div><div class="fb-explain">' + esc(q.explain || '') + '</div>';
+    }
+    updateProgress();
+  }
+
+  function markCorrect(q) {
+    const fb = $('qFeedback');
+    fb.hidden = false;
+    fb.innerHTML = '<div class="fb-ok">✓ 已答对</div><div class="fb-explain">' + esc(q.explain || '') + '</div>';
+  }
+
+  function esc(s) { return String(s).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c])); }
+
+  function updateProgress() {
+    const all = allQuestions();
+    const done = all.filter((x) => progress[x.q.id]).length;
+    $('progressFoot').textContent = '已答对 ' + done + '/' + all.length + ' 题';
+  }
+
+  /* ── 上/下一题 ── */
+  function goto(delta) {
+    const all = allQuestions();
+    const idx = all.findIndex((x) => x.q.id === state.currentQ);
+    const next = all[idx + delta];
+    if (!next) return;
+    // 优先跳到未答对的题
+    if (delta > 0) {
+      const pending = all.slice(idx + 1).find((x) => !progress[x.q.id]);
+      if (pending) { state.currentQ = pending.q.id; renderList(); renderQuestion(); return; }
+    }
+    state.currentQ = next.q.id;
+    renderList(); renderQuestion();
+  }
+
+  $('prevBtn').onclick = () => goto(-1);
+  $('nextBtn').onclick = () => goto(1);
+
+  loadQuiz();
+</script>
+
+<style>
+  .qz-header {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-bottom: 1.2rem;
+  }
+  .qz-header h1 { font-size: 1.4rem; margin: 0; }
+  .qz-sub { font-size: 0.82rem; color: var(--text-muted); margin-top: 0.1rem; }
+  .qz-link {
+    font-size: 0.8rem; color: var(--cc); text-decoration: none;
+    border: 1px solid color-mix(in srgb, var(--cc) 40%, transparent);
+    padding: 0.4rem 0.8rem; border-radius: 8px; white-space: nowrap;
+  }
+  .qz-link:hover { background: var(--cg); }
+
+  .qz-layout {
+    display: grid; grid-template-columns: 280px 1fr; gap: 1rem;
+    max-width: var(--max-width-wide); margin: 0 auto; align-items: start;
+  }
+  .qz-side { display: flex; flex-direction: column; gap: 0.75rem; position: sticky; top: 1rem; }
+  .qz-modules { display: flex; gap: 0.35rem; flex-wrap: wrap; }
+  .qz-mod {
+    font-family: var(--font-mono); font-size: 0.8rem;
+    padding: 0.3rem 0.65rem; border-radius: 6px;
+    border: 1px solid var(--border); background: var(--bg-card);
+    color: var(--text-secondary); cursor: pointer;
+  }
+  .qz-mod.active { background: var(--cc); color: #04211c; font-weight: 700; border-color: transparent; }
+  .qz-qlist {
+    display: flex; flex-direction: column; gap: 0.35rem;
+    max-height: 520px; overflow-y: auto;
+  }
+  .qz-q {
+    display: flex; align-items: center; gap: 0.5rem;
+    padding: 0.5rem 0.6rem; text-align: left;
+    border-radius: 8px; border: 1px solid var(--border);
+    background: var(--bg-card); color: var(--text); cursor: pointer;
+    font-size: 0.78rem;
+  }
+  .qz-q:hover { border-color: var(--cc); }
+  .qz-q.active { border-color: var(--cc); box-shadow: 0 0 0 1px var(--cc); }
+  .qz-qstatus {
+    width: 16px; height: 16px; flex-shrink: 0;
+    border: 1px solid var(--text-muted); border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 0.7rem; color: #04211c;
+  }
+  .qz-qstatus.done { background: var(--cc); border-color: var(--cc); }
+  .qz-qtitle { flex: 1; }
+  .qz-side-foot { font-size: 0.7rem; color: var(--text-muted); }
+
+  .qz-question {
+    border: 1px solid var(--border); border-radius: 12px;
+    background: var(--bg-card); padding: 1.2rem 1.3rem;
+  }
+  .qz-qhead {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 0.8rem;
+  }
+  .qz-tag {
+    font-size: 0.72rem; font-weight: 700; color: var(--cc);
+    background: var(--cg); padding: 0.2em 0.7em; border-radius: 6px;
+  }
+  .qz-meta { font-size: 0.7rem; color: var(--text-muted); }
+  .qz-qtext { font-size: 1rem; line-height: 1.7; margin-bottom: 1.1rem; }
+  .qz-options { display: flex; flex-direction: column; gap: 0.55rem; margin-bottom: 1rem; }
+  .qz-opt {
+    display: flex; align-items: center; gap: 0.7rem;
+    padding: 0.65rem 0.85rem; text-align: left;
+    border: 1px solid var(--border); border-radius: 9px;
+    background: var(--bg); color: var(--text); cursor: pointer;
+    font-size: 0.85rem; transition: border-color 0.15s, background 0.15s;
+  }
+  .qz-opt:hover:not(:disabled) { border-color: var(--cc); }
+  .qz-opt:disabled { cursor: default; }
+  .qz-opt.correct {
+    border-color: var(--cc); background: var(--cg);
+  }
+  .qz-opt.wrong {
+    border-color: #ff6b5e; background: color-mix(in srgb, #ff6b5e 10%, transparent);
+  }
+  .qz-opt-idx {
+    width: 22px; height: 22px; flex-shrink: 0;
+    border: 1px solid var(--border); border-radius: 6px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-secondary);
+  }
+  .qz-opt.correct .qz-opt-idx { background: var(--cc); color: #04211c; border-color: transparent; }
+  .qz-opt.wrong .qz-opt-idx { background: #ff6b5e; color: #fff; border-color: transparent; }
+
+  .qz-feedback {
+    border: 1px solid var(--border); border-radius: 9px;
+    padding: 0.8rem 0.9rem; margin-bottom: 1rem;
+    background: var(--bg); font-size: 0.82rem; line-height: 1.7;
+  }
+  .fb-ok { color: var(--cc); font-weight: 700; margin-bottom: 0.3rem; }
+  .fb-wrong { color: #ff6b5e; font-weight: 700; margin-bottom: 0.3rem; }
+  .fb-explain { color: var(--text-secondary); }
+  .qz-empty { color: var(--text-muted); font-size: 0.82rem; }
+
+  .qz-actions { display: flex; justify-content: space-between; gap: 0.6rem; }
+  .qz-btn {
+    font-size: 0.8rem; padding: 0.45rem 1rem; cursor: pointer;
+    border-radius: 8px; border: 1px solid var(--border);
+    background: var(--bg-card); color: var(--text);
+  }
+  .qz-btn:hover:not(:disabled) { border-color: var(--text-muted); }
+  .qz-btn:disabled { opacity: 0.4; cursor: default; }
+  .qz-btn-primary { background: var(--cc); color: #04211c; font-weight: 700; border-color: transparent; }
+  .qz-btn-primary:hover:not(:disabled) { box-shadow: 0 0 12px var(--cg); }
+
+  .qz-footnote {
+    margin-top: 1.5rem; font-size: 0.72rem; color: var(--text-muted);
+  }
+
+  @media (max-width: 760px) {
+    .qz-layout { grid-template-columns: 1fr; }
+    .qz-side { position: static; }
+    .qz-qlist { max-height: 260px; }
+  }
+</style>

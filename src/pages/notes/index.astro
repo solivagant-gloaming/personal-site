@@ -32,12 +32,14 @@ const courseColors = {
   '数据库原理': '#3fb950',
   '概率论与数理统计': '#d29922',
   '习近平新时代中国特色社会主义思想概论': '#bc8cff',
+  'Python程序设计': '#2dd4bf',
 };
 const courseGlows = {
   '操作系统': 'rgba(88,166,255,0.12)',
   '数据库原理': 'rgba(63,185,80,0.12)',
   '概率论与数理统计': 'rgba(210,153,34,0.12)',
   '习近平新时代中国特色社会主义思想概论': 'rgba(188,140,255,0.12)',
+  'Python程序设计': 'rgba(45,212,191,0.12)',
 };
 function cc(c) { return courseColors[c] || '#58a6ff'; }
 function cg(c) { return courseGlows[c] || 'rgba(88,166,255,0.12)'; }
@@ -51,7 +53,7 @@ for (const n of notes) {
 }
 
 // Sort groups: maintain course order
-const courseOrder = ['操作系统', '数据库原理', '概率论与数理统计', '习近平新时代中国特色社会主义思想概论'];
+const courseOrder = ['操作系统', '数据库原理', '概率论与数理统计', '习近平新时代中国特色社会主义思想概论', 'Python程序设计'];
 const sortedGroups = Object.entries(grouped).sort((a, b) => {
   const ia = courseOrder.indexOf(a[0]), ib = courseOrder.indexOf(b[0]);
   return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);

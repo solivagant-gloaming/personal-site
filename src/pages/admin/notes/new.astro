@@ -52,6 +52,7 @@ if (!username) return Astro.redirect('/admin/login');
     </nav>
     <div class="side-foot">
       <a href="/">查看网站</a>
+      <a href="#" id="logoutBtn" style="display:block;margin-top:0.3rem;">退出登录</a>
     </div>
   </aside>
   <main class="main">
@@ -252,6 +253,13 @@ document.getElementById('saveBtn').addEventListener('click', async function() {
     var err = await res.json();
     status.textContent = '保存失败: ' + (err.error || '');
   }
+});
+// ── Logout ──
+document.getElementById('logoutBtn')?.addEventListener('click', async (e) => {
+  e.preventDefault();
+  if (!confirm('确定退出管理后台？')) return;
+  await fetch('/api/admin/logout', { method: 'POST' });
+  window.location.href = '/admin/login';
 });
 </script>
 </body>

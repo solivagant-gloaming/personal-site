@@ -1,0 +1,298 @@
+---
+export const prerender = false;
+
+import Base from '../../layouts/Base.astro';
+import { courseBySlug } from '../../data/courses';
+import { query } from '../../db/mysql';
+
+const slug = Astro.params.slug;
+const course = slug ? courseBySlug(slug) : undefined;
+
+let notes = [];
+let err = null;
+if (course) {
+  try {
+    notes = await query(
+      `SELECT id, title, slug, excerpt, course, tags, created_at
+       FROM notes WHERE type='note' AND status='published' AND course = ?
+       ORDER BY created_at DESC`,
+      [course.title]
+    );
+  } catch (e) {
+    err = '讲义加载失败';
+  }
+}
+
+const tagList = (raw) => {
+  if (Array.isArray(raw)) return raw;
+  try { return JSON.parse(raw || '[]'); } catch { return []; }
+};
+const shortTitle = (t) => t.replace(/^.*?·\s*/, '');
+---
+
+{!course ? (
+  <Base title="课程不存在">
+    <div class="page-header">
+      <h1>课程不存在</h1>
+      <p><a href="/courses">← 返回课程列表</a></p>
+    </div>
+  </Base>
+) : (
+  <Base title={`${course.title} · 课程中心`} description={course.summary} wide={true}>
+    <style>
+      :global([data-theme]) {
+        --cc: {course.color};
+        --cg: {course.glow};
+      }
+    </style>
+
+    <!-- 课程横幅 -->
+    <div class="ch-banner" data-reveal="bottom">
+      <div class="chb-left">
+        <span class="chb-emoji">{course.emoji}</span>
+        <div>
+          <h1 class="chb-title">{course.title}</h1>
+          <div class="chb-meta">
+            <span class="chb-cat" style={`background:var(--cg);color:var(--cc)`}>{course.category}</span>
+            <span class="chb-notes">{notes.length} 篇讲义</span>
+            {course.modules && <span class="chb-notes">{course.modules.length} 个模块</span>}
+          </div>
+        </div>
+      </div>
+      <div class="chb-summary">{course.summary}</div>
+    </div>
+
+    <div class="ch-layout">
+      <!-- 主列：讲义 -->
+      <div class="ch-main">
+        <div class="ch-sec-hd">
+          <span class="ch-sec-name">📖 讲义</span>
+          <a href={`/notes?course=${encodeURIComponent(course.title)}`} class="ch-sec-link">全部讲义 →</a>
+        </div>
+
+        {err ? (
+          <div class="ch-empty">讲义加载失败，稍后再试</div>
+        ) : notes.length === 0 ? (
+          <div class="ch-empty">这门课还没有讲义，学的时候记笔记就会出现在这里</div>
+        ) : (
+          <div class="ch-note-list">
+            {notes.map((n, i) => {
+              const tags = tagList(n.tags);
+              return (
+                <a href={`/notes/${n.id}`} class="ch-note" style={`--cc:${course.color}`}
+                  data-reveal="bottom" data-delay={`${i * 40}`}>
+                  <span class="chn-num">{String(i + 1).padStart(2, '0')}</span>
+                  <div class="chn-body">
+                    <div class="chn-title">{shortTitle(n.title)}</div>
+                    {n.excerpt && <div class="chn-excerpt">{n.excerpt}</div>}
+                    <div class="chn-meta">
+                      {tags.slice(0, 3).map(t => <span class="chn-tag">{t}</span>)}
+                      <span class="chn-date">{new Date(n.created_at).toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' })}</span>
+                    </div>
+                  </div>
+                  <span class="chn-arrow">→</span>
+                </a>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      <!-- 侧列：练习 + 课程地图 -->
+      <aside class="ch-side">
+        {course.practice && (
+          <div class="ch-card" data-reveal="bottom" data-delay="80">
+            <div class="ch-card-hd">🖥️ 在线练习</div>
+            {course.practice.planned ? (
+              <div class="ch-planned">
+                <div class="ch-planned-engine">{course.practice.label}</div>
+                <div class="ch-planned-note">引擎规划中，上线后在这里练</div>
+              </div>
+            ) : (
+              <div class="ch-live">
+                <div class="ch-live-engine">{course.practice.label}</div>
+                {course.practice.progressKey && course.practice.path && (
+                  <div class="ch-progress" data-progress-key={course.practice.progressKey} data-progress-path={course.practice.path}>
+                    <div class="ch-progress-bar"><i></i></div>
+                    <div class="ch-progress-text">加载进度…</div>
+                  </div>
+                )}
+                <div class="ch-btns">
+                  <a class="ch-btn" href={course.practice.path}>开始练习 →</a>
+                  {course.practice.examPath && (
+                    <a class="ch-btn ch-btn-ghost" href={course.practice.examPath}>{course.practice.examLabel || '模拟考试'} →</a>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {course.modules && (
+          <div class="ch-card" data-reveal="bottom" data-delay="120">
+            <div class="ch-card-hd">🗺️ 课程地图</div>
+            <div class="ch-modules">
+              {course.modules.map((m) => (
+                <span class="ch-mod" title={`模块 ${m.no}`}>{m.no} · {m.name}</span>
+              ))}
+            </div>
+          </div>
+        )}
+      </aside>
+    </div>
+
+    <style>
+      .ch-banner {
+        display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-left: 3px solid var(--cc);
+        border-radius: var(--radius);
+        padding: 1.1rem 1.2rem;
+        margin-bottom: 1.3rem;
+      }
+      .chb-left { display: flex; align-items: center; gap: 0.8rem; }
+      .chb-emoji {
+        font-size: 1.6rem; line-height: 1;
+        width: 46px; height: 46px; border-radius: 10px;
+        background: var(--cg);
+        display: inline-flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+      }
+      .chb-title { font-size: 1.4rem; margin: 0 0 0.3rem; }
+      .chb-meta { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+      .chb-cat {
+        font-size: 0.66rem; padding: 0.12em 0.55em; border-radius: 5px;
+        font-weight: 600;
+      }
+      .chb-notes { font-size: 0.7rem; color: var(--text-muted); }
+      .chb-summary {
+        font-size: 0.78rem; color: var(--text-muted); line-height: 1.6;
+        max-width: 340px; text-align: right;
+      }
+
+      .ch-layout { display: grid; grid-template-columns: 1fr 280px; gap: 1rem; align-items: start; }
+      .ch-main { min-width: 0; display: flex; flex-direction: column; gap: 0.7rem; }
+      .ch-sec-hd {
+        display: flex; align-items: baseline; justify-content: space-between;
+        margin-bottom: 0.2rem;
+      }
+      .ch-sec-name { font-weight: 700; font-size: 0.95rem; }
+      .ch-sec-link { font-size: 0.7rem; color: var(--cc); text-decoration: none; }
+      .ch-sec-link:hover { text-decoration: underline; }
+
+      .ch-note-list { display: flex; flex-direction: column; gap: 0.5rem; }
+      .ch-note {
+        display: flex; align-items: center; gap: 0.7rem;
+        background: var(--bg-card); border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 0.65rem 0.8rem;
+        text-decoration: none; color: var(--text);
+        transition: box-shadow 0.2s, transform 0.15s, border-color 0.2s;
+      }
+      .ch-note:hover {
+        box-shadow: 0 0 0 1px var(--cc), var(--shadow-hover);
+        transform: translateY(-1px); border-color: var(--cc);
+      }
+      .chn-num {
+        font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-muted);
+        width: 24px; flex-shrink: 0;
+      }
+      .chn-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.2rem; }
+      .chn-title { font-size: 0.85rem; font-weight: 600; }
+      .chn-excerpt {
+        font-size: 0.72rem; color: var(--text-muted); line-height: 1.5;
+        display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;
+      }
+      .chn-meta { display: flex; gap: 0.35rem; align-items: center; flex-wrap: wrap; }
+      .chn-tag {
+        font-size: 0.6rem; padding: 0.1em 0.45em; background: var(--bg-hover);
+        border-radius: 4px; color: var(--text-secondary);
+      }
+      .chn-date { font-size: 0.62rem; color: var(--text-muted); }
+      .chn-arrow { color: var(--text-muted); opacity: 0.35; transition: transform 0.2s, opacity 0.2s; }
+      .ch-note:hover .chn-arrow { opacity: 1; transform: translateX(3px); color: var(--cc); }
+
+      .ch-empty {
+        background: var(--bg-card); border: 1px dashed var(--border);
+        border-radius: var(--radius-sm);
+        padding: 2rem; text-align: center; color: var(--text-muted); font-size: 0.8rem;
+      }
+
+      .ch-side { display: flex; flex-direction: column; gap: 0.75rem; }
+      .ch-card {
+        background: var(--bg-card); border: 1px solid var(--border);
+        border-radius: var(--radius); padding: 1rem 1.1rem;
+      }
+      .ch-card-hd { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 0.6rem; }
+      .ch-live { display: flex; flex-direction: column; gap: 0.6rem; }
+      .ch-live-engine { font-size: 0.82rem; color: var(--cc); font-weight: 600; }
+      .ch-progress-bar {
+        height: 5px; border-radius: 3px; background: var(--bg-hover);
+        overflow: hidden; border: 1px solid var(--border);
+      }
+      .ch-progress-bar i {
+        display: block; height: 100%; width: 0;
+        background: linear-gradient(90deg, var(--cg), var(--cc));
+        transition: width 0.4s ease;
+      }
+      .ch-progress-text { font-size: 0.66rem; color: var(--text-muted); }
+      .ch-btn {
+        display: inline-block; text-align: center;
+        font-size: 0.82rem; font-weight: 700;
+        padding: 0.5rem 0; border-radius: 8px;
+        background: var(--cc); color: #04211c;
+        text-decoration: none;
+        transition: box-shadow 0.2s;
+      }
+      .ch-btn:hover { box-shadow: 0 0 14px var(--cg); }
+      .ch-btns { display: flex; flex-direction: column; gap: 0.4rem; }
+      .ch-btn-ghost {
+        background: transparent; color: var(--cc);
+        border: 1px solid var(--cc);
+      }
+      .ch-btn-ghost:hover { box-shadow: 0 0 14px var(--cg); }
+      .ch-planned { display: flex; flex-direction: column; gap: 0.2rem; }
+      .ch-planned-engine { font-size: 0.82rem; font-weight: 600; color: var(--text); }
+      .ch-planned-note { font-size: 0.7rem; color: var(--text-muted); }
+
+      .ch-modules { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+      .ch-mod {
+        font-family: var(--font-mono); font-size: 0.68rem;
+        padding: 0.22em 0.55em; border-radius: 6px;
+        border: 1px solid var(--border); background: var(--bg);
+        color: var(--text-secondary);
+      }
+
+      @media (max-width: 820px) {
+        .ch-banner { flex-direction: column; }
+        .chb-summary { text-align: left; max-width: none; }
+        .ch-layout { grid-template-columns: 1fr; }
+      }
+    </style>
+
+    <script>
+      // 练习进度：读取 localStorage[progressKey]，从 exercises.json 取总数
+      document.addEventListener('astro:page-load', () => {
+        const box = document.querySelector('[data-progress-key]');
+        if (!box) return;
+        const key = box.dataset.progressKey;
+        const path = box.dataset.progressPath;
+        let done = 0;
+        try { done = Object.keys(JSON.parse(localStorage.getItem(key) || '{}')).length; } catch (e) {}
+        (async () => {
+          let total = null;
+          try {
+            const r = await fetch(path + '/exercises.json');
+            const j = await r.json();
+            total = (j.modules || []).reduce((s, m) => s + (m.exercises || []).length, 0);
+          } catch (e) {}
+          const bar = box.querySelector('.ch-progress-bar i');
+          const text = box.querySelector('.ch-progress-text');
+          if (bar) bar.style.width = total ? Math.min(100, (done / total) * 100) + '%' : '0%';
+          if (text) text.textContent = total ? `已完成 ${done}/${total} 题` : `已完成 ${done} 题`;
+        })();
+      });
+    </script>
+  </Base>
+)}

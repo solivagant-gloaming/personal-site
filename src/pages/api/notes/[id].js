@@ -1,4 +1,5 @@
 import { query } from '../../../db/mysql';
+import { requireAdmin } from '../../../lib/api-auth.js';
 
 export async function GET({ params }) {
   const id = parseInt(params.id);
@@ -20,7 +21,14 @@ export async function GET({ params }) {
   });
 }
 
-export async function PUT({ params, request }) {
+/** Update a note — requires admin auth */
+export async function PUT({ params, request, cookies }) {
+  try {
+    requireAdmin(cookies);
+  } catch (response) {
+    return response;
+  }
+
   const id = parseInt(params.id);
   const body = await request.json();
   const { title, content, course, tags } = body;
@@ -37,7 +45,14 @@ export async function PUT({ params, request }) {
   });
 }
 
-export async function DELETE({ params }) {
+/** Delete a note — requires admin auth */
+export async function DELETE({ params, cookies }) {
+  try {
+    requireAdmin(cookies);
+  } catch (response) {
+    return response;
+  }
+
   const id = parseInt(params.id);
   await query('DELETE FROM notes WHERE id = ?', [id]);
 

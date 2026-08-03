@@ -30,6 +30,8 @@
   --c-prob-glow: rgba(210,153,34,0.12);
   --c-pol: #bc8cff;
   --c-pol-glow: rgba(188,140,255,0.12);
+  --c-python: #2dd4bf;
+  --c-python-glow: rgba(45,212,191,0.12);
 
   --c-project: #f0883e;
   --c-project-glow: rgba(240,136,62,0.12);
@@ -67,6 +69,8 @@
   --c-prob-glow: rgba(202,138,4,0.10);
   --c-pol: #7c3aed;
   --c-pol-glow: rgba(124,58,237,0.10);
+  --c-python: #0d9488;
+  --c-python-glow: rgba(13,148,136,0.10);
   --c-project: #ea580c;
   --c-project-glow: rgba(234,88,12,0.10);
   --c-hobby: #2563eb;

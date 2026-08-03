@@ -1,0 +1,1574 @@
+{
+ "modules": [
+  {
+   "no": "01",
+   "name": "01-基础语法",
+   "exercises": [
+    {
+     "id": "ex01_hello",
+     "title": "输出问候语",
+     "tags": "f-string / 函数返回值",
+     "minutes": 3,
+     "prompt": "要求：补全函数 greet，使它返回 f'你好, {name}!'\n例如 greet('小明') 应返回 '你好, 小明!'",
+     "stub": "def greet(name: str) -> str:\n    \"\"\"返回 f'你好, {name}!'\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'greet'\nTITLE = '输出问候语'\nCASES = [\n    (('小明',), '你好, 小明!'),\n    (('世界',), '你好, 世界!'),\n    (('Python',), '你好, Python!'),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex02_type_convert",
+     "title": "字符串转整数",
+     "tags": "int() 类型转换",
+     "minutes": 2,
+     "prompt": "要求：把字符串 s 转成整数并返回。\n例如 to_int('12') 应返回 12（整数，不是字符串）",
+     "stub": "def to_int(s: str) -> int:\n    \"\"\"把字符串 s 转成整数并返回。如 to_int('12') → 12\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'to_int'\nTITLE = '字符串转整数'\nCASES = [\n    (('12',), 12),\n    (('-3',), -3),\n    (('100',), 100),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex03_area",
+     "title": "矩形面积",
+     "tags": "算术运算 / 浮点数",
+     "minutes": 3,
+     "prompt": "要求：返回矩形面积 w * h。\n例如 rect_area(3, 4) → 12，rect_area(2.5, 4) → 10.0",
+     "stub": "def rect_area(w, h):\n    \"\"\"返回矩形面积 w * h。如 rect_area(3, 4) → 12\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'rect_area'\nTITLE = '矩形面积'\nCASES = [\n    ((3, 4), 12),\n    ((2.5, 4), 10.0),\n    ((0, 10), 0),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex04_fstring",
+     "title": "f-string 描述",
+     "tags": "f-string 格式化",
+     "minutes": 3,
+     "prompt": "要求：返回 f'{name}今年{age}岁'\n例如 describe('国睿', 20) → '国睿今年20岁'",
+     "stub": "def describe(name: str, age: int) -> str:\n    \"\"\"返回 f'{name}今年{age}岁'。如 describe('国睿', 20) → '国睿今年20岁'\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'describe'\nTITLE = 'f-string 描述'\nCASES = [\n    (('国睿', 20), '国睿今年20岁'),\n    (('小明', 8), '小明今年8岁'),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex05_c_to_f",
+     "title": "摄氏转华氏",
+     "tags": "算术运算 / 浮点数 / 变量",
+     "minutes": 3,
+     "prompt": "要求：补全函数 c_to_f，把摄氏温度 c 转成华氏温度。\n公式：华氏 = 摄氏 * 9 / 5 + 32\n例如 c_to_f(0) → 32.0，c_to_f(100) → 212.0",
+     "stub": "def c_to_f(c):\n    \"\"\"把摄氏温度 c 转成华氏温度。如 c_to_f(0) → 32.0\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'c_to_f'\nTITLE = '摄氏转华氏'\nCASES = [\n    ((0,), 32.0),\n    ((100,), 212.0),\n    ((37,), 98.6),\n    ((-40,), -40.0),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex06_swap_vars",
+     "title": "交换两个变量",
+     "tags": "变量赋值 / 中间变量",
+     "minutes": 3,
+     "prompt": "要求：补全函数 swap，把 a、b 两个值交换后返回 (b, a)。\n提示：先用一个中间变量 temp 存住 a，避免 a 被覆盖后值丢失。\n例如 swap(1, 2) → (2, 1)",
+     "stub": "def swap(a, b):\n    \"\"\"交换 a、b 的值，返回 (b, a)。如 swap(1, 2) → (2, 1)\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'swap'\nTITLE = '交换两个变量'\nCASES = [\n    ((1, 2), (2, 1)),\n    (('甲', '乙'), ('乙', '甲')),\n    ((3.5, 0), (0, 3.5)),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex07_divmod",
+     "title": "整除与取余",
+     "tags": "// 整除 / % 取余",
+     "minutes": 3,
+     "prompt": "要求：返回 (a // b, a % b)，即整除的商和余数。\n注意负数：-7 // 2 = -4（向下取整），-7 % 2 = 1\n例如 divmod_result(7, 2) → (3, 1)",
+     "stub": "def divmod_result(a, b):\n    \"\"\"返回 (a // b, a % b)。如 divmod_result(7, 2) → (3, 1)\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'divmod_result'\nTITLE = '整除与取余'\nCASES = [\n    ((7, 2), (3, 1)),\n    ((10, 3), (3, 1)),\n    ((8, 4), (2, 0)),\n    ((-7, 2), (-4, 1)),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex08_read_scores",
+     "title": "读取两个成绩",
+     "tags": "input() 输入 / int() 类型转换",
+     "minutes": 4,
+     "prompt": "要求：补全函数 read_two_scores，用 input() 读两行整数成绩，返回它们的和。\n提示：input() 返回的一定是字符串，必须先 int() 转成整数再相加。\n判分器会自动喂入两行数字，例如：\n90\n85\n函数应返回 175",
+     "stub": "def read_two_scores() -> int:\n    \"\"\"读两行整数成绩，返回它们的和（记得先 int() 转换）。\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'read_two_scores'\nTITLE = '读取两个成绩'\nSTDIN = ['90', '85']\nCASES = [\n    ((), 175),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex09_str_concat",
+     "title": "字符串拼接",
+     "tags": "字符串拼接 / str() 类型转换",
+     "minutes": 3,
+     "prompt": "要求：返回 name 得了 score 分 的拼接消息。\n注意 score 是数字，直接和字符串拼接会报错，要先 str(score)。\n例如 build_message('小明', 95) → '小明得了95分'",
+     "stub": "def build_message(name: str, score) -> str:\n    \"\"\"拼接消息：name 得了 score 分。如 build_message('小明', 95) → '小明得了95分'\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'build_message'\nTITLE = '字符串拼接'\nCASES = [\n    (('小明', 95), '小明得了95分'),\n    (('小红', 100), '小红得了100分'),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex10_format_score",
+     "title": "分数格式化",
+     "tags": "f-string 小数位 / 格式化",
+     "minutes": 3,
+     "prompt": "要求：返回 f'{name} {score:.2f}分'，score 保留两位小数。\n例如 format_score('数学', 95.5) → '数学 95.50分'",
+     "stub": "def format_score(name: str, score: float) -> str:\n    \"\"\"把分数格式化成两位小数。如 format_score('数学', 95.5) → '数学 95.50分'\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'format_score'\nTITLE = '分数格式化'\nCASES = [\n    (('数学', 95.5), '数学 95.50分'),\n    (('英语', 88), '英语 88.00分'),\n    (('物理', 100.0), '物理 100.00分'),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex11_check_type",
+     "title": "判断数据类型",
+     "tags": "type() / 类型识别",
+     "minutes": 3,
+     "prompt": "要求：返回 type(x).__name__，即数据类型的字符串名。\n例如 check_type(3) → 'int'，check_type(3.14) → 'float'\ncheck_type('hi') → 'str'，check_type(True) → 'bool'，check_type(None) → 'NoneType'",
+     "stub": "def check_type(x):\n    \"\"\"返回 type(x).__name__。如 check_type(3) → 'int'\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'check_type'\nTITLE = '判断数据类型'\nCASES = [\n    ((3,), 'int'),\n    ((3.14,), 'float'),\n    (('hi',), 'str'),\n    ((True,), 'bool'),\n    ((None,), 'NoneType'),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex12_can_enter",
+     "title": "入场资格判断",
+     "tags": "比较运算 / 逻辑运算 / 布尔值",
+     "minutes": 4,
+     "prompt": "要求：年满 18 岁（age >= 18）并且有票（has_ticket）才允许入场，返回布尔值。\n例如 can_enter(20, True) → True，can_enter(17, True) → False",
+     "stub": "def can_enter(age: int, has_ticket: bool) -> bool:\n    \"\"\"返回 age >= 18 且 has_ticket。如 can_enter(20, True) → True\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'can_enter'\nTITLE = '入场资格判断'\nCASES = [\n    ((20, True), True),\n    ((17, True), False),\n    ((20, False), False),\n    ((18, True), True),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex13_checkout",
+     "title": "结账总价",
+     "tags": "float() 转换 / 运算符 / f-string 格式化",
+     "minutes": 6,
+     "prompt": "要求：按单价 price（字符串）、数量 quantity、折扣 discount 算总价，\n返回带两位小数的字符串。公式：float(price) * quantity * discount。\n注意 price 是字符串，不能直接做乘法，务必先 float() 转换！\n例如 checkout('3.5', 2, 0.9) → '6.30元'",
+     "stub": "def checkout(price: str, quantity: int, discount: float) -> str:\n    \"\"\"返回结账总价字符串，保留两位小数。如 checkout('3.5', 2, 0.9) → '6.30元'\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'checkout'\nTITLE = '结账总价'\nCASES = [\n    (('3.5', 2, 0.9), '6.30元'),\n    (('10', 1, 0.5), '5.00元'),\n    (('0', 5, 0.8), '0.00元'),\n    (('2.99', 3, 1), '8.97元'),\n]\n",
+     "has_solution": true
+    }
+   ]
+  },
+  {
+   "no": "02",
+   "name": "02-流程控制",
+   "exercises": [
+    {
+     "id": "ex01_count_even",
+     "title": "数偶数",
+     "tags": "for 循环 / 条件判断 / 计数套路",
+     "minutes": 4,
+     "prompt": "要求：返回列表 nums 中偶数的个数。\n例如 count_even([1, 2, 3, 4]) → 2",
+     "stub": "def count_even(nums):\n    \"\"\"返回列表中偶数的个数。如 count_even([1,2,3,4]) → 2\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'count_even'\nTITLE = '数偶数'\nCASES = [\n    (([1, 2, 3, 4],), 2),\n    (([2, 4, 6],), 3),\n    (([1, 3, 5],), 0),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex02_sum_1_to_n",
+     "title": "1 到 n 求和",
+     "tags": "for + range / 累加套路",
+     "minutes": 4,
+     "prompt": "要求：返回 1 + 2 + ... + n 的和（不能用内置 sum）。\n例如 sum_1_to_n(5) → 15，sum_1_to_n(100) → 5050",
+     "stub": "def sum_1_to_n(n):\n    \"\"\"返回 1+2+...+n。如 sum_1_to_n(100) → 5050\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'sum_1_to_n'\nTITLE = '1 到 n 求和'\nCASES = [\n    ((5,), 15),\n    ((100,), 5050),\n    ((1,), 1),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex03_fizzbuzz",
+     "title": "FizzBuzz",
+     "tags": "if/elif/else + % 取余",
+     "minutes": 5,
+     "prompt": "要求：给定 n，\n- 能被 3 整除 → 返回 'Fizz'\n- 能被 5 整除 → 返回 'Buzz'\n- 能同时被 3 和 5 整除 → 返回 'FizzBuzz'（优先级最高！）\n- 否则 → 返回 str(n)\n例如 fizzbuzz(15) → 'FizzBuzz'，fizzbuzz(7) → '7'",
+     "stub": "def fizzbuzz(n):\n    \"\"\"FizzBuzz 判断。fizzbuzz(15) → 'FizzBuzz'，fizzbuzz(7) → '7'\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'fizzbuzz'\nTITLE = 'FizzBuzz'\nCASES = [\n    ((3,), 'Fizz'),\n    ((5,), 'Buzz'),\n    ((15,), 'FizzBuzz'),\n    ((7,), '7'),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex04_is_prime",
+     "title": "判断质数",
+     "tags": "for + range / break / 边界",
+     "minutes": 6,
+     "prompt": "要求：判断 n（n ≥ 2）是否为质数，是返回 True，否则 False。\n质数 = 大于 1 且只能被 1 和自身整除的数。\n例如 is_prime(7) → True，is_prime(8) → False，is_prime(2) → True\n提示：只要 2 到 n-1 之间有任何一个能整除 n，就不是质数。",
+     "stub": "def is_prime(n):\n    \"\"\"判断 n 是否为质数（n≥2）。is_prime(7) → True\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'is_prime'\nTITLE = '判断质数'\nCASES = [\n    ((2,), True),\n    ((7,), True),\n    ((8,), False),\n    ((9,), False),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex05_count_vowels",
+     "title": "数元音字母",
+     "tags": "for 遍历字符串 / in 运算符 / 计数套路",
+     "minutes": 5,
+     "prompt": "要求：返回字符串 s 中元音字母（a、e、i、o、u）的个数（s 全为小写）。\n例如 count_vowels('hello') → 2，count_vowels('python') → 1",
+     "stub": "def count_vowels(s):\n    \"\"\"返回字符串 s 中元音字母的个数。如 count_vowels('hello') → 2\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'count_vowels'\nTITLE = '数元音字母'\nCASES = [\n    (('hello',), 2),\n    (('python',), 1),\n    (('aeiou',), 5),\n    (('xyz',), 0),\n    (('',), 0),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex06_print_odds",
+     "title": "打印 1 到 n 的奇数",
+     "tags": "continue / range 步长 / print",
+     "minutes": 5,
+     "prompt": "要求：打印 1 到 n 之间的所有奇数，用空格分隔（同一行）。\n提示：用 continue 跳过偶数，或用 range(1, n+1, 2) 一步到位。\n例如 n = 7 时打印：1 3 5 7",
+     "stub": "def print_odds(n):\n    \"\"\"打印 1 到 n 之间的所有奇数，空格分隔在同一行。\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n\n\n# ── demo：不要改下面几行 ──\nprint_odds(7)\n",
+     "tests": "FUNC = 'print_odds'\nTITLE = '打印 1 到 n 的奇数'\nSTDOUT = '1 3 5 7'\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex07_sum_digits",
+     "title": "各位数字之和",
+     "tags": "while 循环 / % 和 // 拆位",
+     "minutes": 6,
+     "prompt": "要求：返回正整数 n 的各位数字之和（如 123 → 1+2+3 = 6）。\n提示：while 循环里用 n % 10 取个位累加，n //= 10 去掉个位。\n例如 sum_digits(123) → 6，sum_digits(9999) → 36",
+     "stub": "def sum_digits(n):\n    \"\"\"返回正整数 n 的各位数字之和。如 sum_digits(123) → 6\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'sum_digits'\nTITLE = '各位数字之和'\nCASES = [\n    ((123,), 6),\n    ((9999,), 36),\n    ((7,), 7),\n    ((1024,), 7),\n    ((0,), 0),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex08_multiplication_table",
+     "title": "九九乘法表",
+     "tags": "嵌套循环 / f-string 格式化",
+     "minutes": 6,
+     "prompt": "要求：打印 n 阶乘法表（n ≤ 9），每项格式为 乘数x被乘数=积，项间用两个空格分隔。\n提示：外层 i 控制行，内层 j 从 1 到 i；每行结束记得 print() 换行。\n例如 n = 3 时打印：\n1x1=1\n1x2=2  2x2=4\n1x3=3  2x3=6  3x3=9",
+     "stub": "def multiplication_table(n):\n    \"\"\"打印 n 阶乘法表（n ≤ 9）。\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n\n\n# ── demo：不要改下面几行 ──\nmultiplication_table(3)\n",
+     "tests": "FUNC = 'multiplication_table'\nTITLE = '九九乘法表'\nSTDOUT = '1x1=1\\n1x2=2 2x2=4\\n1x3=3 2x3=6 3x3=9'\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex09_find_max",
+     "title": "找最大值",
+     "tags": "for 循环 / 找最值套路",
+     "minutes": 5,
+     "prompt": "要求：返回列表 nums 中的最大值（不能用内置 max）。\n提示：先假设第一个最大，再逐个比较替换。\n例如 find_max([3, 1, 4, 1, 5]) → 5",
+     "stub": "def find_max(nums):\n    \"\"\"返回列表 nums 中的最大值（不能用内置 max）。如 find_max([3,1,4,1,5]) → 5\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'find_max'\nTITLE = '找最大值'\nCASES = [\n    (([3, 1, 4, 1, 5],), 5),\n    (([-1, -5, -3],), -1),\n    (([7],), 7),\n    (([0, -2, 10, 3],), 10),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex10_first_divisible",
+     "title": "找第一个能整除的数",
+     "tags": "for + break / 提前返回",
+     "minutes": 6,
+     "prompt": "要求：返回列表 nums 中第一个能被 d 整除的数，一个都没有就返回 None。\n提示：找到就立刻 return，不用遍历完整个列表。\n例如 first_divisible([1, 2, 3, 4], 2) → 2",
+     "stub": "def first_divisible(nums, d):\n    \"\"\"返回 nums 中第一个能被 d 整除的数，没有则返回 None。\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'first_divisible'\nTITLE = '找第一个能整除的数'\nCASES = [\n    (([1, 2, 3, 4], 2), 2),\n    (([5, 6, 7], 3), 6),\n    (([1, 3, 5], 2), None),\n    (([8, 9], 4), 8),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex11_gcd",
+     "title": "最大公约数",
+     "tags": "while 循环 / 辗转相除法",
+     "minutes": 7,
+     "prompt": "要求：返回正整数 a 和 b 的最大公约数。\n提示：辗转相除法——当 b 不为 0 时，重复 a, b = b, a % b。\n例如 gcd(48, 36) → 12，gcd(17, 5) → 1",
+     "stub": "def gcd(a, b):\n    \"\"\"返回 a 和 b 的最大公约数。如 gcd(48, 36) → 12\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'gcd'\nTITLE = '最大公约数'\nCASES = [\n    ((48, 36), 12),\n    ((17, 5), 1),\n    ((100, 25), 25),\n    ((1, 1), 1),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex12_sum_primes",
+     "title": "区间内质数之和",
+     "tags": "嵌套循环 / 质数判断 / 累加",
+     "minutes": 8,
+     "prompt": "要求：返回 2 到 n 之间所有质数之和（n ≥ 1，质数指只能被 1 和自身整除的数）。\n提示：外层遍历每个数，内层判断它是不是质数，是质数就累加。\n例如 sum_primes(10) → 17（2+3+5+7），sum_primes(2) → 2",
+     "stub": "def sum_primes(n):\n    \"\"\"返回 2 到 n 之间所有质数之和。如 sum_primes(10) → 17\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'sum_primes'\nTITLE = '区间内质数之和'\nCASES = [\n    ((10,), 17),\n    ((20,), 77),\n    ((2,), 2),\n    ((1,), 0),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex13_collatz_steps",
+     "title": "考拉兹步数",
+     "tags": "while 循环 / if 分支 / 计数",
+     "minutes": 8,
+     "prompt": "要求：返回正整数 n 经过考拉兹变换到达 1 所需的步数。\n规则：n 为偶数则除以 2，为奇数则乘 3 加 1，直到 n 变成 1。\n例如 collatz_steps(6) → 8，collatz_steps(1) → 0",
+     "stub": "def collatz_steps(n):\n    \"\"\"返回 n 经过偶数÷2、奇数×3+1 到达 1 所需的步数。\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'collatz_steps'\nTITLE = '考拉兹步数'\nCASES = [\n    ((1,), 0),\n    ((6,), 8),\n    ((5,), 5),\n    ((3,), 7),\n]\n",
+     "has_solution": true
+    }
+   ]
+  },
+  {
+   "no": "03",
+   "name": "03-字符串",
+   "exercises": [
+    {
+     "id": "ex01_reverse",
+     "title": "字符串反转",
+     "tags": "切片反转 / 字符串操作",
+     "minutes": 3,
+     "prompt": "补全函数 reverse，返回字符串 s 的反转结果\n例如 reverse(\"abc\") 应返回 \"cba\"",
+     "stub": "def reverse(s: str) -> str:\n    \"\"\"返回 s 的反转字符串\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'reverse'\nTITLE = '字符串反转'\nCASES = [\n    (('abc',), 'cba'),\n    (('Python',), 'nohtyP'),\n    (('',), ''),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex02_count_alpha_digit",
+     "title": "统计字母与数字",
+     "tags": "遍历 / isalpha / isdigit",
+     "minutes": 4,
+     "prompt": "补全函数 count_alpha_digit，返回字符串里字母个数和数字个数组成的元组 (字母, 数字)\n例如 count_alpha_digit(\"a1b2c\") 应返回 (3, 2)",
+     "stub": "def count_alpha_digit(s: str) -> tuple:\n    \"\"\"返回 (字母个数, 数字个数)\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'count_alpha_digit'\nTITLE = '统计字母与数字'\nCASES = [\n    (('a1b2c',), (3, 2)),\n    (('123',), (0, 3)),\n    (('',), (0, 0)),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex03_capitalize_words",
+     "title": "单词首字母大写",
+     "tags": "split / capitalize",
+     "minutes": 4,
+     "prompt": "补全函数 capitalize_words，把每个单词首字母大写、其余小写，空格分隔返回\n例如 capitalize_words(\"hello world\") 应返回 \"Hello World\"",
+     "stub": "def capitalize_words(s: str) -> str:\n    \"\"\"每个单词首字母大写\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'capitalize_words'\nTITLE = '单词首字母大写'\nCASES = [\n    (('hello world',), 'Hello World'),\n    (('PYTHON course',), 'Python Course'),\n    (('',), ''),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex04_count_occurrences",
+     "title": "统计子串出现次数",
+     "tags": "count / 字符串方法",
+     "minutes": 3,
+     "prompt": "补全函数 count_occurrences，统计子串 sub 在 s 中出现的次数（不重叠）\n例如 count_occurrences(\"ababa\", \"aba\") 应返回 1",
+     "stub": "def count_occurrences(s: str, sub: str) -> int:\n    \"\"\"返回 sub 在 s 中出现的次数\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'count_occurrences'\nTITLE = '统计子串出现次数'\nCASES = [\n    (('ababa', 'aba'), 1),\n    (('aaaa', 'aa'), 2),\n    (('hello', 'x'), 0),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex05_is_palindrome",
+     "title": "判断回文",
+     "tags": "切片比较 / 条件判断",
+     "minutes": 3,
+     "prompt": "补全函数 is_palindrome，判断字符串是否回文（正读反读相同），返回 True/False\n例如 is_palindrome(\"abcba\") 应返回 True",
+     "stub": "def is_palindrome(s: str) -> bool:\n    \"\"\"判断 s 是否回文\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'is_palindrome'\nTITLE = '判断回文'\nCASES = [\n    (('abcba',), True),\n    (('hello',), False),\n    (('',), True),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex06_find_positions",
+     "title": "子串首末位置",
+     "tags": "find / rfind",
+     "minutes": 4,
+     "prompt": "补全函数 find_positions，返回子串 sub 在 s 中第一次和最后一次出现的位置\n例如 find_positions(\"abracadabra\", \"a\") 应返回 (0, 10)\n如果 sub 没出现，返回 (-1, -1)",
+     "stub": "def find_positions(s: str, sub: str) -> tuple:\n    \"\"\"返回 (首次位置, 最后位置)，找不到返回 (-1, -1)\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'find_positions'\nTITLE = '子串首末位置'\nCASES = [\n    (('abracadabra', 'a'), (0, 10)),\n    (('hello world', 'o'), (4, 7)),\n    (('hello', 'z'), (-1, -1)),\n    (('abc', 'bc'), (1, 1)),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex07_censor_word",
+     "title": "敏感词打码",
+     "tags": "replace / 字符串方法",
+     "minutes": 4,
+     "prompt": "补全函数 censor，把字符串 s 中所有 word 替换成等长的星号\n例如 censor(\"hello world hello\", \"hello\") 应返回 \"***** world *****\"",
+     "stub": "def censor(s: str, word: str) -> str:\n    \"\"\"把 word 替换成等长的星号\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'censor'\nTITLE = '敏感词打码'\nCASES = [\n    (('hello world hello', 'hello'), '***** world *****'),\n    (('banana', 'na'), 'ba****'),\n    (('今天天气不错', '天气'), '今天**不错'),\n    (('abc', 'z'), 'abc'),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex08_clean_whitespace",
+     "title": "去除首尾空白",
+     "tags": "strip / lstrip / rstrip",
+     "minutes": 3,
+     "prompt": "补全函数 clean_ws，去掉字符串首尾的空白字符（空格、换行、制表符都算）\n例如 clean_ws(\"  hello  \") 应返回 \"hello\"\n注意：只去两端，中间的空格要保留",
+     "stub": "def clean_ws(s: str) -> str:\n    \"\"\"去掉字符串首尾的空白字符\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'clean_ws'\nTITLE = '去除首尾空白'\nCASES = [\n    (('  hello  ',), 'hello'),\n    (('\\n\\t你好 \\t\\n',), '你好'),\n    (('   ',), ''),\n    (('无空白',), '无空白'),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex09_classify_file",
+     "title": "文件类型判断",
+     "tags": "startswith / endswith",
+     "minutes": 4,
+     "prompt": "补全函数 classify_file，按文件名分类：\n以 . 开头 → 隐藏文件；.py 结尾 → Python 代码；.md 或 .txt 结尾 → 文本文件；否则 → 其他\n例如 classify_file(\"app.py\") 应返回 \"Python 代码\"",
+     "stub": "def classify_file(name: str) -> str:\n    \"\"\"按文件名的前缀和后缀分类\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'classify_file'\nTITLE = '文件类型判断'\nCASES = [\n    (('.gitignore',), '隐藏文件'),\n    (('app.py',), 'Python 代码'),\n    (('readme.md',), '文本文件'),\n    (('notes.txt',), '文本文件'),\n    (('photo.jpg',), '其他'),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex10_reverse_words",
+     "title": "反转单词顺序",
+     "tags": "split / join / 切片",
+     "minutes": 4,
+     "prompt": "补全函数 reverse_words，把句子按空白拆成单词，倒序后用单个空格重新拼接\n例如 reverse_words(\"hello world\") 应返回 \"world hello\"\n注意：输入里可能有多余空格，输出单词之间只保留一个空格",
+     "stub": "def reverse_words(s: str) -> str:\n    \"\"\"把句子按空白拆成单词，倒序后重新拼接\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'reverse_words'\nTITLE = '反转单词顺序'\nCASES = [\n    (('hello world',), 'world hello'),\n    (('a b c',), 'c b a'),\n    (('  python  is   great ',), 'great is python'),\n    (('',), ''),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex11_format_price",
+     "title": "价格格式化",
+     "tags": "f-string / 千分位 / 保留小数",
+     "minutes": 3,
+     "prompt": "补全函数 format_price，把价格格式化为带千分位、两位小数的字符串\n例如 format_price(1234.5) 应返回 \"1,234.50\"",
+     "stub": "def format_price(price: float) -> str:\n    \"\"\"格式化为千分位、两位小数的字符串\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'format_price'\nTITLE = '价格格式化'\nCASES = [\n    ((1234.5,), '1,234.50'),\n    ((0.1,), '0.10'),\n    ((1234567.891,), '1,234,567.89'),\n    ((-9876.5,), '-9,876.50'),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex12_count_case",
+     "title": "统计大小写字母",
+     "tags": "isupper / islower / 遍历",
+     "minutes": 4,
+     "prompt": "补全函数 count_case，返回 (大写字母个数, 小写字母个数)，只统计字母，其他字符忽略\n例如 count_case(\"Hello World\") 应返回 (2, 8)",
+     "stub": "def count_case(s: str) -> tuple:\n    \"\"\"返回 (大写字母个数, 小写字母个数)\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'count_case'\nTITLE = '统计大小写字母'\nCASES = [\n    (('Hello World',), (2, 8)),\n    (('ABC',), (3, 0)),\n    (('abc',), (0, 3)),\n    (('AbC',), (2, 1)),\n    (('123 .,!',), (0, 0)),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex13_caesar_cipher",
+     "title": "凯撒加密",
+     "tags": "ord / chr / 取模运算",
+     "minutes": 5,
+     "prompt": "补全函数 caesar，把字符串里的每个英文字母向后移动 shift 位，大小写保留，非字母不变\n移动到末尾要绕回开头，例如 caesar(\"xyz\", 3) 应返回 \"abc\"",
+     "stub": "def caesar(s: str, shift: int) -> str:\n    \"\"\"凯撒加密：字母向后移动 shift 位，非字母不变\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'caesar'\nTITLE = '凯撒加密'\nCASES = [\n    (('abc', 1), 'bcd'),\n    (('xyz', 3), 'abc'),\n    (('Hello', 1), 'Ifmmp'),\n    (('ab c!', 1), 'bc d!'),\n    (('', 5), ''),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex14_align_text",
+     "title": "文本对齐填充",
+     "tags": "f-string 对齐 / 填充",
+     "minutes": 4,
+     "prompt": "补全函数 align，把 s 对齐到宽度 width（多余处补空格），pos 为 left/right/center\n例如 align(\"hi\", 6, \"right\") 应返回 \"    hi\"（总长 6）",
+     "stub": "def align(s: str, width: int, pos: str) -> str:\n    \"\"\"把 s 对齐到指定宽度，left/right/center 三种方式\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'align'\nTITLE = '文本对齐填充'\nCASES = [\n    (('hi', 6, 'left'), 'hi    '),\n    (('hi', 6, 'right'), '    hi'),\n    (('hi', 6, 'center'), '  hi  '),\n    (('abc', 5, 'center'), ' abc '),\n    (('hello', 3, 'right'), 'hello'),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex15_extract_numbers",
+     "title": "提取连续数字",
+     "tags": "isdigit / 遍历 / 列表",
+     "minutes": 6,
+     "prompt": "补全函数 extract_numbers，从字符串中提取所有连续的数字子串，返回字符串组成的列表\n例如 extract_numbers(\"ab12cd345ef6\") 应返回 ['12', '345', '6']\n没有数字时返回空列表。注意：最后一个连续片段也要取到",
+     "stub": "def extract_numbers(s: str) -> list:\n    \"\"\"提取所有连续数字子串，返回字符串列表\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'extract_numbers'\nTITLE = '提取连续数字'\nCASES = [\n    (('ab12cd345ef6',), ['12', '345', '6']),\n    (('123 456',), ['123', '456']),\n    (('a1b22c333',), ['1', '22', '333']),\n    (('no digits',), []),\n]\n",
+     "has_solution": true
+    }
+   ]
+  },
+  {
+   "no": "04",
+   "name": "04-组合数据类型",
+   "exercises": [
+    {
+     "id": "ex01_dedup",
+     "title": "列表去重保序",
+     "tags": "列表 / set / 去重",
+     "minutes": 4,
+     "prompt": "补全函数 dedup，去掉列表里的重复元素，保持第一次出现的顺序\n例如 dedup([3,1,3,2,1]) 应返回 [3,1,2]",
+     "stub": "def dedup(lst):\n    \"\"\"去重并保持原顺序\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'dedup'\nTITLE = '列表去重保序'\nCASES = [\n    (([3, 1, 3, 2, 1],), [3, 1, 2]),\n    (([],), []),\n    (([5, 5, 5],), [5]),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex02_word_freq",
+     "title": "词频统计",
+     "tags": "字典 / get 计数",
+     "minutes": 4,
+     "prompt": "补全函数 word_freq，统计列表里每个单词出现次数，返回字典\n例如 word_freq([\"a\",\"b\",\"a\"]) 应返回 {\"a\": 2, \"b\": 1}",
+     "stub": "def word_freq(words):\n    \"\"\"返回每个单词的出现次数字典\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'word_freq'\nTITLE = '词频统计'\nCASES = [\n    ((['a', 'b', 'a'],), {'a': 2, 'b': 1}),\n    (([],), {}),\n    ((['x'],), {'x': 1}),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex03_squares",
+     "title": "列表推导式求平方",
+     "tags": "列表推导式 / range",
+     "minutes": 3,
+     "prompt": "补全函数 squares，用列表推导式返回 1 到 n（含）的平方列表\n例如 squares(3) 应返回 [1, 4, 9]",
+     "stub": "def squares(n: int):\n    \"\"\"返回 1..n 的平方列表\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'squares'\nTITLE = '列表推导式求平方'\nCASES = [\n    ((3,), [1, 4, 9]),\n    ((0,), []),\n    ((5,), [1, 4, 9, 16, 25]),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex04_intersection",
+     "title": "集合交集",
+     "tags": "set / 集合运算",
+     "minutes": 3,
+     "prompt": "补全函数 intersection，返回两个列表公共元素组成的列表（去重、升序）\n例如 intersection([3,1,2], [2,3,4]) 应返回 [2,3]",
+     "stub": "def intersection(a, b):\n    \"\"\"返回两列表的公共元素（去重升序）\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'intersection'\nTITLE = '集合交集'\nCASES = [\n    (([3, 1, 2], [2, 3, 4]), [2, 3]),\n    (([], [1]), []),\n    (([1, 1, 2], [2, 2, 3]), [2]),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex05_merge_dicts",
+     "title": "合并字典",
+     "tags": "字典 / ** 解包",
+     "minutes": 3,
+     "prompt": "补全函数 merge_dicts，合并两个字典，b 覆盖 a 的相同键\n例如 merge_dicts({\"x\":1}, {\"x\":2,\"y\":3}) 应返回 {\"x\":2,\"y\":3}",
+     "stub": "def merge_dicts(a, b):\n    \"\"\"合并两个字典，b 覆盖 a\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'merge_dicts'\nTITLE = '合并字典'\nCASES = [\n    (({'x': 1}, {'x': 2, 'y': 3}), {'x': 2, 'y': 3}),\n    (({}, {'a': 1}), {'a': 1}),\n    (({'a': 1}, {'b': 2}), {'a': 1, 'b': 2}),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex06_list_ops",
+     "title": "列表方法全家桶",
+     "tags": "append / insert / remove / sort / reverse",
+     "minutes": 6,
+     "prompt": "补全函数 apply_ops，按 ops 里的操作依次修改列表，返回新列表（不修改原列表）\nops 形如 [(\"append\", 5), (\"insert\", 0, 9), (\"remove\", 3), (\"sort\",), (\"reverse\",)]\n例如 apply_ops([3,1,2], [(\"append\",4),(\"sort\",)]) 应返回 [1,2,3,4]",
+     "stub": "def apply_ops(lst, ops):\n    \"\"\"按 ops 逐条操作列表，返回新列表\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'apply_ops'\nTITLE = '列表方法全家桶'\nCASES = [\n    (([3, 1, 2], [('append', 4), ('sort',)]), [1, 2, 3, 4]),\n    (([1, 2, 3], [('insert', 0, 9), ('remove', 2)]), [9, 1, 3]),\n    (([1, 2, 3], [('reverse',)]), [3, 2, 1]),\n    (([], [('append', 7)]), [7]),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex07_rotate",
+     "title": "列表切片右旋",
+     "tags": "切片 / 负数索引 / 复制",
+     "minutes": 4,
+     "prompt": "补全函数 rotate，把列表右旋 k 位（用切片实现，返回新列表，不改原列表）\n例如 rotate([1,2,3,4,5], 2) 应返回 [4,5,1,2,3]\n提示：lst[-k:] + lst[:-k]",
+     "stub": "def rotate(lst, k):\n    \"\"\"把列表右旋 k 位，返回新列表\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'rotate'\nTITLE = '列表切片右旋'\nCASES = [\n    (([1, 2, 3, 4, 5], 2), [4, 5, 1, 2, 3]),\n    (([1, 2, 3], 1), [3, 1, 2]),\n    (([1, 2, 3, 4], 4), [1, 2, 3, 4]),\n    (([1, 2, 3, 4, 5], 0), [1, 2, 3, 4, 5]),\n    (([], 2), []),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex08_unpack",
+     "title": "元组星号解包",
+     "tags": "元组 / * 解包",
+     "minutes": 4,
+     "prompt": "补全函数 first_mid_last，用 first, *mid, last = lst 解包\n返回 (第一个元素, 中间部分列表, 最后一个元素)\n例如 first_mid_last([1,2,3,4,5]) 应返回 (1, [2,3,4], 5)",
+     "stub": "def first_mid_last(lst):\n    \"\"\"用星号解包返回 (首, 中间列表, 尾)\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'first_mid_last'\nTITLE = '元组星号解包'\nCASES = [\n    (([1, 2, 3, 4, 5],), (1, [2, 3, 4], 5)),\n    (([1, 2],), (1, [], 2)),\n    ((['a', 'b', 'c'],), ('a', ['b'], 'c')),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex09_add_to_group",
+     "title": "字典 setdefault 分组",
+     "tags": "setdefault / 嵌套字典",
+     "minutes": 5,
+     "prompt": "补全函数 add_to_group，把 value 追加到字典 d 中 key 对应的列表末尾\n若 key 不存在则先创建空列表（用 setdefault 实现）\n例如 add_to_group({\"a\":[1]}, \"a\", 2) 应返回 {\"a\":[1,2]}",
+     "stub": "def add_to_group(d, key, value):\n    \"\"\"把 value 追加到 d[key] 列表，key 不存在时自动创建\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'add_to_group'\nTITLE = '字典 setdefault 分组'\nCASES = [\n    (({'a': [1]}, 'a', 2), {'a': [1, 2]}),\n    (({}, 'x', 5), {'x': [5]}),\n    (({'k': [1]}, 'k', 2), {'k': [1, 2]}),\n    (({'a': []}, 'b', 0), {'a': [], 'b': [0]}),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex10_invert_dict",
+     "title": "反转字典",
+     "tags": "items / 字典推导式",
+     "minutes": 5,
+     "prompt": "补全函数 invert_dict，把字典的键值对互换（值当新键，键当新值）\n例如 invert_dict({\"a\":1,\"b\":2}) 应返回 {1:\"a\", 2:\"b\"}\n提示：for k, v in d.items() 后交换位置",
+     "stub": "def invert_dict(d):\n    \"\"\"返回键值互换的新字典\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'invert_dict'\nTITLE = '反转字典'\nCASES = [\n    (({'a': 1, 'b': 2},), {1: 'a', 2: 'b'}),\n    (({},), {}),\n    (({'x': 9},), {9: 'x'}),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex11_set_ops",
+     "title": "集合三件套",
+     "tags": "并集 / 差集 / 对称差",
+     "minutes": 4,
+     "prompt": "补全函数 set_ops，返回 (并集, 差集, 对称差) 三个列表，各自去重升序\n例如 set_ops([1,2,3],[2,3,4]) 应返回 ([1,2,3,4], [1], [1,4])\n提示：| 并集、- 差集、^ 对称差",
+     "stub": "def set_ops(a, b):\n    \"\"\"返回 (并集, a-b 差集, 对称差) 三个去重升序列表\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'set_ops'\nTITLE = '集合三件套'\nCASES = [\n    (([1, 2, 3], [2, 3, 4]), ([1, 2, 3, 4], [1], [1, 4])),\n    (([1, 1, 2], [2, 2, 3]), ([1, 2, 3], [1], [1, 3])),\n    (([], [1]), ([1], [], [1])),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex12_top_student",
+     "title": "嵌套结构找最高分",
+     "tags": "列表+字典 / 遍历",
+     "minutes": 6,
+     "prompt": "补全函数 top_student，students 是列表，每项是字典 {\"name\": 名字, \"score\": 分数}\n返回分数最高的学生的名字（分数不重复）\n例如 top_student([{\"name\":\"小明\",\"score\":90},{\"name\":\"小红\",\"score\":95}]) 应返回 \"小红\"",
+     "stub": "def top_student(students):\n    \"\"\"返回分数最高的学生名字\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'top_student'\nTITLE = '嵌套结构找最高分'\nCASES = [\n    (([{'name': '小明', 'score': 90}, {'name': '小红', 'score': 95}],), '小红'),\n    (([{'name': 'A', 'score': 60}],), 'A'),\n    (([{'name': 'X', 'score': 10}, {'name': 'Y', 'score': 20}, {'name': 'Z', 'score': 15}],), 'Y'),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex13_dict_squares",
+     "title": "字典推导式",
+     "tags": "字典推导式 / range",
+     "minutes": 3,
+     "prompt": "补全函数 dict_squares，用字典推导式返回 {1:1, 2:4, 3:9, ...}\n即从 1 到 n（含），键是数字、值是该数字的平方\n例如 dict_squares(3) 应返回 {1:1, 2:4, 3:9}",
+     "stub": "def dict_squares(n: int):\n    \"\"\"返回 {x: x*x}，x 取 1..n\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'dict_squares'\nTITLE = '字典推导式'\nCASES = [\n    ((3,), {1: 1, 2: 4, 3: 9}),\n    ((1,), {1: 1}),\n    ((0,), {}),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex14_rank_students",
+     "title": "多条件排序",
+     "tags": "元组 / sorted key / lambda",
+     "minutes": 8,
+     "prompt": "补全函数 rank_students，students 是元组列表 (姓名, 分数, 学号)\n按分数从高到低排序；分数相同按学号从小到大，返回姓名列表\n例如 rank_students([(\"A\",90,2),(\"B\",90,1),(\"C\",85,3)]) 应返回 [\"B\",\"A\",\"C\"]",
+     "stub": "def rank_students(students):\n    \"\"\"按分数降序、学号升序排序，返回姓名列表\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'rank_students'\nTITLE = '多条件排序'\nCASES = [\n    (([('A', 90, 2), ('B', 90, 1), ('C', 85, 3)],), ['B', 'A', 'C']),\n    (([('A', 85, 1), ('B', 90, 1)],), ['B', 'A']),\n    (([('A', 70, 3)],), ['A']),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex15_total_price",
+     "title": "综合购物车结算",
+     "tags": "字典 items / get / 嵌套",
+     "minutes": 8,
+     "prompt": "补全函数 total_price，cart 是 {商品名: 数量}，prices 是 {商品名: 单价}\n返回购物车总价（商品不存在于 prices 时按 0 计）\n例如 total_price({\"苹果\":2,\"香蕉\":3}, {\"苹果\":5,\"香蕉\":2}) 应返回 16",
+     "stub": "def total_price(cart, prices):\n    \"\"\"按数量乘单价计算总价，未知商品按 0 计\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'total_price'\nTITLE = '综合购物车结算'\nCASES = [\n    (({'苹果': 2, '香蕉': 3}, {'苹果': 5, '香蕉': 2}), 16),\n    (({'苹果': 2}, {'苹果': 5, '香蕉': 2}), 10),\n    (({'苹果': 2, '未知': 4}, {'苹果': 5}), 10),\n    (({}, {'苹果': 5}), 0),\n]\n",
+     "has_solution": true
+    }
+   ]
+  },
+  {
+   "no": "05",
+   "name": "05-函数",
+   "exercises": [
+    {
+     "id": "ex01_power",
+     "title": "幂运算（默认参数）",
+     "tags": "默认参数 / 幂运算",
+     "minutes": 3,
+     "prompt": "补全函数 power，返回 base 的 exp 次方，exp 默认为 2\n例如 power(3) 应返回 9，power(2, 3) 应返回 8",
+     "stub": "def power(base, exp=2):\n    \"\"\"返回 base 的 exp 次方\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'power'\nTITLE = '幂运算（默认参数）'\nCASES = [\n    ((3,), 9),\n    ((2, 3), 8),\n    ((5, 0), 1),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex02_max_of",
+     "title": "可变参数取最大",
+     "tags": "*args / 可变参数",
+     "minutes": 4,
+     "prompt": "补全函数 max_of，接收任意个数参数，返回最大值；没有参数返回 None\n例如 max_of(3, 1, 7, 2) 应返回 7",
+     "stub": "def max_of(*args):\n    \"\"\"返回所有参数的最大值\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'max_of'\nTITLE = '可变参数取最大'\nCASES = [\n    ((3, 1, 7, 2), 7),\n    ((5,), 5),\n    ((), None),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex03_factorial",
+     "title": "递归阶乘",
+     "tags": "递归 / 基准条件",
+     "minutes": 4,
+     "prompt": "补全函数 factorial，用递归求 n 的阶乘（n ≥ 0）\n例如 factorial(5) 应返回 120",
+     "stub": "def factorial(n: int) -> int:\n    \"\"\"递归求 n 的阶乘\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'factorial'\nTITLE = '递归阶乘'\nCASES = [\n    ((5,), 120),\n    ((0,), 1),\n    ((3,), 6),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex04_make_multiplier",
+     "title": "返回函数的函数",
+     "tags": "闭包 / 高阶函数",
+     "minutes": 5,
+     "prompt": "补全函数 make_multiplier，返回一个函数：把传入的数乘上 n\ndemo 里 triple = make_multiplier(3)，打印 triple(4) 和 triple(10)",
+     "stub": "def make_multiplier(n):\n    \"\"\"返回一个函数：把传入的数乘上 n\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n\n\n# ── demo：不要改下面几行 ──\ntriple = make_multiplier(3)\nif triple is not None:\n    print(triple(4), triple(10))\n",
+     "tests": "FUNC = 'make_multiplier'\nTITLE = '返回函数的函数'\nSTDOUT = '12 30'\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex05_build_profile",
+     "title": "关键字参数",
+     "tags": "**kwargs / 字典",
+     "minutes": 5,
+     "prompt": "补全函数 build_profile，返回一个字典：name 键存姓名，其余关键字参数原样存进字典\ndemo 打印 d[\"name\"]、d[\"age\"]、d[\"city\"]",
+     "stub": "def build_profile(name, **kwargs):\n    \"\"\"返回包含姓名和附加信息的字典\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n\n\n# ── demo：不要改下面几行 ──\nd = build_profile(\"小明\", age=18, city=\"贵阳\")\nif d is not None:\n    print(d[\"name\"], d[\"age\"], d[\"city\"])\n",
+     "tests": "FUNC = 'build_profile'\nTITLE = '关键字参数'\nSTDOUT = '小明 18 贵阳'\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex06_divide_pair",
+     "title": "多返回值求商和余",
+     "tags": "多返回值 / 元组解包",
+     "minutes": 4,
+     "prompt": "补全函数 divide，返回 (商, 余数) 两个值\n例如 divide(10, 3) 应返回 (3, 1)",
+     "stub": "def divide(a, b):\n    \"\"\"返回 a 除以 b 的 (商, 余数)\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'divide'\nTITLE = '多返回值求商和余'\nCASES = [\n    ((10, 3), (3, 1)),\n    ((7, 2), (3, 1)),\n    ((6, 3), (2, 0)),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex07_global_counter",
+     "title": "全局变量计数器",
+     "tags": "global / 作用域",
+     "minutes": 5,
+     "prompt": "已有全局变量 total = 0；补全函数 add_to_total，把 n 累加到 total 上并返回新值\ndemo 打印 add_to_total(5) 和 add_to_total(3)，应输出 5 8",
+     "stub": "total = 0\n\ndef add_to_total(n):\n    \"\"\"把 n 累加到全局 total，返回新值\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n\n\n# ── demo：不要改下面几行 ──\nprint(add_to_total(5), add_to_total(3))\n",
+     "tests": "FUNC = 'add_to_total'\nTITLE = '全局变量计数器'\nSTDOUT = '5 8'\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex08_double_evens",
+     "title": "偶数翻倍",
+     "tags": "lambda / map-filter",
+     "minutes": 5,
+     "prompt": "补全函数 double_evens，用 lambda + filter + map 把列表里的偶数挑出来并翻倍\n例如 double_evens([1, 2, 3, 4]) 应返回 [4, 8]",
+     "stub": "def double_evens(nums):\n    \"\"\"返回新列表：只保留 nums 中的偶数并乘以 2\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'double_evens'\nTITLE = '偶数翻倍'\nCASES = [\n    (([1, 2, 3, 4],), [4, 8]),\n    (([],), []),\n    (([3, 5, 7],), []),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex09_sum_digits",
+     "title": "递归数字求和",
+     "tags": "递归 / 数字分解",
+     "minutes": 5,
+     "prompt": "补全函数 sum_digits，用递归求非负整数各位数字之和\n例如 sum_digits(123) 应返回 6（1+2+3）",
+     "stub": "def sum_digits(n: int) -> int:\n    \"\"\"递归返回 n 的各位数字之和\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'sum_digits'\nTITLE = '递归数字求和'\nCASES = [\n    ((123,), 6),\n    ((0,), 0),\n    ((999,), 27),\n    ((7,), 7),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex10_apply_twice",
+     "title": "高阶函数应用两次",
+     "tags": "高阶函数 / 函数作参数",
+     "minutes": 5,
+     "prompt": "补全函数 apply_twice，把函数 fn 对 x 连续应用两次：fn(fn(x))\n例如 apply_twice(lambda x: x + 1, 5) 应返回 7",
+     "stub": "def apply_twice(fn, x):\n    \"\"\"返回 fn(fn(x))\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'apply_twice'\nTITLE = '高阶函数应用两次'\nCASES = [\n    ((lambda x: x + 1, 5), 7),\n    ((lambda x: x * 2, 3), 12),\n    ((lambda x: x ** 2, 2), 16),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex11_uppercase_decorator",
+     "title": "装饰器转大写",
+     "tags": "装饰器 / 高阶函数",
+     "minutes": 6,
+     "prompt": "补全装饰器 uppercase：让被装饰函数返回的字符串变成全大写\ndemo 里 greet 被装饰，打印 greet(\"hi\") 应输出 HI",
+     "stub": "def uppercase(fn):\n    \"\"\"装饰器：把函数返回值转成全大写\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n\n\n# ── demo：不要改下面几行 ──\n@uppercase\ndef greet(word):\n    return word\n\nif greet is not None:\n    print(greet(\"hi\"))\n",
+     "tests": "FUNC = 'uppercase'\nTITLE = '装饰器转大写'\nSTDOUT = 'HI'\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex12_is_palindrome",
+     "title": "递归判断回文",
+     "tags": "递归 / 字符串切片",
+     "minutes": 6,
+     "prompt": "补全函数 is_palindrome，用递归判断字符串是否为回文（正读反读一样）\n例如 is_palindrome(\"abcba\") 应返回 True，is_palindrome(\"abca\") 应返回 False",
+     "stub": "def is_palindrome(s: str) -> bool:\n    \"\"\"递归判断 s 是否为回文\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'is_palindrome'\nTITLE = '递归判断回文'\nCASES = [\n    ((\"abcba\",), True),\n    ((\"abba\",), True),\n    ((\"abca\",), False),\n    ((\"a\",), True),\n    ((\"\",), True),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex13_sort_students",
+     "title": "按成绩排序",
+     "tags": "sorted(key=) / lambda",
+     "minutes": 5,
+     "prompt": "补全函数 sort_by_score，把 [(\"姓名\", 成绩), ...] 按成绩降序排好，返回新列表\n例如 sort_by_score([(\"小明\",90),(\"小红\",85)]) 应返回 [(\"小明\",90),(\"小红\",85)]",
+     "stub": "def sort_by_score(students):\n    \"\"\"按成绩降序排序，返回新列表，不改原列表\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'sort_by_score'\nTITLE = '按成绩排序'\nCASES = [\n    (([(\"小明\", 90), (\"小红\", 85), (\"小刚\", 95)],), [(\"小刚\", 95), (\"小明\", 90), (\"小红\", 85)]),\n    (([(\"a\", 1)],), [(\"a\", 1)]),\n    (([],), []),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex14_make_counter",
+     "title": "闭包计数器",
+     "tags": "闭包 / nonlocal",
+     "minutes": 7,
+     "prompt": "补全函数 make_counter，返回一个计数器函数：每次调用返回值 +1\ndemo 里 c1 = make_counter(10)，打印 c1() c1() c1() 应输出 11 12 13",
+     "stub": "def make_counter(start=0):\n    \"\"\"返回一个计数器函数，从 start 开始每次调用 +1\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n\n\n# ── demo：不要改下面几行 ──\nc1 = make_counter(10)\nif c1 is not None:\n    print(c1(), c1(), c1())\nc2 = make_counter()\nif c2 is not None:\n    print(c2(), c2())\n",
+     "tests": "FUNC = 'make_counter'\nTITLE = '闭包计数器'\nSTDOUT = '11 12 13 1 2'\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex15_calculator",
+     "title": "综合计算器分发表",
+     "tags": "字典分发表 / 综合",
+     "minutes": 8,
+     "prompt": "补全函数 calculate，用字典存运算函数，按 op 计算 a op b\n支持 + - * / **，未知运算符返回 None；例如 calculate(\"+\", 3, 4) 应返回 7",
+     "stub": "def calculate(op: str, a, b):\n    \"\"\"按 op 选择运算函数计算 a op b，未知运算返回 None\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'calculate'\nTITLE = '综合计算器分发表'\nCASES = [\n    ((\"+\", 3, 4), 7),\n    ((\"-\", 10, 3), 7),\n    ((\"**\", 2, 3), 8),\n    ((\"/\", 7, 2), 3.5),\n    ((\"mod\", 1, 1), None),\n]\n",
+     "has_solution": true
+    }
+   ]
+  },
+  {
+   "no": "06",
+   "name": "06-文件与异常",
+   "exercises": [
+    {
+     "id": "ex01_safe_int",
+     "title": "安全转换整数",
+     "tags": "try/except / ValueError",
+     "minutes": 3,
+     "prompt": "补全函数 safe_int，把字符串转成整数；转换失败返回 None\n例如 safe_int(\"42\") 应返回 42，safe_int(\"abc\") 应返回 None",
+     "stub": "def safe_int(s: str):\n    \"\"\"字符串转整数，失败返回 None\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'safe_int'\nTITLE = '安全转换整数'\nCASES = [\n    (('42',), 42),\n    (('abc',), None),\n    (('-7',), -7),\n    (('3.14',), None),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex02_safe_divide",
+     "title": "安全除法",
+     "tags": "try/except / ZeroDivisionError",
+     "minutes": 3,
+     "prompt": "补全函数 safe_divide，返回 a 除以 b 的结果；b 为 0 时返回字符串 \"除数不能为 0\"\n例如 safe_divide(10, 2) 应返回 5.0",
+     "stub": "def safe_divide(a, b):\n    \"\"\"安全除法，除数为 0 返回提示\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'safe_divide'\nTITLE = '安全除法'\nCASES = [\n    ((10, 2), 5.0),\n    ((10, 0), '除数不能为 0'),\n    ((7, 2), 3.5),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex03_positive_only",
+     "title": "主动抛出异常",
+     "tags": "raise / 异常类型",
+     "minutes": 5,
+     "prompt": "补全函数 positive_only，n 为负数时抛出 ValueError(\"不能为负数\")，否则返回 n\ndemo 里打印 positive_only(5)，再 try 捕获 positive_only(-3) 抛出的异常",
+     "stub": "def positive_only(n):\n    \"\"\"负数抛 ValueError，否则返回 n\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n\n\n# ── demo：不要改下面几行 ──\nprint(positive_only(5))\ntry:\n    positive_only(-3)\nexcept ValueError:\n    print(\"已抛出 ValueError\")\n",
+     "tests": "FUNC = 'positive_only'\nTITLE = '主动抛出异常'\nSTDOUT = '5 已抛出 ValueError'\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex04_count_lines",
+     "title": "统计文件非空行数",
+     "tags": "open / 文件读取",
+     "minutes": 5,
+     "prompt": "补全函数 count_lines，返回文件里非空行数（空行不计）\n测试已创建 sample.txt（非空 3 行）和 empty.txt（空文件）",
+     "stub": "def count_lines(path: str) -> int:\n    \"\"\"返回文件非空行数\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'count_lines'\nTITLE = '统计文件非空行数'\nCASES = [\n    (('sample.txt',), 3),\n    (('empty.txt',), 0),\n]\nwith open('sample.txt', 'w', encoding='utf-8') as f:\n    f.write('第一行\\n\\n第三行\\n第四行\\n')\nwith open('empty.txt', 'w', encoding='utf-8') as f:\n    f.write('')\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex05_sum_numbers",
+     "title": "文件数字求和",
+     "tags": "open / 遍历 / 求和",
+     "minutes": 5,
+     "prompt": "补全函数 sum_numbers，文件每行一个数字（可能有空行），返回所有数字之和\n测试已创建 nums.txt（3+5+7=15）和空的 nums2.txt",
+     "stub": "def sum_numbers(path: str) -> int:\n    \"\"\"把文件里的数字加起来\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'sum_numbers'\nTITLE = '文件数字求和'\nCASES = [\n    (('nums.txt',), 15),\n    (('nums2.txt',), 0),\n]\nwith open('nums.txt', 'w', encoding='utf-8') as f:\n    f.write('3\\n5\\n\\n7\\n')\nwith open('nums2.txt', 'w', encoding='utf-8') as f:\n    f.write('')\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex06_append_line",
+     "title": "追加写入一行",
+     "tags": "a 追加模式 / with",
+     "minutes": 5,
+     "prompt": "补全函数 append_line(path, text)：把 text 作为一行追加到文件末尾，返回追加后的整个文件内容\n例如文件里是「第一行」，调用 append_line(\"app.txt\", \"新行\") 后内容变成「第一行\\n新行\\n」",
+     "stub": "def append_line(path: str, text: str) -> str:\n    \"\"\"把 text 追加到文件末尾，返回全部内容\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'append_line'\nTITLE = '追加写入一行'\nCASES = [\n    (('app.txt', '新行'), '第一行\\n新行\\n'),\n]\nwith open('app.txt', 'w', encoding='utf-8') as f:\n    f.write('第一行\\n')\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex07_count_words",
+     "title": "统计单词数",
+     "tags": "逐行迭代 / split",
+     "minutes": 5,
+     "prompt": "补全函数 count_words(path)：统计文件中所有单词的总个数\n单词由空白（空格/换行）分隔，例如 \"hello world python\" 是 3 个单词",
+     "stub": "def count_words(path: str) -> int:\n    \"\"\"返回文件中的单词总数\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'count_words'\nTITLE = '统计单词数'\nCASES = [\n    (('words.txt',), 5),\n    (('empty.txt',), 0),\n]\nwith open('words.txt', 'w', encoding='utf-8') as f:\n    f.write('hello world python\\nfoo bar\\n')\nwith open('empty.txt', 'w', encoding='utf-8') as f:\n    f.write('')\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex08_write_lines",
+     "title": "批量写入列表",
+     "tags": "writelines / 写入模式",
+     "minutes": 5,
+     "prompt": "补全函数 write_lines(path, lines)：把字符串列表逐行写入文件，再读回所有行（去换行）返回\n例如 write_lines(\"wl.txt\", [\"甲\", \"乙\"]) 之后文件里是「甲\\n乙\\n」",
+     "stub": "def write_lines(path: str, lines: list) -> list:\n    \"\"\"逐行写入列表，再读回去换行后的行列表\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'write_lines'\nTITLE = '批量写入列表'\nCASES = [\n    (('wl.txt', ['甲', '乙']), ['甲', '乙']),\n    (('wl2.txt', []), []),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex09_seek_read",
+     "title": "从指定位置读取",
+     "tags": "seek / 文件指针",
+     "minutes": 5,
+     "prompt": "补全函数 read_from_position(path, pos)：用 seek 把指针移到 pos，再读从 pos 到结尾的内容返回\n例如文件内容是 \"abcdef\"，read_from_position(\"seek.txt\", 2) 应返回 \"cdef\"",
+     "stub": "def read_from_position(path: str, pos: int) -> str:\n    \"\"\"从 pos 位置读到文件末尾\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'read_from_position'\nTITLE = '从指定位置读取'\nCASES = [\n    (('seek.txt', 2), 'cdef'),\n    (('seek.txt', 0), 'abcdef'),\n    (('seek.txt', 6), ''),\n]\nwith open('seek.txt', 'w', encoding='utf-8') as f:\n    f.write('abcdef')\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex10_read_first_line",
+     "title": "中文编码读取首行",
+     "tags": "encoding / readline",
+     "minutes": 5,
+     "prompt": "补全函数 read_first_line(path)：用 utf-8 编码读取文件第一行，去掉换行符后返回\n例如文件是「小明\\n小红\\n」，read_first_line(\"names.txt\") 应返回「小明」",
+     "stub": "def read_first_line(path: str) -> str:\n    \"\"\"读取文件第一行（去换行）\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'read_first_line'\nTITLE = '中文编码读取首行'\nCASES = [\n    (('names.txt',), '小明'),\n]\nwith open('names.txt', 'w', encoding='utf-8') as f:\n    f.write('小明\\n小红\\n')\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex11_safe_index",
+     "title": "安全索引",
+     "tags": "多种异常 / IndexError / TypeError",
+     "minutes": 5,
+     "prompt": "补全函数 safe_index(lst, i)：返回 lst[i]；下标越界或类型不合法（如 i 不是整数）时返回 None\n例如 safe_index([10, 20, 30], 1) 应返回 20，safe_index([10], 9) 应返回 None",
+     "stub": "def safe_index(lst, i):\n    \"\"\"安全取值，越界或类型不对返回 None\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'safe_index'\nTITLE = '安全索引'\nCASES = [\n    (([10, 20, 30], 1), 20),\n    (([10, 20, 30], 9), None),\n    (('abc', 1), 'b'),\n    (([1, 2], 'x'), None),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex12_score_check",
+     "title": "自定义异常",
+     "tags": "自定义异常 / raise",
+     "minutes": 5,
+     "prompt": "补全函数 check_score(score)：成绩不是数字或超出 0-100 时抛 ScoreError，合法则返回成绩\ndemo 已给出：打印合法成绩 85，再用 try 捕获 -5 抛出的 ScoreError",
+     "stub": "class ScoreError(Exception):\n    \"\"\"成绩不合法时抛出\"\"\"\n    pass\n\n\ndef check_score(score):\n    # TODO: 在这里写你的代码\n    pass\n\n\n# ── demo：不要改下面几行 ──\nprint(check_score(85))\ntry:\n    check_score(-5)\nexcept ScoreError:\n    print(\"已抛出 ScoreError\")\n",
+     "tests": "FUNC = 'check_score'\nTITLE = '自定义异常'\nSTDOUT = '85 已抛出 ScoreError'\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex13_read_or_raise",
+     "title": "raise from 保留原因",
+     "tags": "raise from / FileNotFoundError",
+     "minutes": 6,
+     "prompt": "补全函数 read_or_raise(path)：读取文件第一行（去换行）返回；\n文件不存在时捕获 FileNotFoundError，再用 raise ValueError(\"文件不存在\") from e 抛出\ndemo 已给出：先读存在的 cfg.txt，再捕获缺失文件抛出的 ValueError",
+     "stub": "def read_or_raise(path: str) -> str:\n    # TODO: 在这里写你的代码\n    pass\n\n\n# ── demo：不要改下面几行 ──\nprint(read_or_raise('cfg.txt'))\ntry:\n    read_or_raise('no_such.txt')\nexcept ValueError:\n    print(\"已捕获 ValueError\")\n",
+     "tests": "FUNC = 'read_or_raise'\nTITLE = 'raise from 保留原因'\nSTDOUT = '配置已加载 已捕获 ValueError'\nwith open('cfg.txt', 'w', encoding='utf-8') as f:\n    f.write('配置已加载\\n')\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex14_json_roundtrip",
+     "title": "JSON 读写往返",
+     "tags": "json.dump / json.load / ensure_ascii",
+     "minutes": 6,
+     "prompt": "补全函数 json_roundtrip(path, data)：把 data 用 json.dump 写入 path（ensure_ascii=False），\n再 json.load 读回并返回，验证字典能完整存取\n例如 data={\"name\": \"小明\"}，读回后应得到相同的字典",
+     "stub": "import json\n\n\ndef json_roundtrip(path: str, data: dict) -> dict:\n    \"\"\"把字典写入 JSON 文件，再读回\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'json_roundtrip'\nTITLE = 'JSON 读写往返'\nCASES = [\n    (('data.json', {'name': '小明', 'age': 20}), {'name': '小明', 'age': 20}),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex15_analyze_scores",
+     "title": "综合成绩文件容错统计",
+     "tags": "文件读取 / try-except / 统计",
+     "minutes": 8,
+     "prompt": "补全函数 analyze_scores(path)：文件每行一个成绩，可能含空行和非法内容\n空行跳过，能转 int 的累加并计数，非法行记入 bad，返回 {\"sum\":..., \"count\":..., \"bad\":...}\n例如 \"90\\nabc\\n85\\n\" 应返回 {\"sum\": 175, \"count\": 2, \"bad\": 1}",
+     "stub": "def analyze_scores(path: str) -> dict:\n    \"\"\"统计成绩之和、有效个数、坏行数\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'analyze_scores'\nTITLE = '综合成绩文件容错统计'\nCASES = [\n    (('scores.txt',), {'sum': 175, 'count': 2, 'bad': 1}),\n    (('empty_scores.txt',), {'sum': 0, 'count': 0, 'bad': 0}),\n]\nwith open('scores.txt', 'w', encoding='utf-8') as f:\n    f.write('90\\nabc\\n\\n85\\n')\nwith open('empty_scores.txt', 'w', encoding='utf-8') as f:\n    f.write('')\n",
+     "has_solution": true
+    }
+   ]
+  },
+  {
+   "no": "07",
+   "name": "07-类与对象",
+   "exercises": [
+    {
+     "id": "ex01_rectangle",
+     "title": "矩形类",
+     "tags": "类 / __init__ / 方法",
+     "minutes": 6,
+     "prompt": "补全 Rectangle 类：__init__ 保存宽高，area() 返回面积，perimeter() 返回周长\ndemo 会遍历 (3,4)、(5,10) 打印 area 和 perimeter",
+     "stub": "class Rectangle:\n    \"\"\"宽和高\"\"\"\n    def __init__(self, width: float, height: float):\n        # TODO: 在这里写你的代码\n        pass\n\n    def area(self) -> float:\n        \"\"\"返回面积（宽×高）\"\"\"\n        # TODO: 在这里写你的代码\n        pass\n\n    def perimeter(self) -> float:\n        \"\"\"返回周长（2×(宽+高)）\"\"\"\n        # TODO: 在这里写你的代码\n        pass\n\n\n# ── demo：不要改下面几行 ──\nfor w, h in [(3, 4), (5, 10)]:\n    r = Rectangle(w, h)\n    print(r.area(), r.perimeter())\n",
+     "tests": "FUNC = 'Rectangle'\nTITLE = '矩形类'\nSTDOUT = '12 14 50 30'\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex02_counter",
+     "title": "计数器类",
+     "tags": "类 / 方法 / 实例状态",
+     "minutes": 5,
+     "prompt": "补全 Counter 类：__init__ 从 0 开始，increment() 加 1，value() 返回当前值\ndemo 两次 increment 后打印，再 increment 一次打印",
+     "stub": "class Counter:\n    \"\"\"从 0 开始计数\"\"\"\n    def __init__(self):\n        # TODO: 在这里写你的代码\n        pass\n\n    def increment(self):\n        \"\"\"计数加 1\"\"\"\n        # TODO: 在这里写你的代码\n        pass\n\n    def value(self) -> int:\n        \"\"\"返回当前计数值\"\"\"\n        # TODO: 在这里写你的代码\n        pass\n\n\n# ── demo：不要改下面几行 ──\nc = Counter()\nc.increment()\nc.increment()\nprint(c.value())\nc.increment()\nprint(c.value())\n",
+     "tests": "FUNC = 'Counter'\nTITLE = '计数器类'\nSTDOUT = '2 3'\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex03_bank_account",
+     "title": "银行账户类",
+     "tags": "类 / 逻辑判断",
+     "minutes": 6,
+     "prompt": "补全 BankAccount 类：deposit 加钱，withdraw 余额足够才扣并返回 True，否则返回 False 不动余额\ndemo 从 100 开始存 50，再试取 200 和取 30",
+     "stub": "class BankAccount:\n    \"\"\"有余额的账户\"\"\"\n    def __init__(self, initial: float = 0):\n        # TODO: 在这里写你的代码\n        pass\n\n    def deposit(self, amount: float):\n        \"\"\"存钱\"\"\"\n        # TODO: 在这里写你的代码\n        pass\n\n    def withdraw(self, amount: float) -> bool:\n        \"\"\"余额够就扣并返回 True，否则返回 False 不动余额\"\"\"\n        # TODO: 在这里写你的代码\n        pass\n\n    def get_balance(self) -> float:\n        \"\"\"返回余额\"\"\"\n        # TODO: 在这里写你的代码\n        pass\n\n\n# ── demo：不要改下面几行 ──\nacc = BankAccount(100)\nacc.deposit(50)\nprint(acc.get_balance())\nprint(acc.withdraw(200))\nprint(acc.withdraw(30))\nprint(acc.get_balance())\n",
+     "tests": "FUNC = 'BankAccount'\nTITLE = '银行账户类'\nSTDOUT = '150 False True 120'\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex04_student",
+     "title": "学生类",
+     "tags": "__init__ / 属性 / 方法",
+     "minutes": 5,
+     "prompt": "补全 Student 类：__init__ 存名字和成绩，is_pass() 成绩 ≥60 返回 True，introduce() 返回 f\"{名字} 考了 {成绩} 分\"\ndemo 用两个学生打印",
+     "stub": "class Student:\n    \"\"\"有名字和成绩的学生\"\"\"\n    def __init__(self, name: str, score: int):\n        # TODO: 在这里写你的代码\n        pass\n\n    def is_pass(self) -> bool:\n        \"\"\"成绩 ≥60 返回 True\"\"\"\n        # TODO: 在这里写你的代码\n        pass\n\n    def introduce(self) -> str:\n        \"\"\"返回自我介绍字符串\"\"\"\n        # TODO: 在这里写你的代码\n        pass\n\n\n# ── demo：不要改下面几行 ──\ns = Student(\"小明\", 85)\nprint(s.is_pass())\nprint(s.introduce())\ns2 = Student(\"小红\", 58)\nprint(s2.is_pass())\n",
+     "tests": "FUNC = 'Student'\nTITLE = '学生类'\nSTDOUT = 'True 小明 考了 85 分 False'\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex05_animal_dog",
+     "title": "继承（动物与狗）",
+     "tags": "继承 / 方法重写",
+     "minutes": 5,
+     "prompt": "Animal 基类已给好，补全子类 Dog 重写 sound() 返回 \"汪汪\"\ndemo 打印狗的名字和叫声",
+     "stub": "class Animal:\n    \"\"\"动物基类\"\"\"\n    def __init__(self, name: str):\n        self.name = name\n\n    def sound(self) -> str:\n        return \"...\"\n\n\nclass Dog(Animal):\n    \"\"\"狗：继承 Animal，重写 sound 返回「汪汪」\"\"\"\n    def sound(self) -> str:\n        # TODO: 在这里写你的代码\n        pass\n\n\n# ── demo：不要改下面几行 ──\nd = Dog(\"旺财\")\nprint(d.name)\nprint(d.sound())\n",
+     "tests": "FUNC = 'Dog'\nTITLE = '继承（动物与狗）'\nSTDOUT = '旺财 汪汪'\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex06_class_attribute",
+     "title": "类属性与实例属性",
+     "tags": "类属性 / 实例属性",
+     "minutes": 6,
+     "prompt": "Student 类已有 total 类属性（学生总数计数器）。补全：\n__init__：让 Student.total 加 1，并把 name 存成实例属性\nintro()：返回 f\"我是第 {Student.total} 个学生 {self.name}\"\n注意改类变量要用 类名.total，别写成 self.total",
+     "stub": "class Student:\n    total = 0\n\n    def __init__(self, name: str):\n        # TODO: 在这里写你的代码\n        pass\n\n    def intro(self) -> str:\n        # TODO: 在这里写你的代码\n        pass\n\n\n# ── demo：不要改下面几行 ──\ns1 = Student(\"小明\")\ns2 = Student(\"小红\")\nprint(Student.total)\nprint(s1.intro())\nprint(s2.intro())\n",
+     "tests": "FUNC = 'Student'\nTITLE = '类属性与实例属性'\nSTDOUT = '2 我是第 2 个学生 小明 我是第 2 个学生 小红'\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex07_book_str_repr",
+     "title": "书的 __str__ 与 __repr__",
+     "tags": "__str__ / __repr__",
+     "minutes": 6,
+     "prompt": "Book 类补全两个魔法方法：\n__str__：返回 f\"《{title}》{author}\"（给人看的友好描述）\n__repr__：返回 f\"Book('{title}', '{author}')\"（给开发者看，能复现对象）\ndemo 分别调用 b.__str__() 和 b.__repr__() 并打印（print(b) 内部也会调 __str__）",
+     "stub": "class Book:\n    \"\"\"书名和作者\"\"\"\n    def __init__(self, title: str, author: str):\n        # TODO: 在这里写你的代码\n        pass\n\n    def __str__(self) -> str:\n        # TODO: 在这里写你的代码\n        pass\n\n    def __repr__(self) -> str:\n        # TODO: 在这里写你的代码\n        pass\n\n\n# ── demo：不要改下面几行 ──\nb = Book(\"活着\", \"余华\")\nprint(b.__str__())\nprint(b.__repr__())\n",
+     "tests": "FUNC = 'Book'\nTITLE = '书的 __str__ 与 __repr__'\nSTDOUT = '《活着》余华 Book(\\'活着\\', \\'余华\\')'\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex08_money_eq",
+     "title": "金额比较 __eq__",
+     "tags": "__eq__ / 值比较",
+     "minutes": 5,
+     "prompt": "Money 类：金额 + 币种。补全 __eq__，让两个 Money 在金额和币种都相同时才相等\n不写 __eq__ 时 a == b 比的是内存地址，内容一样也不相等，所以必须自己定义\ndemo 比较三组对象",
+     "stub": "class Money:\n    \"\"\"带币种的金额\"\"\"\n    def __init__(self, amount: float, currency: str = \"元\"):\n        # TODO: 在这里写你的代码\n        pass\n\n    def __eq__(self, other) -> bool:\n        # TODO: 在这里写你的代码\n        pass\n\n\n# ── demo：不要改下面几行 ──\na = Money(10, \"元\")\nb = Money(10, \"元\")\nc = Money(10, \"美元\")\nd = Money(5, \"元\")\nprint(a == b)\nprint(a == c)\nprint(a == d)\n",
+     "tests": "FUNC = 'Money'\nTITLE = '金额比较 __eq__'\nSTDOUT = 'True False False'\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex09_temperature_property",
+     "title": "温度与 @property",
+     "tags": "@property / setter",
+     "minutes": 8,
+     "prompt": "Temperature 类：摄氏温度存 _celsius，通过 @property 对外读写\n补全 celsius 的 getter 和 setter，以及只读的 fahrenheit（返回 摄氏×9/5+32）\n注意：getter 返回 _celsius，setter 把 value 存入 _celsius，别写 self.celsius 造成递归\ndemo 从 100°C 读到 212°F，改成 0°C 后读到 32°F",
+     "stub": "class Temperature:\n    \"\"\"摄氏/华氏温度\"\"\"\n    def __init__(self, celsius: float):\n        # TODO: 直接赋值给 self.celsius（会走 setter 存进 _celsius）\n        pass\n\n    @property\n    def celsius(self) -> float:\n        \"\"\"摄氏温度 getter\"\"\"\n        # TODO: 在这里写你的代码\n        pass\n\n    @celsius.setter\n    def celsius(self, value: float):\n        \"\"\"摄氏温度 setter\"\"\"\n        # TODO: 在这里写你的代码\n        pass\n\n    @property\n    def fahrenheit(self) -> float:\n        \"\"\"只读的华氏温度\"\"\"\n        # TODO: 在这里写你的代码\n        pass\n\n\n# ── demo：不要改下面几行 ──\nt = Temperature(100)\nprint(t.celsius)\nprint(t.fahrenheit)\nt.celsius = 0\nprint(t.fahrenheit)\n",
+     "tests": "FUNC = 'Temperature'\nTITLE = '温度与 @property'\nSTDOUT = '100 212.0 32.0'\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex10_calculator_static",
+     "title": "计算器静态方法",
+     "tags": "@staticmethod",
+     "minutes": 5,
+     "prompt": "Calculator 是工具类，两个方法都不依赖实例，用 @staticmethod 装饰\n补全 add（返回两数之和）和 is_even（n 是偶数返回 True）\ndemo 直接通过类名调用，不需要创建对象",
+     "stub": "class Calculator:\n    \"\"\"纯工具类\"\"\"\n\n    @staticmethod\n    def add(a: float, b: float) -> float:\n        \"\"\"返回两数之和\"\"\"\n        # TODO: 在这里写你的代码\n        pass\n\n    @staticmethod\n    def is_even(n: int) -> bool:\n        \"\"\"判断 n 是否为偶数\"\"\"\n        # TODO: 在这里写你的代码\n        pass\n\n\n# ── demo：不要改下面几行 ──\nprint(Calculator.add(3, 5))\nprint(Calculator.is_even(7))\nprint(Calculator.is_even(8))\n",
+     "tests": "FUNC = 'Calculator'\nTITLE = '计算器静态方法'\nSTDOUT = '8 False True'\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex11_game_highscore",
+     "title": "游戏最高分（类方法）",
+     "tags": "@classmethod / 类变量",
+     "minutes": 6,
+     "prompt": "Game 类用类方法维护「历史最高分」：high_score 是类变量，所有玩家共享\n补全两个类方法（第一个参数是 cls，类本身）：\nrecord(cls, score)：score 比当前最高还高就更新 cls.high_score\nget_high(cls)：返回当前最高分\ndemo 记录三次分数，打印过程中的最高分",
+     "stub": "class Game:\n    \"\"\"用类方法维护全局最高分\"\"\"\n    high_score = 0\n\n    @classmethod\n    def record(cls, score: int):\n        \"\"\"新纪录比当前高才更新\"\"\"\n        # TODO: 在这里写你的代码\n        pass\n\n    @classmethod\n    def get_high(cls) -> int:\n        \"\"\"返回当前最高分\"\"\"\n        # TODO: 在这里写你的代码\n        pass\n\n\n# ── demo：不要改下面几行 ──\nGame.record(50)\nprint(Game.high_score)\nGame.record(80)\nGame.record(30)\nprint(Game.get_high())\n",
+     "tests": "FUNC = 'Game'\nTITLE = '游戏最高分（类方法）'\nSTDOUT = '50 80'\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex12_person_private",
+     "title": "私有属性与校验",
+     "tags": "封装 / 私有约定 / 校验",
+     "minutes": 7,
+     "prompt": "Person 类：年龄存成 _age（单下划线私有约定，外部不能直接改）\n补全：\nget_age：返回当前年龄\nset_age：只有 0 <= age <= 150 才更新 _age，否则直接忽略\ncelebrate_birthday：年龄加一\ndemo 尝试把年龄改成 -5（非法，被忽略），再正常改成 41 后过生日",
+     "stub": "class Person:\n    \"\"\"有姓名和年龄的人\"\"\"\n    def __init__(self, name: str, age: int):\n        # TODO: 保存姓名，把 age 存入 _age\n        pass\n\n    def get_age(self) -> int:\n        \"\"\"返回当前年龄\"\"\"\n        # TODO: 在这里写你的代码\n        pass\n\n    def set_age(self, age: int):\n        \"\"\"0 <= age <= 150 才更新，否则忽略\"\"\"\n        # TODO: 在这里写你的代码\n        pass\n\n    def celebrate_birthday(self):\n        \"\"\"年龄加一\"\"\"\n        # TODO: 在这里写你的代码\n        pass\n\n\n# ── demo：不要改下面几行 ──\np = Person(\"老王\", 40)\nprint(p.get_age())\np.set_age(-5)\nprint(p.get_age())\np.set_age(41)\np.celebrate_birthday()\nprint(p.get_age())\n",
+     "tests": "FUNC = 'Person'\nTITLE = '私有属性与校验'\nSTDOUT = '40 40 42'\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex13_shape_poly",
+     "title": "形状多态",
+     "tags": "继承 / super() / 多态",
+     "minutes": 8,
+     "prompt": "Shape 基类已给出 describe()（返回「名称: 面积」），name 有类属性「形状」兜底\nRectangle 和 Circle 继承 Shape：__init__ 里先 super().__init__(名字) 再存自己的尺寸，并重写 area()\nRectangle.area：宽 × 高；Circle.area：round(math.pi * r**2, 2)\ndemo 把两种形状放进列表，循环打印 describe()（多态：同一循环不同结果）",
+     "stub": "import math\n\n\nclass Shape:\n    \"\"\"形状基类\"\"\"\n    name = \"形状\"   # 类属性兜底：实例没设 name 时用这个\n\n    def __init__(self, name: str):\n        # TODO: 把 name 存成实例属性（会覆盖类属性的同名值）\n        pass\n\n    def area(self) -> float:\n        \"\"\"基类默认面积 0\"\"\"\n        # TODO: 在这里写你的代码\n        pass\n\n    def describe(self) -> str:\n        \"\"\"已给出：名称 + 面积\"\"\"\n        return f\"{self.name}: {self.area()}\"\n\n\nclass Rectangle(Shape):\n    \"\"\"矩形：继承 Shape\"\"\"\n    def __init__(self, width: float, height: float):\n        # TODO: 先 super().__init__(\"矩形\")，再存宽高\n        pass\n\n    def area(self) -> float:\n        \"\"\"面积 = 宽 × 高\"\"\"\n        # TODO: 在这里写你的代码\n        pass\n\n\nclass Circle(Shape):\n    \"\"\"圆形：继承 Shape\"\"\"\n    def __init__(self, radius: float):\n        # TODO: 先 super().__init__(\"圆形\")，再存半径\n        pass\n\n    def area(self) -> float:\n        \"\"\"面积 = πr²，四舍五入到 2 位\"\"\"\n        # TODO: 在这里写你的代码\n        pass\n\n\n# ── demo：不要改下面几行 ──\nshapes = [Rectangle(3, 4), Circle(2)]\nfor s in shapes:\n    print(s.describe())\n",
+     "tests": "FUNC = 'Shape'\nTITLE = '形状多态'\nSTDOUT = '矩形: 12 圆形: 12.57'\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex14_car_composition",
+     "title": "汽车组合引擎",
+     "tags": "组合 / 对象引用",
+     "minutes": 6,
+     "prompt": "组合（HAS-A）：Car 里装着一个 Engine 对象，就像车里装着引擎\n补全：\nEngine：__init__ 存 power，describe 返回 f\"{power} 马力\"\nCar：__init__ 存 brand 和 engine 对象，describe 返回 f\"{brand}，搭载 {engine.describe()}\"\ndemo 先造引擎，装进车里，打印车的描述",
+     "stub": "class Engine:\n    \"\"\"引擎\"\"\"\n    def __init__(self, power: int):\n        # TODO: 在这里写你的代码\n        pass\n\n    def describe(self) -> str:\n        # TODO: 在这里写你的代码\n        pass\n\n\nclass Car:\n    \"\"\"汽车：组合了一个 Engine\"\"\"\n    def __init__(self, brand: str, engine):\n        # TODO: 在这里写你的代码\n        pass\n\n    def describe(self) -> str:\n        # TODO: 在这里写你的代码\n        pass\n\n\n# ── demo：不要改下面几行 ──\nengine = Engine(200)\ncar = Car(\"奥迪\", engine)\nprint(car.describe())\n",
+     "tests": "FUNC = 'Car'\nTITLE = '汽车组合引擎'\nSTDOUT = '奥迪，搭载 200 马力'\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex15_todo_list",
+     "title": "待办清单（综合）",
+     "tags": "组合 / __len__ / __str__ / 综合",
+     "minutes": 12,
+     "prompt": "综合题：Task 表示单个任务，TodoList 组合了一组 Task\n需补全：\nTask：__init__ 存 title 并把 done 置 False；mark_done 把 done 置 True；\n__str__ 完成返回「✓ 标题」，未完成返回「□ 标题」\nTodoList：add 加任务；complete 按索引标记完成；pending_count 数未完成；\n__str__ 每行一个任务（已给出 __len__ 和 __init__）\ndemo 加两个任务、完成第一个，打印总数/未完成数/整个清单",
+     "stub": "class Task:\n    \"\"\"单个待办事项\"\"\"\n    def __init__(self, title: str):\n        # TODO: 在这里写你的代码\n        pass\n\n    def mark_done(self):\n        \"\"\"标记完成\"\"\"\n        # TODO: 在这里写你的代码\n        pass\n\n    def __str__(self) -> str:\n        \"\"\"完成返回「✓ 标题」，未完成返回「□ 标题」\"\"\"\n        # TODO: 在这里写你的代码\n        pass\n\n\nclass TodoList:\n    \"\"\"待办清单：组合多个 Task\"\"\"\n    def __init__(self):\n        self.tasks = []          # 已给出：空清单\n\n    def add(self, title: str):\n        \"\"\"新增一个任务\"\"\"\n        # TODO: 在这里写你的代码\n        pass\n\n    def complete(self, index: int):\n        \"\"\"把第 index 个任务标记完成\"\"\"\n        # TODO: 在这里写你的代码\n        pass\n\n    def pending_count(self) -> int:\n        \"\"\"未完成任务个数\"\"\"\n        # TODO: 在这里写你的代码\n        pass\n\n    def __len__(self) -> int:\n        \"\"\"任务总数（已给出）\"\"\"\n        return len(self.tasks)\n\n    def __str__(self) -> str:\n        \"\"\"每行一个任务\"\"\"\n        # TODO: 在这里写你的代码\n        pass\n\n\n# ── demo：不要改下面几行 ──\ntodo = TodoList()\ntodo.add(\"写作业\")\ntodo.add(\"背单词\")\ntodo.complete(0)\nprint(len(todo))\nprint(todo.pending_count())\nprint(todo.__str__())\n",
+     "tests": "FUNC = 'TodoList'\nTITLE = '待办清单（综合）'\nSTDOUT = '2 1 ✓ 写作业 □ 背单词'\n",
+     "has_solution": true
+    }
+   ]
+  },
+  {
+   "no": "08",
+   "name": "08-常用模块",
+   "exercises": [
+    {
+     "id": "ex01_area_of_circle",
+     "title": "圆的面积",
+     "tags": "math.pi / round",
+     "minutes": 3,
+     "prompt": "补全函数 area_of_circle，返回半径 r 的圆面积（π 用 math.pi），保留两位小数\n例如 area_of_circle(1) 应返回 3.14",
+     "stub": "import math\n\n\ndef area_of_circle(r: float) -> float:\n    \"\"\"返回圆面积，保留两位小数\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'area_of_circle'\nTITLE = '圆的面积'\nCASES = [\n    ((1,), 3.14),\n    ((2,), 12.57),\n    ((0,), 0.0),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex02_parse_json",
+     "title": "解析 JSON",
+     "tags": "json.loads / 字典",
+     "minutes": 3,
+     "prompt": "补全函数 parse_movie，把 JSON 字符串解析成字典并返回\n例如 parse_movie('{\"title\":\"哪吒\",\"rate\":9.0}') 应返回 {\"title\":\"哪吒\",\"rate\":9.0}",
+     "stub": "import json\n\n\ndef parse_movie(raw: str) -> dict:\n    \"\"\"把 JSON 字符串解析成字典\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'parse_movie'\nTITLE = '解析 JSON'\nCASES = [\n    (('{\"title\":\"哪吒\",\"rate\":9.0}',), {'title': '哪吒', 'rate': 9.0}),\n    (('{\"n\":1}',), {'n': 1}),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex03_top_words",
+     "title": "词频前 N",
+     "tags": "collections.Counter / most_common",
+     "minutes": 4,
+     "prompt": "补全函数 top_words，返回出现次数最多的前 k 个词，格式 (词, 次数)，按次数降序\n例如 top_words([\"a\",\"b\",\"a\",\"c\",\"b\",\"a\"], 2) 应返回 [(\"a\",3),(\"b\",2)]",
+     "stub": "from collections import Counter\n\n\ndef top_words(words, k):\n    \"\"\"返回前 k 个高频词（(词, 次数)）\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'top_words'\nTITLE = '词频前 N'\nCASES = [\n    ((['a', 'b', 'a', 'c', 'b', 'a'], 2), [('a', 3), ('b', 2)]),\n    ((['x'], 1), [('x', 1)]),\n    ((['a', 'b'], 5), [('a', 1), ('b', 1)]),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex04_days_between",
+     "title": "两个日期相隔天数",
+     "tags": "datetime.strptime / timedelta",
+     "minutes": 4,
+     "prompt": "补全函数 days_between，接收两个 \"YYYY-MM-DD\" 字符串，返回第二个日期减第一个日期的天数\n例如 days_between(\"2026-01-01\", \"2026-01-03\") 应返回 2",
+     "stub": "from datetime import datetime\n\n\ndef days_between(d1: str, d2: str) -> int:\n    \"\"\"返回 d2 减 d1 的天数\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'days_between'\nTITLE = '两个日期相隔天数'\nCASES = [\n    (('2026-01-01', '2026-01-03'), 2),\n    (('2026-02-01', '2026-03-01'), 28),\n    (('2026-01-01', '2026-01-01'), 0),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex05_extract_urls",
+     "title": "提取链接",
+     "tags": "re.findall / 正则",
+     "minutes": 4,
+     "prompt": "补全函数 extract_urls，用正则提取文本里所有 http(s) 链接\n例如 extract_urls(\"看 https://a.com 和 https://b.cn/x\") 应返回 [\"https://a.com\", \"https://b.cn/x\"]",
+     "stub": "import re\n\n\ndef extract_urls(text: str):\n    \"\"\"提取所有 http(s) 链接\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'extract_urls'\nTITLE = '提取链接'\nCASES = [\n    (('看 https://a.com 和 https://b.cn/x',), ['https://a.com', 'https://b.cn/x']),\n    (('没有链接',), []),\n    (('https://x.com',), ['https://x.com']),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex06_roll_dice",
+     "title": "掷骰子",
+     "tags": "random.randint / random.seed",
+     "minutes": 4,
+     "prompt": "补全函数 roll_dice，每次调用返回 1~6 的随机整数（就像掷一颗骰子）\ndemo 会用固定 seed 连掷三次并打印，结果应该稳定可复现",
+     "stub": "import random\n\n\ndef roll_dice() -> int:\n    \"\"\"返回 1 到 6 的随机整数\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n\n\n# ── demo：不要改下面几行 ──\nrandom.seed(2026)\nprint(roll_dice(), roll_dice(), roll_dice())\n",
+     "tests": "FUNC = 'roll_dice'\nTITLE = '掷骰子'\nSTDOUT = '1 3 5'\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex07_math_extra",
+     "title": "斜边长度",
+     "tags": "math.sqrt / math.pow",
+     "minutes": 3,
+     "prompt": "补全函数 hypotenuse，用 math 模块求直角三角形的斜边长，保留 2 位小数\n例如 hypotenuse(3, 4) 应返回 5.0（勾股定理：c = sqrt(a² + b²)）",
+     "stub": "import math\n\n\ndef hypotenuse(a: float, b: float) -> float:\n    \"\"\"返回斜边长，保留两位小数\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'hypotenuse'\nTITLE = '斜边长度'\nCASES = [\n    ((3, 4), 5.0),\n    ((6, 8), 10.0),\n    ((1, 1), 1.41),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex08_json_dumps",
+     "title": "JSON 序列化",
+     "tags": "json.dumps / ensure_ascii",
+     "minutes": 3,
+     "prompt": "补全函数 to_json，把字典转成 JSON 字符串，中文不转义（ensure_ascii=False）\n例如 to_json({'name': '哪吒', 'rate': 9.0}) 应返回 '{\"name\": \"哪吒\", \"rate\": 9.0}'",
+     "stub": "import json\n\n\ndef to_json(data: dict) -> str:\n    \"\"\"把字典转成 JSON 字符串，中文不转义\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'to_json'\nTITLE = 'JSON 序列化'\nCASES = [\n    (({'name': '哪吒', 'rate': 9.0},), '{\"name\": \"哪吒\", \"rate\": 9.0}'),\n    (({'a': 1},), '{\"a\": 1}'),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex09_count_chars",
+     "title": "字符计数",
+     "tags": "collections.defaultdict",
+     "minutes": 4,
+     "prompt": "补全函数 count_chars，用 defaultdict 统计字符串里每个字符的出现次数，返回普通字典\n例如 count_chars(\"hello\") 应返回 {'h': 1, 'e': 1, 'l': 2, 'o': 1}",
+     "stub": "from collections import defaultdict\n\n\ndef count_chars(s: str) -> dict:\n    \"\"\"统计各字符出现次数，返回普通 dict\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'count_chars'\nTITLE = '字符计数'\nCASES = [\n    (('hello',), {'h': 1, 'e': 1, 'l': 2, 'o': 1}),\n    (('aaa',), {'a': 3}),\n    (('',), {}),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex10_rotate_list",
+     "title": "列表轮转",
+     "tags": "collections.deque / rotate",
+     "minutes": 4,
+     "prompt": "补全函数 rotate_left，用 deque 把列表整体左移 k 位，返回新列表\n例如 rotate_left([1,2,3,4,5], 2) 应返回 [3,4,5,1,2]",
+     "stub": "from collections import deque\n\n\ndef rotate_left(items, k):\n    \"\"\"把列表左移 k 位，返回新列表\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'rotate_left'\nTITLE = '列表轮转'\nCASES = [\n    (([1, 2, 3, 4, 5], 2), [3, 4, 5, 1, 2]),\n    (([1, 2, 3], 0), [1, 2, 3]),\n    (([1, 2, 3], 5), [3, 1, 2]),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex11_midpoint",
+     "title": "中点坐标",
+     "tags": "collections.namedtuple / 字段访问",
+     "minutes": 4,
+     "prompt": "补全函数 midpoint，返回两个点的中点坐标（用 p1.x、p1.y 访问字段）\n例如 midpoint(Point(0,0), Point(4,6)) 应返回 Point(2, 3)",
+     "stub": "from collections import namedtuple\n\nPoint = namedtuple('Point', ['x', 'y'])\n\n\ndef midpoint(p1, p2):\n    \"\"\"返回两点的中点坐标\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "from collections import namedtuple\n\nPoint = namedtuple('Point', ['x', 'y'])\n\nFUNC = 'midpoint'\nTITLE = '中点坐标'\nCASES = [\n    ((Point(0, 0), Point(4, 6)), Point(2, 3)),\n    ((Point(1, 1), Point(1, 1)), Point(1, 1)),\n    ((Point(-2, 4), Point(2, 0)), Point(0, 2)),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex12_mask_phone",
+     "title": "手机号打码",
+     "tags": "re.sub / 正则分组",
+     "minutes": 5,
+     "prompt": "补全函数 mask_phone，把文本里 11 位手机号的中间 4 位替换成 ****（用 re.sub + 分组保留首尾）\n例如 mask_phone(\"联系 13812345678 尽快\") 应返回 \"联系 138****5678 尽快\"",
+     "stub": "import re\n\n\ndef mask_phone(text: str) -> str:\n    \"\"\"把手机号中间四位替换成 ****\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'mask_phone'\nTITLE = '手机号打码'\nCASES = [\n    (('联系 13812345678 尽快',), '联系 138****5678 尽快'),\n    (('没有号码',), '没有号码'),\n    (('手机 15800008888 在线',), '手机 158****8888 在线'),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex13_path_parts",
+     "title": "路径拆解",
+     "tags": "os.path.basename / splitext / dirname",
+     "minutes": 4,
+     "prompt": "补全函数 path_parts，返回 (文件名, 扩展名, 上级目录)，全部用 os.path 模块\n例如 path_parts(\"data/report.txt\") 应返回 (\"report.txt\", \".txt\", \"data\")",
+     "stub": "import os\n\n\ndef path_parts(p: str) -> tuple:\n    \"\"\"返回 (文件名, 扩展名, 上级目录)\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'path_parts'\nTITLE = '路径拆解'\nCASES = [\n    (('data/report.txt',), ('report.txt', '.txt', 'data')),\n    (('a/b/c.tar.gz',), ('c.tar.gz', '.gz', 'a/b')),\n    (('note.md',), ('note.md', '.md', '')),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex14_hash_text",
+     "title": "文本哈希",
+     "tags": "hashlib.sha256 / hexdigest",
+     "minutes": 4,
+     "prompt": "补全函数 sha256_hex，返回字符串的 SHA-256 十六进制摘要（先 encode 成字节再算）\n例如 sha256_hex(\"hello\") 应返回 64 位十六进制字符串",
+     "stub": "import hashlib\n\n\ndef sha256_hex(s: str) -> str:\n    \"\"\"返回字符串的 SHA-256 十六进制摘要\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "import hashlib\n\nFUNC = 'sha256_hex'\nTITLE = '文本哈希'\nCASES = [\n    (('hello',), hashlib.sha256(b'hello').hexdigest()),\n    (('',), hashlib.sha256(b'').hexdigest()),\n    (('123456',), hashlib.sha256(b'123456').hexdigest()),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex15_count_dates",
+     "title": "日志日期统计",
+     "tags": "re.findall / defaultdict / sorted",
+     "minutes": 6,
+     "prompt": "补全函数 count_dates，从多行日志文本里提取所有 YYYY-MM-DD 日期，\n统计每个日期出现次数，返回 [(日期, 次数), ...] 按日期升序排列\n例如 count_dates(\"2026-01-01 a\\n2026-01-01 b\\n2026-01-02 c\") 应返回 [(\"2026-01-01\", 2), (\"2026-01-02\", 1)]",
+     "stub": "import re\nimport sys\nfrom collections import defaultdict\n\n\ndef count_dates(text: str) -> list:\n    \"\"\"统计日志里各日期出现次数，按日期排序\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n\n\n# ── demo：命令行传参运行，如 python ex15_count_dates.py 2026-01-01 a 2026-01-01 b ──\nif __name__ == '__main__':\n    print(count_dates(' '.join(sys.argv[1:])))\n",
+     "tests": "FUNC = 'count_dates'\nTITLE = '日志日期统计'\nCASES = [\n    (('2026-01-01 完成\\n2026-01-02 学习\\n2026-01-01 复盘\\n',), [('2026-01-01', 2), ('2026-01-02', 1)]),\n    (('没有日期',), []),\n]\n",
+     "has_solution": true
+    }
+   ]
+  },
+  {
+   "no": "09",
+   "name": "09-算法思维",
+   "exercises": [
+    {
+     "id": "ex01_find_index",
+     "title": "线性查找",
+     "tags": "遍历 / enumerate",
+     "minutes": 3,
+     "prompt": "补全函数 find_index，返回 target 在列表里第一次出现的下标，没有返回 -1\n例如 find_index([3,1,4,1], 1) 应返回 1",
+     "stub": "def find_index(lst, target: int) -> int:\n    \"\"\"返回 target 第一次出现的下标\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'find_index'\nTITLE = '线性查找'\nCASES = [\n    (([3, 1, 4, 1], 1), 1),\n    (([1, 2, 3], 9), -1),\n    (([], 5), -1),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex02_binary_search",
+     "title": "二分查找",
+     "tags": "二分 / 有序列表",
+     "minutes": 6,
+     "prompt": "补全函数 binary_search，在有序列表里二分查找 target，返回下标，没有返回 -1\n例如 binary_search([1,3,5,7,9], 7) 应返回 3",
+     "stub": "def binary_search(sorted_lst, target: int) -> int:\n    \"\"\"二分查找（列表已升序）\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'binary_search'\nTITLE = '二分查找'\nCASES = [\n    (([1, 3, 5, 7, 9], 7), 3),\n    (([1, 3, 5, 7, 9], 2), -1),\n    (([5], 5), 0),\n    (([], 1), -1),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex03_bubble_sort",
+     "title": "冒泡排序",
+     "tags": "排序 / 双重循环",
+     "minutes": 6,
+     "prompt": "补全函数 bubble_sort，返回升序排序后的新列表（不改原列表）\n例如 bubble_sort([3,1,2]) 应返回 [1,2,3]",
+     "stub": "def bubble_sort(lst):\n    \"\"\"冒泡排序，返回新列表\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'bubble_sort'\nTITLE = '冒泡排序'\nCASES = [\n    (([3, 1, 2],), [1, 2, 3]),\n    (([],), []),\n    (([1, 1, 2, 1],), [1, 1, 1, 2]),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex04_two_sum",
+     "title": "两数之和",
+     "tags": "双层循环 / 下标",
+     "minutes": 5,
+     "prompt": "补全函数 two_sum，返回列表里两数之和等于 target 的两个下标（小在前）；没有返回 [-1,-1]\n例如 two_sum([2,7,11,15], 9) 应返回 [0,1]",
+     "stub": "def two_sum(nums, target: int):\n    \"\"\"返回两数之和等于 target 的下标\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'two_sum'\nTITLE = '两数之和'\nCASES = [\n    (([2, 7, 11, 15], 9), [0, 1]),\n    (([3, 2, 4], 6), [1, 2]),\n    (([1, 2], 9), [-1, -1]),\n    (([3, 3], 6), [0, 1]),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex05_fibonacci",
+     "title": "斐波那契",
+     "tags": "递归 / 基准条件",
+     "minutes": 4,
+     "prompt": "补全函数 fib，用递归返回第 n 个斐波那契数（fib(0)=0, fib(1)=1）\n例如 fib(6) 应返回 8",
+     "stub": "def fib(n: int) -> int:\n    \"\"\"递归求第 n 个斐波那契数\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'fib'\nTITLE = '斐波那契'\nCASES = [\n    ((0,), 0),\n    ((1,), 1),\n    ((6,), 8),\n    ((10,), 55),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex06_selection_sort",
+     "title": "选择排序",
+     "tags": "选择排序 / 双重循环",
+     "minutes": 6,
+     "prompt": "补全函数 selection_sort，用选择排序把列表升序排列，返回新列表（不改原列表）\n例如 selection_sort([4,2,3,1]) 应返回 [1,2,3,4]",
+     "stub": "def selection_sort(lst):\n    \"\"\"选择排序，返回升序新列表\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'selection_sort'\nTITLE = '选择排序'\nCASES = [\n    (([4, 2, 3, 1],), [1, 2, 3, 4]),\n    (([],), []),\n    (([1],), [1]),\n    (([3, 1, 1, 2],), [1, 1, 2, 3]),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex07_insertion_sort",
+     "title": "插入排序",
+     "tags": "插入排序 / 移位",
+     "minutes": 7,
+     "prompt": "补全函数 insertion_sort，用插入排序把列表升序排列，返回新列表（不改原列表）\n例如 insertion_sort([5,2,4,1,3]) 应返回 [1,2,3,4,5]",
+     "stub": "def insertion_sort(lst):\n    \"\"\"插入排序，返回升序新列表\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'insertion_sort'\nTITLE = '插入排序'\nCASES = [\n    (([5, 2, 4, 1, 3],), [1, 2, 3, 4, 5]),\n    (([],), []),\n    (([2, 2],), [2, 2]),\n    (([9, 8, 7, 6],), [6, 7, 8, 9]),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex08_char_frequency",
+     "title": "字符频次统计",
+     "tags": "哈希计数 / 字典",
+     "minutes": 6,
+     "prompt": "补全函数 char_frequency，统计字符串里每个字符出现的次数，返回字典\n例如 char_frequency(\"hello\") 应返回 {'h':1,'e':1,'l':2,'o':1}",
+     "stub": "def char_frequency(s: str) -> dict:\n    \"\"\"返回字符到出现次数的字典\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'char_frequency'\nTITLE = '字符频次统计'\nCASES = [\n    (('hello',), {'h': 1, 'e': 1, 'l': 2, 'o': 1}),\n    (('',), {}),\n    (('aab',), {'a': 2, 'b': 1}),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex09_reverse_list",
+     "title": "双指针反转列表",
+     "tags": "双指针 / 原地交换",
+     "minutes": 5,
+     "prompt": "补全函数 reverse_list，用双指针把列表逆序，返回新列表（不改原列表）\n例如 reverse_list([1,2,3,4]) 应返回 [4,3,2,1]",
+     "stub": "def reverse_list(lst):\n    \"\"\"双指针反转，返回新列表\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'reverse_list'\nTITLE = '双指针反转列表'\nCASES = [\n    (([1, 2, 3, 4],), [4, 3, 2, 1]),\n    (([],), []),\n    (([7],), [7]),\n    (([1, 2],), [2, 1]),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex10_merge_lists",
+     "title": "归并有序列表",
+     "tags": "归并思想 / 双指针",
+     "minutes": 7,
+     "prompt": "补全函数 merge_lists，把两个升序列表合并成一个升序列表（归并思想）\n例如 merge_lists([1,3,5],[2,4,6]) 应返回 [1,2,3,4,5,6]",
+     "stub": "def merge_lists(a, b):\n    \"\"\"合并两个升序列表，返回新列表\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'merge_lists'\nTITLE = '归并有序列表'\nCASES = [\n    (([1, 3, 5], [2, 4, 6]), [1, 2, 3, 4, 5, 6]),\n    (([], [1, 2]), [1, 2]),\n    (([1, 2], []), [1, 2]),\n    (([], []), []),\n    (([1, 1, 2], [1, 3]), [1, 1, 1, 2, 3]),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex11_quick_sort",
+     "title": "快速排序",
+     "tags": "分治 / 基准划分",
+     "minutes": 9,
+     "prompt": "补全函数 quick_sort，用快速排序思想把列表升序排列，返回新列表（不改原列表）\n例如 quick_sort([6,3,8,5,2]) 应返回 [2,3,5,6,8]",
+     "stub": "def quick_sort(lst):\n    \"\"\"快速排序，返回升序新列表\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'quick_sort'\nTITLE = '快速排序'\nTIMEOUT = 5\nCASES = [\n    (([6, 3, 8, 5, 2],), [2, 3, 5, 6, 8]),\n    (([],), []),\n    (([5],), [5]),\n    (([3, 1, 3, 2],), [1, 2, 3, 3]),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex12_min_coins",
+     "title": "贪心找零钱",
+     "tags": "贪心 / 取整取余",
+     "minutes": 6,
+     "prompt": "补全函数 min_coins，用贪心思路求凑出 amount 需要的最少硬币数；凑不出返回 -1\n例如 min_coins([1,5,10,25], 38) 应返回 5 （25+10+1+1+1）",
+     "stub": "def min_coins(coins, amount: int) -> int:\n    \"\"\"贪心求最少硬币数，凑不出返回 -1\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'min_coins'\nTITLE = '贪心找零钱'\nCASES = [\n    (([1, 5, 10, 25], 38), 5),\n    (([1, 5, 10, 25], 0), 0),\n    (([1, 5, 10], 13), 4),\n    (([5, 10], 3), -1),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex13_min_window",
+     "title": "滑动窗口最短子数组",
+     "tags": "滑动窗口 / 双指针",
+     "minutes": 10,
+     "prompt": "补全函数 min_window，找最短连续子数组，使它的和 >= target，返回其长度；不存在返回 0\n例如 min_window(7, [2,3,1,2,4,3]) 应返回 2 （子数组 [4,3]）",
+     "stub": "def min_window(target: int, nums) -> int:\n    \"\"\"滑动窗口求最短连续子数组长度\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'min_window'\nTITLE = '滑动窗口最短子数组'\nCASES = [\n    ((7, [2, 3, 1, 2, 4, 3]), 2),\n    ((11, [1, 1, 1, 1, 1, 1, 1, 1]), 0),\n    ((4, [1, 4, 4]), 1),\n    ((3, [1, 1, 1]), 3),\n    ((15, [1, 2, 3, 4, 5]), 5),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex14_climb_stairs",
+     "title": "爬楼梯",
+     "tags": "动态规划 / 递推",
+     "minutes": 7,
+     "prompt": "补全函数 climb_stairs，一次可以爬 1 或 2 级，返回爬到第 n 级共有多少种方法\n例如 climb_stairs(4) 应返回 5 （1+1+1+1、1+1+2、1+2+1、2+1+1、2+2）",
+     "stub": "def climb_stairs(n: int) -> int:\n    \"\"\"动态规划求爬楼梯方法数\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'climb_stairs'\nTITLE = '爬楼梯'\nCASES = [\n    ((1,), 1),\n    ((2,), 2),\n    ((3,), 3),\n    ((4,), 5),\n    ((10,), 89),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex15_spiral_matrix",
+     "title": "螺旋遍历矩阵",
+     "tags": "矩阵 / 边界控制",
+     "minutes": 12,
+     "prompt": "补全函数 spiral_matrix，按顺时针螺旋顺序返回矩阵的所有元素（一维列表）\n例如 spiral_matrix([[1,2,3],[4,5,6],[7,8,9]]) 应返回 [1,2,3,6,9,8,7,4,5]",
+     "stub": "def spiral_matrix(matrix):\n    \"\"\"顺时针螺旋遍历二维矩阵\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'spiral_matrix'\nTITLE = '螺旋遍历矩阵'\nCASES = [\n    (([[1, 2, 3], [4, 5, 6], [7, 8, 9]],), [1, 2, 3, 6, 9, 8, 7, 4, 5]),\n    (([[1]],), [1]),\n    (([],), []),\n    (([[1, 2], [3, 4]],), [1, 2, 4, 3]),\n    (([[1, 2, 3, 4]],), [1, 2, 3, 4]),\n]\n",
+     "has_solution": true
+    }
+   ]
+  },
+  {
+   "no": "10",
+   "name": "10-进阶应用-爬虫与数据分析",
+   "exercises": [
+    {
+     "id": "ex01_parse_video",
+     "title": "解析视频数据",
+     "tags": "嵌套字典 / 字段提取",
+     "minutes": 3,
+     "prompt": "补全函数 parse_video，从视频字典里提取标题和播放量，返回 (标题, 播放量)；播放量在 stat.view\n例如 parse_video({\"title\":\"A\",\"stat\":{\"view\":100}}) 应返回 (\"A\", 100)",
+     "stub": "def parse_video(v: dict):\n    \"\"\"返回 (标题, 播放量)，播放量在 stat.view 里\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'parse_video'\nTITLE = '解析视频数据'\nCASES = [\n    (({'title': 'A', 'stat': {'view': 100}},), ('A', 100)),\n    (({'title': 'B', 'stat': {'view': 5}},), ('B', 5)),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex02_top_videos",
+     "title": "播放量 TOP N",
+     "tags": "sorted / 嵌套字段 / 切片",
+     "minutes": 5,
+     "prompt": "补全函数 top_videos，按播放量从高到低返回前 n 个视频的标题列表\n测试里 VIDEOS 是 3 个视频，top_videos(VIDEOS, 2) 应返回播放量最高的 2 个标题",
+     "stub": "def top_videos(videos, n: int):\n    \"\"\"返回播放量前 n 的视频标题\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'top_videos'\nTITLE = '播放量 TOP N'\nVIDEOS = [\n    {'title': 'A', 'stat': {'view': 10}},\n    {'title': 'C', 'stat': {'view': 30}},\n    {'title': 'B', 'stat': {'view': 20}},\n]\nCASES = [\n    ((VIDEOS, 2), ['C', 'B']),\n    ((VIDEOS, 5), ['C', 'B', 'A']),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex03_avg_views",
+     "title": "平均播放量",
+     "tags": "列表 / 求和 / 保留小数",
+     "minutes": 4,
+     "prompt": "补全函数 avg_views，返回所有视频的平均播放量（保留 1 位小数）；没有视频返回 0\nVIDEOS 播放量为 10、30、20，平均应返回 20.0",
+     "stub": "def avg_views(videos):\n    \"\"\"返回平均播放量（保留 1 位小数）\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'avg_views'\nTITLE = '平均播放量'\nVIDEOS = [\n    {'title': 'A', 'stat': {'view': 10}},\n    {'title': 'C', 'stat': {'view': 30}},\n    {'title': 'B', 'stat': {'view': 20}},\n]\nCASES = [\n    ((VIDEOS,), 20.0),\n    (([],), 0),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex04_parse_csv",
+     "title": "解析 CSV 行",
+     "tags": "split / 字符串清洗",
+     "minutes": 4,
+     "prompt": "补全函数 parse_csv_line，把一行 CSV 拆成字段列表，去掉字段两端的引号\n例如 parse_csv_line('\"小明\",85,贵阳') 应返回 [\"小明\", \"85\", \"贵阳\"]",
+     "stub": "def parse_csv_line(line: str):\n    \"\"\"拆分 CSV 行并去掉字段引号\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'parse_csv_line'\nTITLE = '解析 CSV 行'\nCASES = [\n    (('\"小明\",85,贵阳',), ['小明', '85', '贵阳']),\n    (('a,b',), ['a', 'b']),\n    (('\"x\"',), ['x']),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex05_extract_title",
+     "title": "提取网页标题",
+     "tags": "re.search / 正则",
+     "minutes": 4,
+     "prompt": "补全函数 extract_title，用正则从 HTML 里提取 <title> 的内容，没有返回空字符串\n例如 extract_title(\"<title>B站</title>\") 应返回 \"B站\"",
+     "stub": "import re\n\n\ndef extract_title(html: str) -> str:\n    \"\"\"提取 <title> 内容\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'extract_title'\nTITLE = '提取网页标题'\nCASES = [\n    (('<title>B站</title>',), 'B站'),\n    (('<title>  数分  </title>',), '  数分  '),\n    (('<p>没有标题</p>',), ''),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex06_clean_numbers",
+     "title": "数据清洗",
+     "tags": "字符串替换 / try/except",
+     "minutes": 5,
+     "prompt": "补全函数 clean_numbers，把含千分位逗号的数字字符串列表转成整数列表，跳过无法解析的项\n例如 clean_numbers([\"1,234\",\"56\",\"abc\"]) 应返回 [1234, 56]",
+     "stub": "def clean_numbers(items):\n    \"\"\"把数字字符串转整数，跳过解析失败的\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'clean_numbers'\nTITLE = '数据清洗'\nCASES = [\n    ((['1,234', '56', 'abc'],), [1234, 56]),\n    ((['0', '-3'],), [0, -3]),\n    (([],), []),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex07_multi_fields",
+     "title": "提取多个字段",
+     "tags": "嵌套字典 / 多字段提取",
+     "minutes": 4,
+     "prompt": "补全函数 extract_fields，从一个视频字典里一次提取多个字段，返回一个新字典\n包含「标题 / UP主 / 分区 / 播放」四个键；UP主在 owner.name，播放量在 stat.view\n例如 extract_fields({\"title\":\"A\",\"owner\":{\"name\":\"小明\"},\"tname\":\"科技\",\"stat\":{\"view\":100}})\n应返回 {\"标题\":\"A\",\"UP主\":\"小明\",\"分区\":\"科技\",\"播放\":100}",
+     "stub": "def extract_fields(v: dict) -> dict:\n    \"\"\"提取标题、UP主、分区、播放量，返回新字典\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'extract_fields'\nTITLE = '提取多个字段'\nVIDEOS = [\n    {'title': 'A', 'owner': {'name': '小明'}, 'tname': '科技', 'stat': {'view': 100}},\n    {'title': 'B', 'owner': {'name': '小红'}, 'tname': '美食', 'stat': {'view': 50}},\n]\nCASES = [\n    ((VIDEOS[0],), {'标题': 'A', 'UP主': '小明', '分区': '科技', '播放': 100}),\n    ((VIDEOS[1],), {'标题': 'B', 'UP主': '小红', '分区': '美食', '播放': 50}),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex08_sort_multi",
+     "title": "多条件排序",
+     "tags": "sorted / key 元组 / 多条件",
+     "minutes": 5,
+     "prompt": "补全函数 top_multi，先按播放量从高到低排序，播放量相同再按点赞量从高到低\n返回排序后的标题列表；例如播放同为 100 时，点赞 500 的排在点赞 300 的前面",
+     "stub": "def top_multi(videos):\n    \"\"\"先按播放降序，再按点赞降序，返回标题列表\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'top_multi'\nTITLE = '多条件排序'\nVIDEOS = [\n    {'title': 'A', 'stat': {'view': 100, 'like': 300}},\n    {'title': 'B', 'stat': {'view': 200, 'like': 100}},\n    {'title': 'C', 'stat': {'view': 100, 'like': 500}},\n]\nCASES = [\n    ((VIDEOS,), ['B', 'C', 'A']),\n    (([],), []),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex09_count_category",
+     "title": "分区统计",
+     "tags": "分组统计 / 字典计数",
+     "minutes": 5,
+     "prompt": "补全函数 count_category，统计每个分区的视频数量，返回 {分区名: 数量}\n例如两个「科技」、一个「美食」应返回 {\"科技\": 2, \"美食\": 1}，空列表返回空字典",
+     "stub": "def count_category(videos):\n    \"\"\"统计各分区视频数量，返回字典\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'count_category'\nTITLE = '分区统计'\nVIDEOS = [\n    {'title': 'A', 'tname': '科技'},\n    {'title': 'B', 'tname': '美食'},\n    {'title': 'C', 'tname': '科技'},\n]\nCASES = [\n    ((VIDEOS,), {'科技': 2, '美食': 1}),\n    (([],), {}),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex10_parse_csv_quoted",
+     "title": "带引号的 CSV",
+     "tags": "字符串解析 / 引号处理",
+     "minutes": 7,
+     "prompt": "补全函数 parse_csv_quoted，解析一行 CSV：被双引号包住的字段里可以含逗号，引号要剥掉\n例如 '\"小明,软件工程\",85' 应返回 [\"小明,软件工程\", \"85\"]，普通行 \"a,b\" 返回 [\"a\", \"b\"]\n提示：用一个 in_q 标记是否在引号内，引号内遇到的逗号不算分隔符",
+     "stub": "def parse_csv_quoted(line: str):\n    \"\"\"拆分 CSV 行，支持引号内逗号\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'parse_csv_quoted'\nTITLE = '带引号的 CSV'\nCASES = [\n    (('\"小明,软件工程\",85',), ['小明,软件工程', '85']),\n    (('a,b,c',), ['a', 'b', 'c']),\n    (('\"x\",y',), ['x', 'y']),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex11_extract_all_titles",
+     "title": "提取全部标题",
+     "tags": "re.findall / 正则",
+     "minutes": 4,
+     "prompt": "补全函数 extract_all_titles，用 re.findall 抓出 HTML 里所有 <title> 标签的内容，返回列表\n例如 \"<title>A</title><title>B</title>\" 应返回 [\"A\", \"B\"]，没有 title 返回空列表",
+     "stub": "import re\n\n\ndef extract_all_titles(html: str):\n    \"\"\"返回所有 <title> 内容组成的列表\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'extract_all_titles'\nTITLE = '提取全部标题'\nCASES = [\n    (('<title>A</title><title>B</title>',), ['A', 'B']),\n    (('<p>没有标题</p>',), []),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex12_clean_dedupe",
+     "title": "去空去重",
+     "tags": "去空串 / 去重 / 顺序保持",
+     "minutes": 5,
+     "prompt": "补全函数 clean_titles，去掉空串和全空白串，再去重，保持第一次出现的顺序\n例如 [\"A\", \"  \", \"B\", \"\", \"A\"] 应返回 [\"A\", \"B\"]\n提示：用 set 记已经见过的标题，用 strip() 判断是否全空白",
+     "stub": "def clean_titles(titles):\n    \"\"\"去掉空串并去重，保持顺序\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'clean_titles'\nTITLE = '去空去重'\nCASES = [\n    ((['A', '  ', 'B', '', 'A'],), ['A', 'B']),\n    ((['X'],), ['X']),\n    (([],), []),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex13_parse_unit",
+     "title": "播放量单位换算",
+     "tags": "类型转换 / 单位解析",
+     "minutes": 6,
+     "prompt": "补全函数 to_view，把带单位的播放量字符串转成整数：结尾「万」乘以 10000，「亿」乘以 100000000\n没有单位的按普通数字转换；空串或无法解析的字符串返回 0\n例如 \"1.5万\" 应返回 15000，\"\" 应返回 0",
+     "stub": "def to_view(s: str) -> int:\n    \"\"\"把带万/亿单位的字符串转成整数，解析失败返回 0\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'to_view'\nTITLE = '播放量单位换算'\nCASES = [\n    (('1.5万',), 15000),\n    (('2.3亿',), 230000000),\n    (('123',), 123),\n    (('abc',), 0),\n    (('',), 0),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex14_remove_outliers",
+     "title": "剔除异常值",
+     "tags": "异常值 / 范围过滤",
+     "minutes": 5,
+     "prompt": "补全函数 filter_outliers，过滤视频列表：播放量小于 0（脏数据）或超过 max_view（疑似刷量）都剔除\n返回保留下来视频的标题列表；例如播放量 100、250、-5、999999，max_view=1000 应返回 [\"A\", \"B\"]",
+     "stub": "def filter_outliers(videos, max_view: int):\n    \"\"\"剔除播放量为负或超上限的视频，返回保留的标题\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'filter_outliers'\nTITLE = '剔除异常值'\nVIDEOS = [\n    {'title': 'A', 'stat': {'view': 100}},\n    {'title': 'B', 'stat': {'view': 250}},\n    {'title': 'C', 'stat': {'view': -5}},\n    {'title': 'D', 'stat': {'view': 999999}},\n]\nCASES = [\n    ((VIDEOS, 1000), ['A', 'B']),\n    ((VIDEOS, 200), ['A']),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex15_map_filter_agg",
+     "title": "映射筛选聚合",
+     "tags": "列表推导 / 筛选 / 聚合",
+     "minutes": 6,
+     "prompt": "补全函数 avg_liked_views，只统计点赞量不少于 min_like 的视频，返回它们播放量的平均值（保留 1 位小数）\n没有符合条件的视频返回 0；例如点赞 500/100 的两个视频，min_like=200 时只看点赞 500 那个",
+     "stub": "def avg_liked_views(videos, min_like: int):\n    \"\"\"返回点赞达标视频的平均播放量（保留 1 位小数）\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'avg_liked_views'\nTITLE = '映射筛选聚合'\nVIDEOS = [\n    {'title': 'A', 'stat': {'view': 100, 'like': 500}},\n    {'title': 'B', 'stat': {'view': 300, 'like': 100}},\n    {'title': 'C', 'stat': {'view': 200, 'like': 500}},\n]\nCASES = [\n    ((VIDEOS, 200), 150.0),\n    ((VIDEOS, 999), 0),\n    (([], 0), 0),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex16_stats_median_mode",
+     "title": "中位数与众数",
+     "tags": "中位数 / 众数 / 统计",
+     "minutes": 7,
+     "prompt": "补全函数 median_and_mode，返回 (中位数, 众数)；中位数先排序取中间，偶数个取中间两数平均\n众数取出现次数最多的数，次数相同保留先出现的；空列表返回 (0, None)\n例如 [3, 1, 2, 2] 应返回 (2.0, 2)，[5, 5, 1, 1, 3] 应返回 (3, 5)",
+     "stub": "def median_and_mode(nums):\n    \"\"\"返回 (中位数, 众数)\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'median_and_mode'\nTITLE = '中位数与众数'\nCASES = [\n    (([3, 1, 2, 2],), (2.0, 2)),\n    (([5, 5, 1, 1, 3],), (3, 5)),\n    (([1, 2, 3, 4],), (2.5, 1)),\n    (([7],), (7, 7)),\n    (([],), (0, None)),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex17_format_output",
+     "title": "排行榜格式化输出",
+     "tags": "f-string / 对齐 / 千分位",
+     "minutes": 5,
+     "prompt": "补全函数 format_row，把 (排名, 标题, 播放量) 拼成一行字符串：\n排名右对齐 3 位，播放量右对齐 8 位并加千分位，再跟上标题\n例如 format_row(1, \"凡人修仙传\", 54517) 应返回 \"  1    54,517  凡人修仙传\"\ndemo 会打印排行榜前 3 行，运行后应看到 3 行整齐的榜单",
+     "stub": "def format_row(rank, title, view):\n    \"\"\"把排名、标题、播放量格式化成一行\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n\n\n# ── demo：不要改下面几行 ──\ndata = [\n    (1, '凡人修仙传', 54517),\n    (2, '小时候看不懂', 49744),\n    (3, '命运冠位指定', 36443),\n]\nfor r in data:\n    print(format_row(*r))\n",
+     "tests": "FUNC = 'format_row'\nTITLE = '排行榜格式化输出'\nSTDOUT = '''  1    54,517  凡人修仙传\n  2    49,744  小时候看不懂\n  3    36,443  命运冠位指定'''\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex18_text_pattern",
+     "title": "从文本提取数字",
+     "tags": "re.findall / 文本规律",
+     "minutes": 4,
+     "prompt": "补全函数 extract_numbers，用正则把字符串里所有连续数字提出来，转成整数列表\n例如 \"播放 12345，点赞 678\" 应返回 [12345, 678]，没有数字返回空列表",
+     "stub": "import re\n\n\ndef extract_numbers(text: str):\n    \"\"\"返回文本中所有整数组成的列表\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'extract_numbers'\nTITLE = '从文本提取数字'\nCASES = [\n    (('播放 12345，点赞 678',), [12345, 678]),\n    (('今天2026年8月2日',), [2026, 8, 2]),\n    (('没有数字',), []),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex19_real_processing",
+     "title": "综合：CSV 数据流水线",
+     "tags": "字符串解析 / 清洗 / 分组统计",
+     "minutes": 9,
+     "prompt": "补全函数 process_csv，处理多行 CSV 字符串（首行是表头，每行三列：标题,分区,播放）：\n跳过标题为空或播放量小于等于 0 的脏数据，最后按分区统计平均播放量（保留 1 位小数）\n例如 \"A,科技,1000\" 和 \"C,科技,3000\" 两条，分区科技的平均播放应返回 2000.0",
+     "stub": "def process_csv(text: str):\n    \"\"\"解析多行 CSV，清洗后按分区返回平均播放量\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'process_csv'\nTITLE = '综合：CSV 数据流水线'\nCSV_TEXT = '''标题,分区,播放\nA,科技,1000\nB,美食,2000\nC,科技,3000\n,科技,5000\nD,美食,-5'''\nCASES = [\n    ((CSV_TEXT,), {'科技': 2000.0, '美食': 2000.0}),\n    (('标题,分区,播放\\nX,数码,1',), {'数码': 1.0}),\n]\n",
+     "has_solution": true
+    },
+    {
+     "id": "ex20_real_report",
+     "title": "综合：数据报告生成",
+     "tags": "解析 / 清洗 / 排序 / 格式化输出",
+     "minutes": 10,
+     "prompt": "补全函数 make_report，处理多行 CSV 字符串（首行是表头，每行三列：标题,分区,播放）：\n跳过表头和脏数据（标题为空或播放量小于等于 0），按播放量从高到低排序，\n返回格式化好的榜单行列表：排名右对齐 3 位、标题、播放量右对齐 8 位并加千分位\ndemo 会把榜单一行行打印出来",
+     "stub": "def make_report(csv_text: str):\n    \"\"\"解析清洗排序，返回格式化榜单行列表\"\"\"\n    # TODO: 在这里写你的代码\n    pass\n",
+     "tests": "FUNC = 'make_report'\nTITLE = '综合：数据报告生成'\nCSV_TEXT = '''标题,分区,播放\nA,科技,1000\nB,美食,99999\nC,科技,2000\n,科技,5000\nD,美食,-5'''\nCASES = [\n    ((CSV_TEXT,), ['  1  B    99,999', '  2  C     2,000', '  3  A     1,000']),\n]\n",
+     "has_solution": true
+    }
+   ]
+  }
+ ]
+}

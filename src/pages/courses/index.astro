@@ -1,0 +1,136 @@
+---
+import Base from '../../layouts/Base.astro';
+import { COURSES, type CourseCategory } from '../../data/courses';
+import { query } from '../../db/mysql';
+
+const catMeta: Record<CourseCategory, { desc: string }> = {
+  '专业核心': { desc: '计算机核心理论与算法基础' },
+  '编程与数据': { desc: '编程语言、数据库与后端开发' },
+  '工程与架构': { desc: '软件工程方法、架构与部署' },
+};
+const catOrder: CourseCategory[] = ['专业核心', '编程与数据', '工程与架构'];
+
+// 讲义数：一次查询 9 门课的笔记计数
+const titles = COURSES.map((c) => c.title);
+const rows = await query(
+  `SELECT course, COUNT(*) AS cnt FROM notes
+   WHERE type='note' AND status='published' AND course IN (${titles.map(() => '?').join(',')})
+   GROUP BY course`,
+  titles
+);
+const noteCount: Record<string, number> = {};
+for (const r of rows) noteCount[r.course] = Number(r.cnt) || 0;
+
+const totalNotes = titles.reduce((s, t) => s + (noteCount[t] || 0), 0);
+const liveCount = COURSES.filter((c) => c.practice && !c.practice.planned).length;
+const grouped = catOrder.map((cat) => ({
+  cat,
+  desc: catMeta[cat].desc,
+  courses: COURSES.filter((c) => c.category === cat),
+}));
+---
+
+<Base title="课程" description="大三上 9 门课的学习地图与练习中心" wide={true}>
+  <div class="cp-header">
+    <div>
+      <h1>课程</h1>
+      <div class="cp-sub">大三上学习地图 · {COURSES.length} 门课 · {liveCount} 门有在线练习 · {totalNotes} 篇讲义</div>
+    </div>
+  </div>
+
+  {grouped.map(({ cat, desc, courses }) => (
+    <section class="cp-sec" data-reveal="bottom">
+      <div class="cp-sec-hd">
+        <span class="cp-sec-name">{cat}</span>
+        <span class="cp-sec-desc">{desc}</span>
+        <span class="cp-sec-count">{courses.length} 门</span>
+      </div>
+      <div class="cp-grid">
+        {courses.map((c, i) => {
+          const notes = noteCount[c.title] || 0;
+          const live = c.practice && !c.practice.planned;
+          const planned = c.practice && c.practice.planned;
+          return (
+            <a href={`/courses/${c.slug}`} class="cp-card" style={`--cc:${c.color};--cg:${c.glow}`}
+              data-reveal="bottom" data-delay={`${i * 60}`}>
+              <div class="cpc-top">
+                <span class="cpc-emoji" style={`background:${c.glow}`}>{c.emoji}</span>
+                <span class="cpc-title">{c.title}</span>
+              </div>
+              <div class="cpc-summary">{c.summary}</div>
+              <div class="cpc-meta">
+                {live ? (
+                  <span class="cpc-badge live" style={`--b:${c.color}`}>● 可练习 · {c.practice?.label}</span>
+                ) : planned ? (
+                  <span class="cpc-badge planned" style={`--b:${c.color}`}>◔ {c.practice?.label} 规划中</span>
+                ) : (
+                  <span class="cpc-badge">只读讲义</span>
+                )}
+                <span class="cpc-notes">{notes ? `${notes} 篇讲义` : '讲义待建'}</span>
+                <span class="cpc-arrow">→</span>
+              </div>
+            </a>
+          );
+        })}
+      </div>
+    </section>
+  ))}
+</Base>
+
+<style>
+  .cp-header { margin-bottom: 1.5rem; }
+  .cp-header h1 { font-size: 1.6rem; margin: 0; }
+  .cp-sub { font-size: 0.82rem; color: var(--text-muted); margin-top: 0.1rem; }
+
+  .cp-sec { margin-bottom: 1.6rem; }
+  .cp-sec-hd {
+    display: flex; align-items: baseline; gap: 0.5rem;
+    margin-bottom: 0.7rem; padding-bottom: 0.4rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .cp-sec-name { font-weight: 700; font-size: 0.95rem; }
+  .cp-sec-desc { font-size: 0.72rem; color: var(--text-muted); }
+  .cp-sec-count { margin-left: auto; font-size: 0.68rem; color: var(--text-muted); }
+
+  .cp-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 0.75rem;
+  }
+  .cp-card {
+    display: flex; flex-direction: column; gap: 0.55rem;
+    padding: 0.95rem 1rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    text-decoration: none; color: var(--text);
+    transition: box-shadow 0.2s, transform 0.15s, border-color 0.2s;
+  }
+  .cp-card:hover {
+    box-shadow: 0 0 0 1px var(--cc), var(--shadow-hover);
+    transform: translateY(-2px);
+    border-color: var(--cc);
+  }
+  .cpc-top { display: flex; align-items: center; gap: 0.5rem; }
+  .cpc-emoji {
+    font-size: 1.05rem; line-height: 1;
+    width: 30px; height: 30px; border-radius: 8px;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .cpc-title { font-weight: 700; font-size: 0.92rem; }
+  .cpc-summary { font-size: 0.76rem; color: var(--text-muted); line-height: 1.5; flex: 1; }
+  .cpc-meta {
+    display: flex; align-items: center; gap: 0.5rem;
+    font-size: 0.66rem; color: var(--text-muted);
+    border-top: 1px dashed var(--border); padding-top: 0.5rem;
+  }
+  .cpc-badge {
+    padding: 0.12em 0.5em; border-radius: 5px;
+    background: var(--bg-hover); color: var(--text-secondary);
+    white-space: nowrap;
+  }
+  .cpc-badge.live { background: color-mix(in srgb, var(--b) 15%, transparent); color: var(--b); }
+  .cpc-badge.planned { background: var(--bg-hover); color: var(--b); }
+  .cpc-notes { margin-left: auto; }
+  .cpc-arrow { opacity: 0.35; transition: transform 0.2s, opacity 0.2s; }
+  .cp-card:hover .cpc-arrow { opacity: 1; transform: translateX(3px); color: var(--cc); }
+</style>

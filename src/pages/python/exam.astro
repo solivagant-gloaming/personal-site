@@ -1,0 +1,599 @@
+---
+export const prerender = true;
+
+import Base from '../../layouts/Base.astro';
+---
+
+<Base title="Python 模拟考试" description="Python 上机模拟考试：60 分钟 20 题，交卷自动判分" wide={true}>
+  <div class="ex-header">
+    <div>
+      <h1>Python 模拟考试</h1>
+      <div class="ex-sub">60 分钟 · 20 题 · 交卷统一判分</div>
+    </div>
+    <div class="ex-links">
+      <a class="ex-link" href="/python">📝 日常练习</a>
+      <a class="ex-link" href="/courses/python">📖 课程中心</a>
+    </div>
+  </div>
+
+  <!-- 运行时状态 -->
+  <div class="ex-runtime" id="runtimeChip">Python 运行时加载中…</div>
+
+  <!-- 开始前 -->
+  <section id="exIntro" class="ex-intro" hidden>
+    <div class="ex-intro-card">
+      <div class="ex-intro-title">&gt; 上机模拟考试</div>
+      <ul class="ex-intro-list">
+        <li>时长 <b>60 分钟</b>，共 <b>20 题</b>（覆盖 10 个模块，每模块 2 题）</li>
+        <li>考试中可运行代码查看输出，<b>不判分</b>，交卷后统一判分</li>
+        <li>可自由切换题目、修改答案；到时间自动交卷</li>
+        <li>交卷后显示总分与错题回顾，不写入日常练习进度</li>
+      </ul>
+      <button class="ex-btn-start" id="startBtn">▶ 开始考试</button>
+      <button class="ex-btn-resume" id="resumeBtn" hidden>继续上次考试</button>
+    </div>
+  </section>
+
+  <!-- 答题中 -->
+  <section id="exRun" class="ex-run" hidden>
+    <div class="ex-topbar">
+      <span class="ex-count" id="exCount">已答 0/20</span>
+      <span class="ex-timer" id="exTimer">60:00</span>
+      <button class="ex-btn-submit" id="submitBtn">交卷</button>
+    </div>
+    <div class="ex-layout">
+      <aside class="ex-side">
+        <div class="ex-nav-label">题目导航</div>
+        <div id="exNav" class="ex-nav"></div>
+      </aside>
+      <section class="ex-main">
+        <div class="ex-question">
+          <div class="ex-qhead">
+            <span class="ex-tag" id="exTag">第 1 题</span>
+            <span class="ex-qmeta" id="exQMeta"></span>
+          </div>
+          <div class="ex-qbody" id="exQBody"></div>
+        </div>
+        <div class="ex-editor-wrap">
+          <div class="ex-editor-bar">
+            <span class="ex-editor-file" id="exFile"></span>
+            <div class="ex-editor-actions">
+              <button class="ex-btn" id="exReset" title="恢复初始代码">↺ 重置</button>
+              <button class="ex-btn ex-btn-run" id="exRunBtn">▶ 运行</button>
+            </div>
+          </div>
+          <textarea id="exEditor" class="ex-editor" spellcheck="false" autocapitalize="off" autocomplete="off"></textarea>
+        </div>
+        <div class="ex-output" id="exOutput">
+          <div class="ex-output-hint">运行代码查看输出（交卷前不判分）。</div>
+        </div>
+      </section>
+    </div>
+  </section>
+
+  <!-- 判分中 -->
+  <div id="exSubmitting" class="ex-submitting" hidden>
+    <div class="ex-submitting-box">
+      <div class="ex-submitting-title">正在判分…</div>
+      <div class="ex-submitting-prog" id="exGradeProg"></div>
+    </div>
+  </div>
+
+  <!-- 成绩回顾 -->
+  <section id="exReview" class="ex-review" hidden>
+    <div class="ex-score-card">
+      <div class="ex-score-head">&gt; 考试成绩</div>
+      <div class="ex-score-line"><span id="exScore">0</span><span class="ex-score-total">/ 20</span></div>
+      <div class="ex-score-meta" id="exScoreMeta"></div>
+      <button class="ex-btn-start" id="againBtn">↺ 再考一次</button>
+    </div>
+    <div class="ex-review-list" id="exReviewList"></div>
+  </section>
+
+  <!-- 交卷确认 -->
+  <div class="ex-modal" id="exModal" hidden>
+    <div class="ex-modal-box">
+      <h3>&gt; 确认交卷？</h3>
+      <p id="exModalMsg"></p>
+      <div class="ex-modal-actions">
+        <button class="ex-btn" id="exCancel">继续作答</button>
+        <button class="ex-btn-submit" id="exConfirm">交卷</button>
+      </div>
+    </div>
+  </div>
+</Base>
+
+<script>
+  import { createPythonRunner } from '../../scripts/pythonRunner.js';
+
+  const runner = createPythonRunner();
+  const SESSION_KEY = 'python-exam-session';
+  const RECORDS_KEY = 'python-exam-records';
+  const EXAM_MINUTES = 60;
+  const EXAM_TOTAL = 20;
+
+  const $ = (id) => document.getElementById(id);
+  const state = { modules: [], questions: [], answers: {}, current: 0, endAt: 0, phase: 'intro' };
+  let modulesReady = null;
+
+  /* ── 模块数据 ── */
+  async function loadModules() {
+    try {
+      const res = await fetch('/python/exercises.json');
+      state.modules = (await res.json()).modules || [];
+    } catch (e) {
+      $('exOutput').innerHTML = '<div class="res-err">练习数据加载失败：' + e.message + '</div>';
+    }
+  }
+  function exerciseById(id) {
+    for (const m of state.modules) {
+      const ex = m.exercises.find((e) => e.id === id);
+      if (ex) return ex;
+    }
+    return null;
+  }
+
+  /* ── 抽题：10 模块每模块均分 2 题 ── */
+  function shuffle(a) {
+    const b = [...a];
+    for (let i = b.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [b[i], b[j]] = [b[j], b[i]];
+    }
+    return b;
+  }
+  function drawExam(total = EXAM_TOTAL) {
+    const mods = state.modules.map((m) => ({ no: m.no, exercises: shuffle(m.exercises) }));
+    const per = Math.floor(total / mods.length);
+    let rem = total - per * mods.length;
+    const picked = [];
+    for (const m of mods) {
+      const n = per + (rem > 0 ? 1 : 0); rem--;
+      picked.push(...m.exercises.slice(0, n).map((ex) => ({ id: ex.id, module: m.no })));
+    }
+    return shuffle(picked);
+  }
+
+  /* ── 会话持久化 ── */
+  function loadSession() {
+    try { return JSON.parse(localStorage.getItem(SESSION_KEY) || 'null'); } catch (e) { return null; }
+  }
+  function saveSession() {
+    if (state.phase !== 'running') return;
+    localStorage.setItem(SESSION_KEY, JSON.stringify({
+      endAt: state.endAt,
+      startAt: Date.now(),
+      questions: state.questions.map((q) => ({ id: q.id, module: q.module })),
+      answers: state.answers,
+      current: state.current,
+    }));
+  }
+  function clearSession() { localStorage.removeItem(SESSION_KEY); }
+
+  /* ── 视图切换 ── */
+  function setPhase(p) {
+    state.phase = p;
+    $('exIntro').hidden = p !== 'intro';
+    $('exRun').hidden = p !== 'running';
+    $('exSubmitting').hidden = p !== 'submitting';
+    $('exReview').hidden = p !== 'reviewing';
+  }
+
+  /* ── intro ── */
+  function renderIntro() {
+    setPhase('intro');
+    const s = loadSession();
+    if (s && s.endAt > Date.now() && !s.finished) {
+      const left = Math.max(0, s.endAt - Date.now());
+      const mm = String(Math.floor(left / 60000)).padStart(2, '0');
+      const ss = String(Math.floor(left / 1000) % 60).padStart(2, '0');
+      $('resumeBtn').textContent = '继续上次考试（剩余 ' + mm + ':' + ss + '）';
+      $('resumeBtn').hidden = false;
+    } else {
+      $('resumeBtn').hidden = true;
+    }
+  }
+
+  /* ── running ── */
+  function startExam(questions, answers, current, endAt) {
+    state.questions = questions;
+    state.answers = answers || {};
+    state.current = current || 0;
+    state.endAt = endAt || Date.now() + EXAM_MINUTES * 60000;
+    setPhase('running');
+    renderNav();
+    renderQuestion();
+    startTimer();
+    updateCount();
+  }
+
+  function renderNav() {
+    const nav = $('exNav');
+    nav.innerHTML = state.questions.map((q, i) => {
+      const done = state.answers[q.id] && state.answers[q.id] !== (exerciseById(q.id) || {}).stub;
+      let cls = 'ex-nav-item';
+      if (i === state.current) cls += ' active';
+      else if (done) cls += ' done';
+      return `<button class="${cls}" data-i="${i}">${i + 1}</button>`;
+    }).join('');
+    nav.querySelectorAll('.ex-nav-item').forEach((b) =>
+      b.onclick = () => { state.current = Number(b.dataset.i); saveSession(); renderNav(); renderQuestion(); }
+    );
+  }
+
+  function renderQuestion() {
+    const q = state.questions[state.current];
+    if (!q) return;
+    const ex = exerciseById(q.id);
+    if (!ex) return;
+    $('exTag').textContent = '第 ' + (state.current + 1) + ' 题 · ' + q.module + ' 模块';
+    $('exQMeta').textContent = (ex.tags ? ex.tags + ' · ' : '') + ex.minutes + ' 分钟';
+    $('exQBody').textContent = ex.prompt || '补全函数/类，使所有用例通过。';
+    $('exFile').textContent = ex.id;
+    const code = state.answers[q.id] !== undefined ? state.answers[q.id] : ex.stub;
+    $('exEditor').value = code;
+    $('exOutput').innerHTML = '<div class="ex-output-hint">运行代码查看输出（交卷前不判分）。</div>';
+  }
+
+  function updateCount() {
+    let done = 0;
+    state.questions.forEach((q) => {
+      const ex = exerciseById(q.id);
+      if (state.answers[q.id] && ex && state.answers[q.id] !== ex.stub) done++;
+    });
+    $('exCount').textContent = '已答 ' + done + '/' + state.questions.length;
+  }
+
+  function startTimer() {
+    clearInterval(window._exTimer);
+    window._exTimer = setInterval(() => {
+      const remain = state.endAt - Date.now();
+      if (remain <= 0) { tick(0); submit(true); return; }
+      tick(remain);
+    }, 500);
+  }
+  function tick(remain) {
+    const el = $('exTimer');
+    if (!el) { clearInterval(window._exTimer); return; } // 导航走后停表
+    const mm = String(Math.floor(remain / 60000)).padStart(2, '0');
+    const ss = String(Math.floor(remain / 1000) % 60).padStart(2, '0');
+    el.textContent = mm + ':' + ss;
+    el.classList.toggle('warn', remain < 5 * 60000);
+  }
+
+  /* ── 运行（不判分） ── */
+  async function runCode() {
+    const ex = exerciseById(state.questions[state.current].id);
+    const out = $('exOutput');
+    out.innerHTML = '<div class="ex-output-hint">运行中…</div>';
+    const r = await runner.run($('exEditor').value, ex.tests);
+    if (!r.ok || !r.json) {
+      out.innerHTML = '<div class="res-err">' + (r.error || '运行时错误') + '</div>';
+      return;
+    }
+    let d;
+    try { d = JSON.parse(r.json); } catch (e) { out.innerHTML = '<div class="res-err">结果解析失败</div>'; return; }
+    let html = '';
+    if (d.error) html += '<div class="res-err">' + d.error + '</div>';
+    if (d.stdout) html += '<div class="ex-run-stdout">' + escapeHtml(d.stdout) + '</div>';
+    (d.sample || []).forEach((line) => { html += '<div class="ex-run-sample">' + escapeHtml(line) + '</div>'; });
+    if (!html) html = '<div class="ex-output-hint">（无输出）</div>';
+    out.innerHTML = html;
+  }
+  function escapeHtml(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  /* ── 交卷 ── */
+  function submit(force) {
+    if (force) { doGrade(); return; }
+    const undone = state.questions.filter((q) => {
+      const ex = exerciseById(q.id);
+      return !state.answers[q.id] || !ex || state.answers[q.id] === ex.stub;
+    }).length;
+    $('exModalMsg').textContent = undone > 0
+      ? '还有 ' + undone + ' 题未作答，确定交卷？'
+      : '全部作答完毕，确定交卷？';
+    $('exModal').hidden = false;
+  }
+  function doGrade() {
+    clearInterval(window._exTimer);
+    $('exModal').hidden = true;
+    setPhase('submitting');
+    const list = state.questions;
+    const wrong = [];
+    let score = 0;
+    (async () => {
+      for (let i = 0; i < list.length; i++) {
+        const q = list[i];
+        const ex = exerciseById(q.id);
+        if (!ex) { wrong.push({ id: q.id, title: q.id, prompt: '', userCode: '', detail: '题目数据缺失' }); continue; }
+        $('exGradeProg').textContent = '判分中 ' + (i + 1) + '/' + list.length;
+        const userCode = state.answers[q.id];
+        const isAnswered = userCode && userCode !== ex.stub;
+        if (!isAnswered) {
+          wrong.push({ id: ex.id, title: ex.title, prompt: ex.prompt, userCode: '', detail: '未作答' });
+          continue;
+        }
+        try {
+          const r = await runner.grade(userCode, ex.tests);
+          const d = r.json ? JSON.parse(r.json) : null;
+          if (r.ok && d && d.ok) {
+            score++;
+          } else {
+            const res = (d && d.results) || [];
+            const fail = res.find((x) => !x.passed);
+            let detail = (d && d.error) || '';
+            if (fail) {
+              detail = fail.error || ('期望 ' + (fail.expected !== undefined ? fail.expected : '') + '，得到 ' + (fail.got !== undefined ? fail.got : ''));
+            }
+            wrong.push({ id: ex.id, title: ex.title, prompt: ex.prompt, userCode, detail });
+          }
+        } catch (e) {
+          wrong.push({ id: ex.id, title: ex.title, prompt: ex.prompt, userCode, detail: '判分异常：' + e.message });
+        }
+      }
+      finish(score, wrong, list.length);
+    })();
+  }
+
+  function finish(score, wrong, total) {
+    const timeUsed = Math.round((Date.now() - (JSON.parse(localStorage.getItem(SESSION_KEY) || '{"startAt":0}').startAt || Date.now())) / 1000);
+    const rec = { date: new Date().toISOString().slice(0, 10), score, total, timeUsedSec: timeUsed, wrong: wrong.map((w) => ({ id: w.id, title: w.title })) };
+    try {
+      const recs = JSON.parse(localStorage.getItem(RECORDS_KEY) || '[]');
+      recs.unshift(rec);
+      localStorage.setItem(RECORDS_KEY, JSON.stringify(recs.slice(0, 20)));
+    } catch (e) {}
+    clearSession();
+    state.result = { score, wrong, total, timeUsed };
+    renderReview();
+  }
+
+  function renderReview() {
+    const r = state.result;
+    setPhase('reviewing');
+    $('exScore').textContent = r.score;
+    const mm = String(Math.floor(r.timeUsed / 60)).padStart(2, '0');
+    const ss = String(Math.floor(r.timeUsed % 60)).padStart(2, '0');
+    $('exScoreMeta').textContent = '用时 ' + mm + ':' + ss + ' · 正确率 ' + Math.round(r.score / r.total * 100) + '%';
+    const list = $('exReviewList');
+    list.innerHTML = '';
+    if (!r.wrong.length) {
+      list.innerHTML = '<div class="ex-review-empty">全部通过 🎉</div>';
+    }
+    r.wrong.forEach((w, i) => {
+      const item = document.createElement('details');
+      item.className = 'ex-wrong';
+      item.innerHTML =
+        '<summary><span class="ex-wrong-title">' + (i + 1) + '. ' + escapeHtml(w.title) + '</span><span class="ex-wrong-detail">' + escapeHtml(w.detail) + '</span></summary>' +
+        '<div class="ex-wrong-body">' +
+        '<div class="ex-wrong-prompt">' + escapeHtml(w.prompt || '') + '</div>' +
+        '<div class="ex-wrong-label">你的代码</div><pre class="ex-wrong-code">' + escapeHtml(w.userCode || '（未作答）') + '</pre>' +
+        '</div>';
+      list.appendChild(item);
+    });
+  }
+
+  /* ── 初始化 ── */
+  function init() {
+    if (window.__examInit) return;
+    window.__examInit = true;
+    runner.warmup();
+    modulesReady = loadModules();
+    setInterval(() => {
+      const chip = $('runtimeChip');
+      if (!chip) return; // View Transition 导航走后 DOM 已卸载
+      chip.textContent = runner.ready ? '运行时就绪' : 'Python 运行时加载中…';
+      chip.classList.toggle('ready', runner.ready);
+    }, 400);
+
+    $('startBtn').onclick = async () => {
+      await modulesReady;
+      const s = loadSession();
+      if (s && s.endAt > Date.now() && s.questions.length) {
+        startExam(s.questions, s.answers, s.current, s.endAt);
+      } else {
+        startExam(drawExam(), {}, 0, 0);
+        saveSession();
+      }
+    };
+    $('resumeBtn').onclick = async () => {
+      await modulesReady;
+      const s = loadSession();
+      if (s && s.endAt > Date.now() && s.questions.length) startExam(s.questions, s.answers, s.current, s.endAt);
+    };
+    $('againBtn').onclick = () => { state.result = null; renderIntro(); };
+
+    $('exRunBtn').onclick = runCode;
+    $('exReset').onclick = () => {
+      const ex = exerciseById(state.questions[state.current].id);
+      $('exEditor').value = ex.stub;
+      delete state.answers[ex.id];
+      saveSession();
+      renderNav(); updateCount();
+    };
+    $('exEditor').addEventListener('input', () => {
+      const q = state.questions[state.current];
+      state.answers[q.id] = $('exEditor').value;
+      saveSession();
+      renderNav(); updateCount();
+    });
+    $('submitBtn').onclick = () => submit(false);
+    $('exConfirm').onclick = doGrade;
+    $('exCancel').onclick = () => { $('exModal').hidden = true; };
+
+    renderIntro();
+  }
+  document.addEventListener('astro:page-load', init);
+  init();
+</script>
+
+<style>
+  .ex-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
+  .ex-header h1 { font-size: 1.6rem; margin: 0; }
+  .ex-sub { font-size: 0.82rem; color: var(--text-muted); margin-top: 0.1rem; }
+  .ex-links { display: flex; gap: 0.5rem; }
+  .ex-link {
+    font-size: 0.8rem; color: var(--c-python); text-decoration: none;
+    border: 1px solid color-mix(in srgb, var(--c-python) 40%, transparent);
+    padding: 0.4rem 0.8rem; border-radius: 8px; white-space: nowrap;
+  }
+  .ex-link:hover { background: var(--c-python-glow); }
+
+  .ex-runtime {
+    font-size: 0.68rem; color: var(--text-muted); margin-bottom: 0.8rem;
+    display: inline-flex; align-items: center; gap: 0.3rem;
+    padding: 0.22rem 0.55rem; border-radius: 999px;
+    background: var(--bg-hover); border: 1px solid var(--border);
+  }
+  .ex-runtime::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: #f0a43a; }
+  .ex-runtime.ready::before { background: var(--c-python); }
+  .ex-runtime.ready { color: var(--text-secondary); }
+
+  /* intro */
+  .ex-intro { max-width: 520px; margin: 2.5rem auto; }
+  .ex-intro-card {
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 1.8rem 2rem;
+  }
+  .ex-intro-title { font-size: 1.05rem; font-weight: 700; color: var(--c-python); margin-bottom: 1rem; }
+  .ex-intro-list { list-style: none; font-size: 0.85rem; line-height: 2; color: var(--text-secondary); margin-bottom: 1.4rem; }
+  .ex-intro-list b { color: var(--text); }
+  .ex-btn-start {
+    width: 100%; padding: 0.8rem 0; cursor: pointer;
+    background: var(--c-python); color: #04211c; font-weight: 700; font-size: 0.95rem;
+    border: none; border-radius: 10px; font-family: inherit;
+  }
+  .ex-btn-start:hover { box-shadow: 0 0 14px var(--c-python-glow); }
+  .ex-btn-resume {
+    width: 100%; padding: 0.7rem 0; margin-top: 0.6rem; cursor: pointer;
+    background: var(--bg-card); color: var(--c-python); font-size: 0.85rem;
+    border: 1px solid color-mix(in srgb, var(--c-python) 40%, transparent); border-radius: 10px; font-family: inherit;
+  }
+  .ex-btn-resume:hover { background: var(--c-python-glow); }
+
+  /* running */
+  .ex-topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px;
+    padding: 0.55rem 0.9rem; margin-bottom: 0.8rem;
+  }
+  .ex-count { font-size: 0.8rem; color: var(--text-secondary); font-family: var(--font-mono); }
+  .ex-timer {
+    font-size: 1.2rem; font-weight: 700; color: var(--c-python);
+    font-variant-numeric: tabular-nums; font-family: var(--font-mono);
+  }
+  .ex-timer.warn { color: #ff6b5e; animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 0%,55%{opacity:1} 56%,100%{opacity:.4} }
+  .ex-btn-submit {
+    font-size: 0.82rem; padding: 0.4rem 1.1rem; cursor: pointer;
+    background: var(--c-python); color: #04211c; font-weight: 700;
+    border: none; border-radius: 8px; font-family: inherit;
+  }
+  .ex-btn-submit:hover { box-shadow: 0 0 10px var(--c-python-glow); }
+
+  .ex-layout { display: grid; grid-template-columns: 170px 1fr; gap: 0.8rem; align-items: start; }
+  .ex-side { display: flex; flex-direction: column; gap: 0.5rem; }
+  .ex-nav-label { font-size: 0.68rem; color: var(--text-muted); letter-spacing: 0.5px; }
+  .ex-nav { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .ex-nav-item {
+    width: 34px; height: 34px; cursor: pointer;
+    font-family: var(--font-mono); font-size: 0.78rem;
+    border: 1px solid var(--border); border-radius: 7px;
+    background: var(--bg-card); color: var(--text-secondary);
+  }
+  .ex-nav-item:hover { border-color: var(--text-muted); }
+  .ex-nav-item.active { background: var(--c-python); color: #04211c; font-weight: 700; border-color: transparent; }
+  .ex-nav-item.done { border-color: var(--c-python); color: var(--c-python); }
+
+  .ex-main { display: flex; flex-direction: column; gap: 0.7rem; min-width: 0; }
+  .ex-question { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; background: var(--bg-card); }
+  .ex-qhead {
+    display: flex; justify-content: space-between; align-items: center; gap: 0.6rem;
+    padding: 0.45rem 0.7rem; border-bottom: 1px solid var(--border); background: var(--bg);
+  }
+  .ex-tag { font-weight: 600; font-size: 0.8rem; color: var(--c-python); }
+  .ex-qmeta { font-size: 0.7rem; color: var(--text-muted); font-family: var(--font-mono); }
+  .ex-qbody { padding: 0.7rem 0.9rem; font-size: 0.82rem; line-height: 1.7; white-space: pre-wrap; word-break: break-word; }
+
+  .ex-editor-wrap { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; background: var(--bg-card); }
+  .ex-editor-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0.4rem 0.7rem; border-bottom: 1px solid var(--border); background: var(--bg);
+  }
+  .ex-editor-file { font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-secondary); }
+  .ex-editor-actions { display: flex; gap: 0.4rem; }
+  .ex-btn {
+    font-size: 0.78rem; padding: 0.35rem 0.8rem; cursor: pointer;
+    border-radius: 7px; border: 1px solid var(--border);
+    background: var(--bg-card); color: var(--text); font-family: inherit;
+  }
+  .ex-btn:hover { border-color: var(--text-muted); }
+  .ex-btn-run { background: var(--c-python); color: #04211c; font-weight: 700; border-color: transparent; }
+  .ex-btn-run:hover { box-shadow: 0 0 12px var(--c-python-glow); }
+  .ex-editor {
+    width: 100%; height: 320px; padding: 0.9rem; box-sizing: border-box;
+    background: var(--bg); color: var(--text); border: none; outline: none; resize: vertical;
+    font-family: var(--font-mono); font-size: 0.82rem; line-height: 1.6; tab-size: 4;
+  }
+  .ex-output {
+    border: 1px solid var(--border); border-radius: 10px;
+    padding: 0.9rem 1rem; min-height: 120px; background: var(--bg-card);
+    font-family: var(--font-mono); font-size: 0.78rem; line-height: 1.7;
+    white-space: pre-wrap; word-break: break-all;
+  }
+  .ex-output-hint { color: var(--text-muted); font-family: var(--font-mono); }
+  .ex-run-stdout { color: var(--text); }
+  .ex-run-sample { color: var(--c-python); }
+  .res-err { color: #ff6b5e; }
+
+  /* submitting */
+  .ex-submitting { padding: 4rem 0; text-align: center; }
+  .ex-submitting-box { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 2rem; max-width: 360px; margin: 0 auto; }
+  .ex-submitting-title { font-size: 1rem; font-weight: 700; color: var(--c-python); margin-bottom: 0.6rem; }
+  .ex-submitting-prog { font-size: 0.8rem; color: var(--text-secondary); font-family: var(--font-mono); }
+
+  /* reviewing */
+  .ex-review { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; gap: 1rem; }
+  .ex-score-card {
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px;
+    padding: 1.8rem 2rem; text-align: center;
+  }
+  .ex-score-head { font-size: 0.72rem; color: var(--text-muted); letter-spacing: 1px; margin-bottom: 0.6rem; }
+  .ex-score-line { font-size: 3rem; font-weight: 700; color: var(--c-python); font-family: var(--font-mono); }
+  .ex-score-total { font-size: 1.2rem; color: var(--text-muted); }
+  .ex-score-meta { font-size: 0.78rem; color: var(--text-secondary); margin: 0.3rem 0 1rem; }
+  .ex-review-list { display: flex; flex-direction: column; gap: 0.5rem; }
+  .ex-review-empty { text-align: center; color: var(--text-muted); font-size: 0.9rem; padding: 2rem; }
+  .ex-wrong { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 0.6rem 0.9rem; }
+  .ex-wrong summary { display: flex; align-items: baseline; gap: 0.6rem; cursor: pointer; list-style: none; }
+  .ex-wrong summary::-webkit-details-marker { display: none; }
+  .ex-wrong-title { font-size: 0.85rem; font-weight: 600; }
+  .ex-wrong-detail { font-size: 0.72rem; color: #ff6b5e; font-family: var(--font-mono); flex: 1; }
+  .ex-wrong-body { margin-top: 0.6rem; border-top: 1px dashed var(--border); padding-top: 0.6rem; }
+  .ex-wrong-prompt { font-size: 0.78rem; color: var(--text-secondary); white-space: pre-wrap; line-height: 1.6; margin-bottom: 0.5rem; }
+  .ex-wrong-label { font-size: 0.68rem; color: var(--text-muted); margin-bottom: 0.3rem; }
+  .ex-wrong-code {
+    font-family: var(--font-mono); font-size: 0.75rem; line-height: 1.6;
+    background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.6rem; overflow-x: auto; white-space: pre-wrap;
+  }
+
+  /* modal */
+  .ex-modal { position: fixed; inset: 0; background: rgba(3,2,1,.7); display: flex; align-items: center; justify-content: center; z-index: 20; backdrop-filter: blur(3px); }
+  .ex-modal[hidden] { display: none; }
+  .ex-modal-box { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem 1.8rem; width: 360px; }
+  .ex-modal-box h3 { font-size: 1rem; color: var(--c-python); margin-bottom: 0.6rem; }
+  .ex-modal-box p { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.2rem; }
+  .ex-modal-actions { display: flex; gap: 0.6rem; }
+  .ex-modal-actions .ex-btn { flex: 1; padding: 0.55rem 0; }
+  .ex-modal-actions .ex-btn-submit { flex: 1; padding: 0.55rem 0; }
+
+  @media (max-width: 760px) {
+    .ex-layout { grid-template-columns: 1fr; }
+    .ex-nav { flex-wrap: wrap; }
+    .ex-editor { height: 240px; }
+  }
+</style>
+</Base>

@@ -63,6 +63,7 @@ if (!username) return Astro.redirect('/admin/login');
     </nav>
     <div class="side-foot">
       <a href="/">查看网站</a>
+      <a href="#" id="logoutBtn" style="display:block;margin-top:0.3rem;">退出登录</a>
     </div>
   </aside>
   <main class="main">
@@ -141,6 +142,14 @@ function escapeHtml(str) {
 }
 
 loadDashboard();
+
+// ── Logout ──
+document.getElementById('logoutBtn')?.addEventListener('click', async (e) => {
+  e.preventDefault();
+  if (!confirm('确定退出管理后台？')) return;
+  await fetch('/api/admin/logout', { method: 'POST' });
+  window.location.href = '/admin/login';
+});
 </script>
 </body>
 </html>

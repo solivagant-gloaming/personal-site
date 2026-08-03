@@ -1,0 +1,84 @@
+{
+  "modules": [
+    {
+      "no": "01",
+      "name": "Web 基础",
+      "questions": [
+        { "id": "jv01_01", "q": "URL https://example.com:8080/path?q=1 中，端口号是？", "options": ["443", "8080", "80", "example.com"], "answer": 1, "explain": "URL 中主机名后冒号、路径前的数字 8080 是端口号；https 的默认端口是 443，这里显式写了 8080。" },
+        { "id": "jv01_02", "q": "客户端-服务器架构中，发起 HTTP 请求的一方通常是？", "options": ["服务器", "浏览器（客户端）", "DNS 服务器", "数据库"], "answer": 1, "explain": "客户端（如浏览器）主动发起 HTTP 请求，服务器接收请求并返回响应。" },
+        { "id": "jv01_03", "q": "一次完整 Web 请求中，把域名解析成 IP 地址的是？", "options": ["HTTP", "DNS", "TCP", "FTP"], "answer": 1, "explain": "DNS（域名系统）负责把 example.com 这类域名解析为 IP 地址，之后客户端才能据此建立连接。" },
+        { "id": "jv01_04", "q": "动态网页与静态网页的主要区别是？", "options": ["动态网页包含图片", "动态网页由服务器端程序在请求时生成", "动态网页加载更快", "静态网页不需要服务器"], "answer": 1, "explain": "静态网页是预先写好的文件；动态网页的内容由服务器端程序（如 Servlet）在处理请求时动态生成，可依赖用户状态和数据库。" }
+      ]
+    },
+    {
+      "no": "02",
+      "name": "HTTP 协议详解",
+      "questions": [
+        { "id": "jv02_01", "q": "下列 HTTP 方法中，通常用于提交表单数据的是？", "options": ["GET", "POST", "PUT", "DELETE"], "answer": 1, "explain": "POST 用于向服务器提交数据，参数放在请求体中；GET 用于获取资源，参数一般放在 URL 上。" },
+        { "id": "jv02_02", "q": "状态码 404 表示？", "options": ["服务器内部错误", "请求的资源不存在", "未授权访问", "请求成功"], "answer": 1, "explain": "404 Not Found 表示服务器找不到请求的资源；500 是服务器内部错误，401 是未认证，200 是成功。" },
+        { "id": "jv02_03", "q": "状态码 3xx 开头的含义是？", "options": ["请求成功", "需要重定向", "客户端错误", "服务器错误"], "answer": 1, "explain": "3xx 表示重定向，如 301/302 跳转、304 未修改；2xx 成功，4xx 客户端错误，5xx 服务器错误。" },
+        { "id": "jv02_04", "q": "请求头 Content-Type: application/json 表示？", "options": ["响应体的媒体类型", "请求体是 JSON 格式", "服务器名称", "浏览器类型"], "answer": 1, "explain": "Content-Type 描述消息体（body）的媒体类型，这里说明请求体内容为 JSON 格式。" }
+      ]
+    },
+    {
+      "no": "03",
+      "name": "Servlet 基础",
+      "questions": [
+        { "id": "jv03_01", "q": "Servlet 生命周期中，实例创建后最先被调用一次的方法是？", "options": ["service()", "init()", "doGet()", "destroy()"], "answer": 1, "explain": "容器加载 Servlet 后先调用 init() 完成初始化，整个生命周期只调用一次；之后每个请求调用 service()，销毁前调用 destroy()。" },
+        { "id": "jv03_02", "q": "客户端每次发起请求，Servlet 容器会调用哪个方法来处理？", "options": ["init()", "destroy()", "service()", "构造方法"], "answer": 2, "explain": "每次请求都由容器调用 service()，它再根据 HTTP 方法分发到 doGet()、doPost() 等对应方法。" },
+        { "id": "jv03_03", "q": "Servlet 中获取名为 q 的查询参数值，正确的是？", "options": ["request.getParameter(\"q\")", "response.getParameter(\"q\")", "request.getAttribute(\"q\")", "response.setHeader(\"q\")"], "answer": 0, "explain": "getParameter() 从请求中取查询参数或表单字段；getAttribute() 取的是服务端设置的属性，response 对象没有 getParameter 方法。" },
+        { "id": "jv03_04", "q": "关于 Servlet 的并发，正确的说法是？", "options": ["每个请求都创建新的 Servlet 实例", "多个请求可能并发执行同一个 Servlet 的 service 方法", "Servlet 实例是单线程的", "一个 Servlet 只能服务一个请求"], "answer": 1, "explain": "容器通常只创建一个 Servlet 实例，多个请求会并发调用它的 service()，因此要避免在实例字段中存放可变状态，否则存在线程安全问题。" }
+      ]
+    },
+    {
+      "no": "04",
+      "name": "会话与状态管理",
+      "questions": [
+        { "id": "jv04_01", "q": "HTTP 被称为无状态协议，指的是？", "options": ["服务器不能记住同一用户多次请求之间的联系", "HTTP 不能传输数据", "每次请求必须断开连接", "只能有一个用户访问"], "answer": 0, "explain": "无状态指每次请求都是独立的，服务器默认不记得上一个请求来自谁，需要借助 Cookie/Session 来补充状态。" },
+        { "id": "jv04_02", "q": "Cookie 存储在哪里？", "options": ["服务器端", "浏览器（客户端）", "数据库中", "路由器中"], "answer": 1, "explain": "Cookie 由服务器通过 Set-Cookie 响应头下发，之后保存在浏览器端，后续请求会自动携带回服务器。" },
+        { "id": "jv04_03", "q": "Session 数据默认保存在哪里？", "options": ["浏览器端", "服务器端", "网络中间设备", "本地文件"], "answer": 1, "explain": "Session 数据存放在服务器端内存（或配置的存储中），客户端只保存一个 Session ID，不直接接触会话数据。" },
+        { "id": "jv04_04", "q": "Session ID 通常是怎样传递给浏览器的？", "options": ["通过 Cookie", "通过数据库", "通过路由器", "通过服务器日志"], "answer": 0, "explain": "服务器创建 Session 后，通常把 Session ID 放在 Set-Cookie 响应头中下发，浏览器在后续请求中自动通过 Cookie 带回。" }
+      ]
+    },
+    {
+      "no": "05",
+      "name": "JSP 与模板",
+      "questions": [
+        { "id": "jv05_01", "q": "JSP 中 <%= 表达式 %> 的作用是？", "options": ["输出表达式的值", "声明变量", "导入包", "定义方法"], "answer": 0, "explain": "<%= %> 会把表达式的计算结果输出到页面；<% %> 是脚本片段，<%! %> 是成员声明。" },
+        { "id": "jv05_02", "q": "JSP 文件本质上会被容器编译成？", "options": ["Servlet", "HTML 文件", "JavaScript", "CSS 文件"], "answer": 0, "explain": "容器会把 JSP 翻译并编译成一个 Servlet 类，因此 JSP 本质上是编写 Servlet 的一种方式。" },
+        { "id": "jv05_03", "q": "EL 表达式 ${user.name} 的作用是？", "options": ["输出变量 user 的 name 属性", "定义一个变量", "声明一个类", "导入一个标签库"], "answer": 0, "explain": "EL 表达式用于在页面中简化取值输出，${user.name} 相当于取出 user 对象的 name 属性值并输出。" },
+        { "id": "jv05_04", "q": "模板引擎（如 Thymeleaf）的共同点是？", "options": ["在服务器端把模板和数据结合生成 HTML", "必须在浏览器运行", "只能输出 JSON", "不需要服务器"], "answer": 0, "explain": "模板引擎在服务器端渲染，把数据填充进模板生成最终的 HTML 再返回给浏览器；JSP 也属于这类思路。" }
+      ]
+    },
+    {
+      "no": "06",
+      "name": "前后端接口与 REST",
+      "questions": [
+        { "id": "jv06_01", "q": "下列哪个是合法的 JSON 对象写法？", "options": ["{\"name\":\"Tom\"}", "{name:Tom}", "[\"name\":\"Tom\"]", "('name'='Tom')"], "answer": 0, "explain": "JSON 的键必须用双引号包裹，字符串值也用双引号，对象用花括号；单引号和裸键名都是非法的。" },
+        { "id": "jv06_02", "q": "REST 风格中，GET /users/1 通常表示？", "options": ["删除编号为 1 的用户", "查询编号为 1 的用户", "新增一个用户", "修改编号为 1 的用户"], "answer": 1, "explain": "REST 用 HTTP 方法表达动作：GET 是查询；路径 /users/1 表示 users 资源中 id 为 1 的那一个。" },
+        { "id": "jv06_03", "q": "前后端分离项目中，后端接口通常返回？", "options": ["HTML 页面", "JSON 数据", "CSS 文件", "JS 脚本"], "answer": 1, "explain": "前后端分离下，后端只提供数据接口，双方约定返回 JSON，由前端负责渲染页面。" },
+        { "id": "jv06_04", "q": "浏览器拦截跨域请求，主要涉及浏览器的哪种机制？", "options": ["同源策略（CORS 相关）", "DNS 缓存", "TCP 握手", "SSL 证书"], "answer": 0, "explain": "浏览器的同源策略限制不同源（协议、域名、端口任一不同）的请求，跨域时需服务器配合 CORS 响应头放行。" }
+      ]
+    },
+    {
+      "no": "07",
+      "name": "Spring 基础",
+      "questions": [
+        { "id": "jv07_01", "q": "Spring 中 IoC 的核心思想是？", "options": ["对象由容器创建和管理，而不是自己 new", "禁止使用对象", "把对象全部做成静态", "每个类只能有一个对象"], "answer": 0, "explain": "IoC（控制反转）把对象的创建和依赖关系的管理交给 Spring 容器，开发者只声明需要什么依赖即可。" },
+        { "id": "jv07_02", "q": "下列哪个注解用于依赖注入？", "options": ["@Autowired", "@Override", "@Deprecated", "@SuppressWarnings"], "answer": 0, "explain": "@Autowired 让容器自动注入所需的依赖对象；另外三个是编译器或代码标记相关注解，与依赖注入无关。" },
+        { "id": "jv07_03", "q": "Spring MVC 的统一请求入口（前端控制器）是？", "options": ["DispatcherServlet", "HttpServlet", "Filter", "Listener"], "answer": 0, "explain": "DispatcherServlet 是 Spring MVC 的核心前端控制器，所有请求先到它这里，再由它分发到对应的 Controller 方法。" },
+        { "id": "jv07_04", "q": "用 @GetMapping(\"/hello\") 标注的方法，只能接收哪种请求？", "options": ["任意方法", "GET", "POST", "DELETE"], "answer": 1, "explain": "@GetMapping 限定只处理 GET 请求；@PostMapping 处理 POST，而 @RequestMapping 默认不限定请求方法。" }
+      ]
+    },
+    {
+      "no": "08",
+      "name": "综合",
+      "questions": [
+        { "id": "jv08_01", "q": "从浏览器输入网址到页面显示，正确的简化顺序是？", "options": ["DNS 解析→建立连接→发送 HTTP 请求→服务器处理→返回响应→渲染", "建立连接→DNS 解析→渲染→发送请求", "服务器处理→DNS→发送请求→渲染", "发送请求→DNS→渲染→建立连接"], "answer": 0, "explain": "先解析域名得到 IP，再建立连接并发送 HTTP 请求，服务器处理后返回响应，浏览器最后渲染页面。" },
+        { "id": "jv08_02", "q": "用户登录后保持登录状态，常用且较安全的方案是？", "options": ["服务端用 Session 保存登录信息，客户端保存 Session ID", "把密码直接放进 URL 参数", "每次都重新输入密码", "完全禁止 Cookie"], "answer": 0, "explain": "Session 把状态保存在服务器端，客户端只保存 Session ID，配合超时和销毁机制，是常见的登录状态保持方案。" },
+        { "id": "jv08_03", "q": "登录接口校验密码失败时，返回哪个状态码比较合理？", "options": ["200", "401", "500", "302"], "answer": 1, "explain": "401 Unauthorized 表示认证失败；200 用于成功，500 是服务器内部错误，302 是重定向。" },
+        { "id": "jv08_04", "q": "关于重定向与请求转发的区别，正确的是？", "options": ["重定向会改变浏览器地址栏，转发不会", "两者完全相同", "转发会改变浏览器地址栏，重定向不会", "重定向由服务器内部完成"], "answer": 0, "explain": "重定向是服务器返回 3xx，让浏览器重新发起请求，地址栏会变化；转发是在服务器内部把请求交给另一个资源，浏览器无感知，地址栏不变。" }
+      ]
+    }
+  ]
+}

@@ -1,23 +1,48 @@
-import { createHmac, createHash } from 'node:crypto';
+import { createHmac, randomBytes } from 'node:crypto';
 
+/**
+ * Read env var from both import.meta.env (Vite build-time) and process.env (runtime).
+ * Vercel's "Sensitive" env vars are only available via process.env at runtime.
+ */
+function getEnv(name) {
+  if (typeof import.meta !== 'undefined' && import.meta?.env?.[name]) {
+    return import.meta.env[name];
+  }
+  if (typeof process !== 'undefined' && process.env?.[name]) {
+    return process.env[name];
+  }
+  return undefined;
+}
+
+/**
+ * HMAC signing secret for admin tokens.
+ *
+ * SECURITY: ADMIN_SECRET must be a long (64+ hex chars) random string.
+ * Set as a Vercel environment variable and NEVER hardcoded.
+ */
 function getSecret() {
-  return import.meta.env.ADMIN_SECRET ||
-    createHash('sha256').update(import.meta.env.ADMIN_PASSWORD || 'guorui2024').digest('hex');
+  const secret = getEnv('ADMIN_SECRET');
+  if (secret) return secret;
+  // Development fallback: random per-process secret
+  if (!getSecret._devSecret) {
+    getSecret._devSecret = randomBytes(32).toString('hex');
+  }
+  return getSecret._devSecret;
 }
 
 const COOKIE_NAME = 'admin_token';
-const MAX_AGE = 7 * 24 * 60 * 60; // 7 days in seconds
+const MAX_AGE = 4 * 60 * 60; // 4 hours
 
 export function createToken(username) {
   const expiry = Math.floor(Date.now() / 1000) + MAX_AGE;
   const payload = `${username}:${expiry}`;
   const sig = createHmac('sha256', getSecret()).update(payload).digest('hex');
-  return Buffer.from(`${payload}:${sig}`).toString('base64');
+  return Buffer.from(`${payload}:${sig}`).toString('base64url');
 }
 
 export function verifyToken(token) {
   try {
-    const decoded = Buffer.from(token, 'base64').toString();
+    const decoded = Buffer.from(token, 'base64url').toString();
     const lastColon = decoded.lastIndexOf(':');
     if (lastColon < 0) return null;
 
@@ -30,9 +55,15 @@ export function verifyToken(token) {
     // Check expiry
     if (Math.floor(Date.now() / 1000) > parseInt(expiryStr)) return null;
 
-    // Verify HMAC
+    // Verify HMAC (constant-time comparison)
     const expectedSig = createHmac('sha256', getSecret()).update(payload).digest('hex');
-    if (signature !== expectedSig) return null;
+    if (signature.length !== expectedSig.length) return null;
+
+    let diff = 0;
+    for (let i = 0; i < signature.length; i++) {
+      diff |= signature.charCodeAt(i) ^ expectedSig.charCodeAt(i);
+    }
+    if (diff !== 0) return null;
 
     return username;
   } catch {
@@ -40,4 +71,17 @@ export function verifyToken(token) {
   }
 }
 
-export { COOKIE_NAME, MAX_AGE };
+/**
+ * Cookie options for the admin token.
+ */
+export function cookieOptions() {
+  return {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'lax',
+    path: '/',
+    maxAge: MAX_AGE,
+  };
+}
+
+export { COOKIE_NAME, MAX_AGE, getEnv };

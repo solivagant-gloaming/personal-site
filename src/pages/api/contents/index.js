@@ -1,6 +1,7 @@
 import { query } from '../../../db/mysql';
 
 // Unified content API: GET /api/contents?type=note&course=...&q=...&page=...&limit=...
+// Public read-only — no auth required.
 export async function GET({ url }) {
   const type = url.searchParams.get('type') || '';
   const course = url.searchParams.get('course') || '';
@@ -44,10 +45,16 @@ export async function GET({ url }) {
     groups[key].items.push(r);
   }
 
-  // Available courses for this type
-  const typeFilter = type ? `AND type = '${type}'` : '';
+  // Available courses for this type (parameterized — was previously string-interpolated)
+  let coursesWhere = "status='published' AND course IS NOT NULL AND course != ''";
+  const courseParams = [];
+  if (type) {
+    coursesWhere += ' AND type = ?';
+    courseParams.push(type);
+  }
   const courses = await query(
-    `SELECT DISTINCT course FROM notes WHERE status='published' ${typeFilter} AND course IS NOT NULL AND course != '' ORDER BY course`
+    `SELECT DISTINCT course FROM notes WHERE ${coursesWhere} ORDER BY course`,
+    courseParams
   );
 
   return new Response(JSON.stringify({

@@ -1,4 +1,5 @@
 import { query } from '../../../db/mysql';
+import { requireAdmin } from '../../../lib/api-auth.js';
 
 export async function GET({ url }) {
   const search = url.searchParams.get('q') || '';
@@ -44,7 +45,14 @@ export async function GET({ url }) {
   });
 }
 
-export async function POST({ request }) {
+/** Create a note — requires admin auth */
+export async function POST({ request, cookies }) {
+  try {
+    requireAdmin(cookies);
+  } catch (response) {
+    return response;
+  }
+
   const body = await request.json();
   const { title, content, course, tags } = body;
 

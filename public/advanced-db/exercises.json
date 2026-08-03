@@ -1,0 +1,240 @@
+{
+ "modules": [
+  {
+   "no": "01",
+   "name": "01-SQL基础",
+   "exercises": [
+    {
+     "id": "ex01_all_students",
+     "title": "查询全部学生",
+     "tags": "SELECT 基础",
+     "minutes": 3,
+     "prompt": "需求：\n查询 students 表中所有学生的 id、name、score，按 id 升序。\n把 SQL 写在下面的 SQL 变量里（一个查询语句即可）",
+     "stub": "SQL = ''' '''   # TODO: 在这里写你的 SQL",
+     "tests": "FUNC = 'SQL'\nTITLE = '查询全部学生'\n\nFIXTURE = \"\"\"CREATE TABLE students(id INTEGER PRIMARY KEY, name TEXT, score INTEGER);\nINSERT INTO students VALUES (1,'Alice',90),(2,'Bob',85),(3,'Cathy',70),(4,'David',85);\nCREATE TABLE courses(id INTEGER PRIMARY KEY, name TEXT, credit INTEGER);\nINSERT INTO courses VALUES (1,'Python',3),(2,'Database',4),(3,'Network',3);\nCREATE TABLE enrollments(id INTEGER PRIMARY KEY, student_id INTEGER, course_id INTEGER, grade INTEGER);\nINSERT INTO enrollments VALUES (1,1,1,92),(2,1,2,88),(3,2,2,85),(4,2,3,78),(5,3,1,65),(6,4,3,90);\"\"\"\n\nEXPECTED = [(1, 'Alice', 90), (2, 'Bob', 85), (3, 'Cathy', 70), (4, 'David', 85)]\nORDER_SENSITIVE = True\n\ndef CHECK(ens):\n    import sqlite3\n    conn = sqlite3.connect(':memory:')\n    for stmt in FIXTURE.split(';'):\n        stmt = stmt.strip()\n        if stmt:\n            conn.execute(stmt)\n    conn.commit()\n    sql = (ens.get('SQL') or '').strip()\n    if not sql:\n        return {'ok': False, 'results': [{'passed': False, 'error': 'SQL 为空，请填入查询语句'}]}\n    try:\n        _verify = globals().get('VERIFY_SQL')\n        if _verify:\n            for stmt in sql.split(';'):\n                stmt = stmt.strip()\n                if stmt:\n                    conn.execute(stmt)\n            rows = [tuple(r) for r in conn.execute(_verify).fetchall()]\n        else:\n            rows = [tuple(r) for r in conn.execute(sql).fetchall()]\n    except Exception as e:\n        return {'ok': False, 'results': [{'passed': False, 'error': 'SQL 执行错误：%s' % e}]}\n    got = rows if ORDER_SENSITIVE else sorted(map(tuple, rows))\n    exp = EXPECTED if ORDER_SENSITIVE else sorted(map(tuple, EXPECTED))\n    if got == exp:\n        return {'ok': True, 'results': [{'passed': True}]}\n    return {'ok': False, 'results': [{'passed': False, 'expected': repr(EXPECTED), 'got': repr(rows)}]}",
+     "has_solution": true
+    },
+    {
+     "id": "ex02_filter_gt80",
+     "title": "过滤分数大于80",
+     "tags": "WHERE 过滤",
+     "minutes": 3,
+     "prompt": "需求：\n查询 score 大于 80 的学生 name 和 score，按 id 升序。\n把 SQL 写在下面的 SQL 变量里（一个查询语句即可）",
+     "stub": "SQL = ''' '''   # TODO: 在这里写你的 SQL",
+     "tests": "FUNC = 'SQL'\nTITLE = '过滤分数大于80'\n\nFIXTURE = \"\"\"CREATE TABLE students(id INTEGER PRIMARY KEY, name TEXT, score INTEGER);\nINSERT INTO students VALUES (1,'Alice',90),(2,'Bob',85),(3,'Cathy',70),(4,'David',85);\nCREATE TABLE courses(id INTEGER PRIMARY KEY, name TEXT, credit INTEGER);\nINSERT INTO courses VALUES (1,'Python',3),(2,'Database',4),(3,'Network',3);\nCREATE TABLE enrollments(id INTEGER PRIMARY KEY, student_id INTEGER, course_id INTEGER, grade INTEGER);\nINSERT INTO enrollments VALUES (1,1,1,92),(2,1,2,88),(3,2,2,85),(4,2,3,78),(5,3,1,65),(6,4,3,90);\"\"\"\n\nEXPECTED = [('Alice', 90), ('Bob', 85), ('David', 85)]\nORDER_SENSITIVE = True\n\ndef CHECK(ens):\n    import sqlite3\n    conn = sqlite3.connect(':memory:')\n    for stmt in FIXTURE.split(';'):\n        stmt = stmt.strip()\n        if stmt:\n            conn.execute(stmt)\n    conn.commit()\n    sql = (ens.get('SQL') or '').strip()\n    if not sql:\n        return {'ok': False, 'results': [{'passed': False, 'error': 'SQL 为空，请填入查询语句'}]}\n    try:\n        _verify = globals().get('VERIFY_SQL')\n        if _verify:\n            for stmt in sql.split(';'):\n                stmt = stmt.strip()\n                if stmt:\n                    conn.execute(stmt)\n            rows = [tuple(r) for r in conn.execute(_verify).fetchall()]\n        else:\n            rows = [tuple(r) for r in conn.execute(sql).fetchall()]\n    except Exception as e:\n        return {'ok': False, 'results': [{'passed': False, 'error': 'SQL 执行错误：%s' % e}]}\n    got = rows if ORDER_SENSITIVE else sorted(map(tuple, rows))\n    exp = EXPECTED if ORDER_SENSITIVE else sorted(map(tuple, EXPECTED))\n    if got == exp:\n        return {'ok': True, 'results': [{'passed': True}]}\n    return {'ok': False, 'results': [{'passed': False, 'expected': repr(EXPECTED), 'got': repr(rows)}]}",
+     "has_solution": true
+    },
+    {
+     "id": "ex03_distinct_courses",
+     "title": "去重查询课程名",
+     "tags": "DISTINCT 去重",
+     "minutes": 3,
+     "prompt": "需求：\n查询 courses 表中所有不重复的课程名 name，按字母升序。\n把 SQL 写在下面的 SQL 变量里（一个查询语句即可）",
+     "stub": "SQL = ''' '''   # TODO: 在这里写你的 SQL",
+     "tests": "FUNC = 'SQL'\nTITLE = '去重查询课程名'\n\nFIXTURE = \"\"\"CREATE TABLE students(id INTEGER PRIMARY KEY, name TEXT, score INTEGER);\nINSERT INTO students VALUES (1,'Alice',90),(2,'Bob',85),(3,'Cathy',70),(4,'David',85);\nCREATE TABLE courses(id INTEGER PRIMARY KEY, name TEXT, credit INTEGER);\nINSERT INTO courses VALUES (1,'Python',3),(2,'Database',4),(3,'Network',3);\nCREATE TABLE enrollments(id INTEGER PRIMARY KEY, student_id INTEGER, course_id INTEGER, grade INTEGER);\nINSERT INTO enrollments VALUES (1,1,1,92),(2,1,2,88),(3,2,2,85),(4,2,3,78),(5,3,1,65),(6,4,3,90);\"\"\"\n\nEXPECTED = [('Database',), ('Network',), ('Python',)]\nORDER_SENSITIVE = True\n\ndef CHECK(ens):\n    import sqlite3\n    conn = sqlite3.connect(':memory:')\n    for stmt in FIXTURE.split(';'):\n        stmt = stmt.strip()\n        if stmt:\n            conn.execute(stmt)\n    conn.commit()\n    sql = (ens.get('SQL') or '').strip()\n    if not sql:\n        return {'ok': False, 'results': [{'passed': False, 'error': 'SQL 为空，请填入查询语句'}]}\n    try:\n        _verify = globals().get('VERIFY_SQL')\n        if _verify:\n            for stmt in sql.split(';'):\n                stmt = stmt.strip()\n                if stmt:\n                    conn.execute(stmt)\n            rows = [tuple(r) for r in conn.execute(_verify).fetchall()]\n        else:\n            rows = [tuple(r) for r in conn.execute(sql).fetchall()]\n    except Exception as e:\n        return {'ok': False, 'results': [{'passed': False, 'error': 'SQL 执行错误：%s' % e}]}\n    got = rows if ORDER_SENSITIVE else sorted(map(tuple, rows))\n    exp = EXPECTED if ORDER_SENSITIVE else sorted(map(tuple, EXPECTED))\n    if got == exp:\n        return {'ok': True, 'results': [{'passed': True}]}\n    return {'ok': False, 'results': [{'passed': False, 'expected': repr(EXPECTED), 'got': repr(rows)}]}",
+     "has_solution": true
+    },
+    {
+     "id": "ex04_order_score",
+     "title": "按分数降序排序",
+     "tags": "ORDER BY 排序",
+     "minutes": 4,
+     "prompt": "需求：\n查询学生 name 和 score，按分数从高到低；分数相同按 id 升序。\n把 SQL 写在下面的 SQL 变量里（一个查询语句即可）",
+     "stub": "SQL = ''' '''   # TODO: 在这里写你的 SQL",
+     "tests": "FUNC = 'SQL'\nTITLE = '按分数降序排序'\n\nFIXTURE = \"\"\"CREATE TABLE students(id INTEGER PRIMARY KEY, name TEXT, score INTEGER);\nINSERT INTO students VALUES (1,'Alice',90),(2,'Bob',85),(3,'Cathy',70),(4,'David',85);\nCREATE TABLE courses(id INTEGER PRIMARY KEY, name TEXT, credit INTEGER);\nINSERT INTO courses VALUES (1,'Python',3),(2,'Database',4),(3,'Network',3);\nCREATE TABLE enrollments(id INTEGER PRIMARY KEY, student_id INTEGER, course_id INTEGER, grade INTEGER);\nINSERT INTO enrollments VALUES (1,1,1,92),(2,1,2,88),(3,2,2,85),(4,2,3,78),(5,3,1,65),(6,4,3,90);\"\"\"\n\nEXPECTED = [('Alice', 90), ('Bob', 85), ('David', 85), ('Cathy', 70)]\nORDER_SENSITIVE = True\n\ndef CHECK(ens):\n    import sqlite3\n    conn = sqlite3.connect(':memory:')\n    for stmt in FIXTURE.split(';'):\n        stmt = stmt.strip()\n        if stmt:\n            conn.execute(stmt)\n    conn.commit()\n    sql = (ens.get('SQL') or '').strip()\n    if not sql:\n        return {'ok': False, 'results': [{'passed': False, 'error': 'SQL 为空，请填入查询语句'}]}\n    try:\n        _verify = globals().get('VERIFY_SQL')\n        if _verify:\n            for stmt in sql.split(';'):\n                stmt = stmt.strip()\n                if stmt:\n                    conn.execute(stmt)\n            rows = [tuple(r) for r in conn.execute(_verify).fetchall()]\n        else:\n            rows = [tuple(r) for r in conn.execute(sql).fetchall()]\n    except Exception as e:\n        return {'ok': False, 'results': [{'passed': False, 'error': 'SQL 执行错误：%s' % e}]}\n    got = rows if ORDER_SENSITIVE else sorted(map(tuple, rows))\n    exp = EXPECTED if ORDER_SENSITIVE else sorted(map(tuple, EXPECTED))\n    if got == exp:\n        return {'ok': True, 'results': [{'passed': True}]}\n    return {'ok': False, 'results': [{'passed': False, 'expected': repr(EXPECTED), 'got': repr(rows)}]}",
+     "has_solution": true
+    }
+   ]
+  },
+  {
+   "no": "02",
+   "name": "02-高级查询",
+   "exercises": [
+    {
+     "id": "ex05_count_students",
+     "title": "统计学生总数",
+     "tags": "聚合 COUNT",
+     "minutes": 3,
+     "prompt": "需求：\n查询 students 表的总行数，列名可省略，结果为一列一行的数字。\n把 SQL 写在下面的 SQL 变量里（一个查询语句即可）",
+     "stub": "SQL = ''' '''   # TODO: 在这里写你的 SQL",
+     "tests": "FUNC = 'SQL'\nTITLE = '统计学生总数'\n\nFIXTURE = \"\"\"CREATE TABLE students(id INTEGER PRIMARY KEY, name TEXT, score INTEGER);\nINSERT INTO students VALUES (1,'Alice',90),(2,'Bob',85),(3,'Cathy',70),(4,'David',85);\nCREATE TABLE courses(id INTEGER PRIMARY KEY, name TEXT, credit INTEGER);\nINSERT INTO courses VALUES (1,'Python',3),(2,'Database',4),(3,'Network',3);\nCREATE TABLE enrollments(id INTEGER PRIMARY KEY, student_id INTEGER, course_id INTEGER, grade INTEGER);\nINSERT INTO enrollments VALUES (1,1,1,92),(2,1,2,88),(3,2,2,85),(4,2,3,78),(5,3,1,65),(6,4,3,90);\"\"\"\n\nEXPECTED = [(4,)]\nORDER_SENSITIVE = False\n\ndef CHECK(ens):\n    import sqlite3\n    conn = sqlite3.connect(':memory:')\n    for stmt in FIXTURE.split(';'):\n        stmt = stmt.strip()\n        if stmt:\n            conn.execute(stmt)\n    conn.commit()\n    sql = (ens.get('SQL') or '').strip()\n    if not sql:\n        return {'ok': False, 'results': [{'passed': False, 'error': 'SQL 为空，请填入查询语句'}]}\n    try:\n        _verify = globals().get('VERIFY_SQL')\n        if _verify:\n            for stmt in sql.split(';'):\n                stmt = stmt.strip()\n                if stmt:\n                    conn.execute(stmt)\n            rows = [tuple(r) for r in conn.execute(_verify).fetchall()]\n        else:\n            rows = [tuple(r) for r in conn.execute(sql).fetchall()]\n    except Exception as e:\n        return {'ok': False, 'results': [{'passed': False, 'error': 'SQL 执行错误：%s' % e}]}\n    got = rows if ORDER_SENSITIVE else sorted(map(tuple, rows))\n    exp = EXPECTED if ORDER_SENSITIVE else sorted(map(tuple, EXPECTED))\n    if got == exp:\n        return {'ok': True, 'results': [{'passed': True}]}\n    return {'ok': False, 'results': [{'passed': False, 'expected': repr(EXPECTED), 'got': repr(rows)}]}",
+     "has_solution": true
+    },
+    {
+     "id": "ex06_avg_score",
+     "title": "求平均分",
+     "tags": "聚合 AVG",
+     "minutes": 3,
+     "prompt": "需求：\n查询 students 表所有学生的平均分（一列一行）。\n把 SQL 写在下面的 SQL 变量里（一个查询语句即可）",
+     "stub": "SQL = ''' '''   # TODO: 在这里写你的 SQL",
+     "tests": "FUNC = 'SQL'\nTITLE = '求平均分'\n\nFIXTURE = \"\"\"CREATE TABLE students(id INTEGER PRIMARY KEY, name TEXT, score INTEGER);\nINSERT INTO students VALUES (1,'Alice',90),(2,'Bob',85),(3,'Cathy',70),(4,'David',85);\nCREATE TABLE courses(id INTEGER PRIMARY KEY, name TEXT, credit INTEGER);\nINSERT INTO courses VALUES (1,'Python',3),(2,'Database',4),(3,'Network',3);\nCREATE TABLE enrollments(id INTEGER PRIMARY KEY, student_id INTEGER, course_id INTEGER, grade INTEGER);\nINSERT INTO enrollments VALUES (1,1,1,92),(2,1,2,88),(3,2,2,85),(4,2,3,78),(5,3,1,65),(6,4,3,90);\"\"\"\n\nEXPECTED = [(82.5,)]\nORDER_SENSITIVE = False\n\ndef CHECK(ens):\n    import sqlite3\n    conn = sqlite3.connect(':memory:')\n    for stmt in FIXTURE.split(';'):\n        stmt = stmt.strip()\n        if stmt:\n            conn.execute(stmt)\n    conn.commit()\n    sql = (ens.get('SQL') or '').strip()\n    if not sql:\n        return {'ok': False, 'results': [{'passed': False, 'error': 'SQL 为空，请填入查询语句'}]}\n    try:\n        _verify = globals().get('VERIFY_SQL')\n        if _verify:\n            for stmt in sql.split(';'):\n                stmt = stmt.strip()\n                if stmt:\n                    conn.execute(stmt)\n            rows = [tuple(r) for r in conn.execute(_verify).fetchall()]\n        else:\n            rows = [tuple(r) for r in conn.execute(sql).fetchall()]\n    except Exception as e:\n        return {'ok': False, 'results': [{'passed': False, 'error': 'SQL 执行错误：%s' % e}]}\n    got = rows if ORDER_SENSITIVE else sorted(map(tuple, rows))\n    exp = EXPECTED if ORDER_SENSITIVE else sorted(map(tuple, EXPECTED))\n    if got == exp:\n        return {'ok': True, 'results': [{'passed': True}]}\n    return {'ok': False, 'results': [{'passed': False, 'expected': repr(EXPECTED), 'got': repr(rows)}]}",
+     "has_solution": true
+    },
+    {
+     "id": "ex07_group_score",
+     "title": "按分数分组统计人数",
+     "tags": "GROUP BY 分组",
+     "minutes": 5,
+     "prompt": "需求：\n按 score 分组，查询每个分数及对应人数，按分数升序。\n把 SQL 写在下面的 SQL 变量里（一个查询语句即可）",
+     "stub": "SQL = ''' '''   # TODO: 在这里写你的 SQL",
+     "tests": "FUNC = 'SQL'\nTITLE = '按分数分组统计人数'\n\nFIXTURE = \"\"\"CREATE TABLE students(id INTEGER PRIMARY KEY, name TEXT, score INTEGER);\nINSERT INTO students VALUES (1,'Alice',90),(2,'Bob',85),(3,'Cathy',70),(4,'David',85);\nCREATE TABLE courses(id INTEGER PRIMARY KEY, name TEXT, credit INTEGER);\nINSERT INTO courses VALUES (1,'Python',3),(2,'Database',4),(3,'Network',3);\nCREATE TABLE enrollments(id INTEGER PRIMARY KEY, student_id INTEGER, course_id INTEGER, grade INTEGER);\nINSERT INTO enrollments VALUES (1,1,1,92),(2,1,2,88),(3,2,2,85),(4,2,3,78),(5,3,1,65),(6,4,3,90);\"\"\"\n\nEXPECTED = [(70, 1), (85, 2), (90, 1)]\nORDER_SENSITIVE = True\n\ndef CHECK(ens):\n    import sqlite3\n    conn = sqlite3.connect(':memory:')\n    for stmt in FIXTURE.split(';'):\n        stmt = stmt.strip()\n        if stmt:\n            conn.execute(stmt)\n    conn.commit()\n    sql = (ens.get('SQL') or '').strip()\n    if not sql:\n        return {'ok': False, 'results': [{'passed': False, 'error': 'SQL 为空，请填入查询语句'}]}\n    try:\n        _verify = globals().get('VERIFY_SQL')\n        if _verify:\n            for stmt in sql.split(';'):\n                stmt = stmt.strip()\n                if stmt:\n                    conn.execute(stmt)\n            rows = [tuple(r) for r in conn.execute(_verify).fetchall()]\n        else:\n            rows = [tuple(r) for r in conn.execute(sql).fetchall()]\n    except Exception as e:\n        return {'ok': False, 'results': [{'passed': False, 'error': 'SQL 执行错误：%s' % e}]}\n    got = rows if ORDER_SENSITIVE else sorted(map(tuple, rows))\n    exp = EXPECTED if ORDER_SENSITIVE else sorted(map(tuple, EXPECTED))\n    if got == exp:\n        return {'ok': True, 'results': [{'passed': True}]}\n    return {'ok': False, 'results': [{'passed': False, 'expected': repr(EXPECTED), 'got': repr(rows)}]}",
+     "has_solution": true
+    },
+    {
+     "id": "ex08_having_avg",
+     "title": "分组过滤平均分",
+     "tags": "HAVING 过滤",
+     "minutes": 5,
+     "prompt": "需求：\n按 course_id 分组统计平均成绩，只保留平均分不低于 85 的课程，按 course_id 升序。\n把 SQL 写在下面的 SQL 变量里（一个查询语句即可）",
+     "stub": "SQL = ''' '''   # TODO: 在这里写你的 SQL",
+     "tests": "FUNC = 'SQL'\nTITLE = '分组过滤平均分'\n\nFIXTURE = \"\"\"CREATE TABLE students(id INTEGER PRIMARY KEY, name TEXT, score INTEGER);\nINSERT INTO students VALUES (1,'Alice',90),(2,'Bob',85),(3,'Cathy',70),(4,'David',85);\nCREATE TABLE courses(id INTEGER PRIMARY KEY, name TEXT, credit INTEGER);\nINSERT INTO courses VALUES (1,'Python',3),(2,'Database',4),(3,'Network',3);\nCREATE TABLE enrollments(id INTEGER PRIMARY KEY, student_id INTEGER, course_id INTEGER, grade INTEGER);\nINSERT INTO enrollments VALUES (1,1,1,92),(2,1,2,88),(3,2,2,85),(4,2,3,78),(5,3,1,65),(6,4,3,90);\"\"\"\n\nEXPECTED = [(2, 86.5)]\nORDER_SENSITIVE = True\n\ndef CHECK(ens):\n    import sqlite3\n    conn = sqlite3.connect(':memory:')\n    for stmt in FIXTURE.split(';'):\n        stmt = stmt.strip()\n        if stmt:\n            conn.execute(stmt)\n    conn.commit()\n    sql = (ens.get('SQL') or '').strip()\n    if not sql:\n        return {'ok': False, 'results': [{'passed': False, 'error': 'SQL 为空，请填入查询语句'}]}\n    try:\n        _verify = globals().get('VERIFY_SQL')\n        if _verify:\n            for stmt in sql.split(';'):\n                stmt = stmt.strip()\n                if stmt:\n                    conn.execute(stmt)\n            rows = [tuple(r) for r in conn.execute(_verify).fetchall()]\n        else:\n            rows = [tuple(r) for r in conn.execute(sql).fetchall()]\n    except Exception as e:\n        return {'ok': False, 'results': [{'passed': False, 'error': 'SQL 执行错误：%s' % e}]}\n    got = rows if ORDER_SENSITIVE else sorted(map(tuple, rows))\n    exp = EXPECTED if ORDER_SENSITIVE else sorted(map(tuple, EXPECTED))\n    if got == exp:\n        return {'ok': True, 'results': [{'passed': True}]}\n    return {'ok': False, 'results': [{'passed': False, 'expected': repr(EXPECTED), 'got': repr(rows)}]}",
+     "has_solution": true
+    }
+   ]
+  },
+  {
+   "no": "03",
+   "name": "03-多表查询",
+   "exercises": [
+    {
+     "id": "ex09_join_grades",
+     "title": "多表关联查询成绩",
+     "tags": "INNER JOIN",
+     "minutes": 6,
+     "prompt": "需求：\n查询每一条选课记录：学生姓名、课程名、成绩，按选课记录 id 升序。\n把 SQL 写在下面的 SQL 变量里（一个查询语句即可）",
+     "stub": "SQL = ''' '''   # TODO: 在这里写你的 SQL",
+     "tests": "FUNC = 'SQL'\nTITLE = '多表关联查询成绩'\n\nFIXTURE = \"\"\"CREATE TABLE students(id INTEGER PRIMARY KEY, name TEXT, score INTEGER);\nINSERT INTO students VALUES (1,'Alice',90),(2,'Bob',85),(3,'Cathy',70),(4,'David',85);\nCREATE TABLE courses(id INTEGER PRIMARY KEY, name TEXT, credit INTEGER);\nINSERT INTO courses VALUES (1,'Python',3),(2,'Database',4),(3,'Network',3);\nCREATE TABLE enrollments(id INTEGER PRIMARY KEY, student_id INTEGER, course_id INTEGER, grade INTEGER);\nINSERT INTO enrollments VALUES (1,1,1,92),(2,1,2,88),(3,2,2,85),(4,2,3,78),(5,3,1,65),(6,4,3,90);\"\"\"\n\nEXPECTED = [('Alice', 'Python', 92), ('Alice', 'Database', 88), ('Bob', 'Database', 85), ('Bob', 'Network', 78), ('Cathy', 'Python', 65), ('David', 'Network', 90)]\nORDER_SENSITIVE = True\n\ndef CHECK(ens):\n    import sqlite3\n    conn = sqlite3.connect(':memory:')\n    for stmt in FIXTURE.split(';'):\n        stmt = stmt.strip()\n        if stmt:\n            conn.execute(stmt)\n    conn.commit()\n    sql = (ens.get('SQL') or '').strip()\n    if not sql:\n        return {'ok': False, 'results': [{'passed': False, 'error': 'SQL 为空，请填入查询语句'}]}\n    try:\n        _verify = globals().get('VERIFY_SQL')\n        if _verify:\n            for stmt in sql.split(';'):\n                stmt = stmt.strip()\n                if stmt:\n                    conn.execute(stmt)\n            rows = [tuple(r) for r in conn.execute(_verify).fetchall()]\n        else:\n            rows = [tuple(r) for r in conn.execute(sql).fetchall()]\n    except Exception as e:\n        return {'ok': False, 'results': [{'passed': False, 'error': 'SQL 执行错误：%s' % e}]}\n    got = rows if ORDER_SENSITIVE else sorted(map(tuple, rows))\n    exp = EXPECTED if ORDER_SENSITIVE else sorted(map(tuple, EXPECTED))\n    if got == exp:\n        return {'ok': True, 'results': [{'passed': True}]}\n    return {'ok': False, 'results': [{'passed': False, 'expected': repr(EXPECTED), 'got': repr(rows)}]}",
+     "has_solution": true
+    },
+    {
+     "id": "ex10_left_join_count",
+     "title": "左连接统计选课数",
+     "tags": "LEFT JOIN",
+     "minutes": 6,
+     "prompt": "需求：\n查询每个学生的姓名及其选课数量（没选课的学生也要出现，数量为 0），按学生 id 升序。\n把 SQL 写在下面的 SQL 变量里（一个查询语句即可）",
+     "stub": "SQL = ''' '''   # TODO: 在这里写你的 SQL",
+     "tests": "FUNC = 'SQL'\nTITLE = '左连接统计选课数'\n\nFIXTURE = \"\"\"CREATE TABLE students(id INTEGER PRIMARY KEY, name TEXT, score INTEGER);\nINSERT INTO students VALUES (1,'Alice',90),(2,'Bob',85),(3,'Cathy',70),(4,'David',85);\nCREATE TABLE courses(id INTEGER PRIMARY KEY, name TEXT, credit INTEGER);\nINSERT INTO courses VALUES (1,'Python',3),(2,'Database',4),(3,'Network',3);\nCREATE TABLE enrollments(id INTEGER PRIMARY KEY, student_id INTEGER, course_id INTEGER, grade INTEGER);\nINSERT INTO enrollments VALUES (1,1,1,92),(2,1,2,88),(3,2,2,85),(4,2,3,78),(5,3,1,65),(6,4,3,90);\"\"\"\n\nEXPECTED = [('Alice', 2), ('Bob', 2), ('Cathy', 1), ('David', 1)]\nORDER_SENSITIVE = True\n\ndef CHECK(ens):\n    import sqlite3\n    conn = sqlite3.connect(':memory:')\n    for stmt in FIXTURE.split(';'):\n        stmt = stmt.strip()\n        if stmt:\n            conn.execute(stmt)\n    conn.commit()\n    sql = (ens.get('SQL') or '').strip()\n    if not sql:\n        return {'ok': False, 'results': [{'passed': False, 'error': 'SQL 为空，请填入查询语句'}]}\n    try:\n        _verify = globals().get('VERIFY_SQL')\n        if _verify:\n            for stmt in sql.split(';'):\n                stmt = stmt.strip()\n                if stmt:\n                    conn.execute(stmt)\n            rows = [tuple(r) for r in conn.execute(_verify).fetchall()]\n        else:\n            rows = [tuple(r) for r in conn.execute(sql).fetchall()]\n    except Exception as e:\n        return {'ok': False, 'results': [{'passed': False, 'error': 'SQL 执行错误：%s' % e}]}\n    got = rows if ORDER_SENSITIVE else sorted(map(tuple, rows))\n    exp = EXPECTED if ORDER_SENSITIVE else sorted(map(tuple, EXPECTED))\n    if got == exp:\n        return {'ok': True, 'results': [{'passed': True}]}\n    return {'ok': False, 'results': [{'passed': False, 'expected': repr(EXPECTED), 'got': repr(rows)}]}",
+     "has_solution": true
+    },
+    {
+     "id": "ex11_above_avg",
+     "title": "子查询过滤高于平均分",
+     "tags": "子查询",
+     "minutes": 6,
+     "prompt": "需求：\n查询 score 高于全体平均分的学生 name 和 score，按 id 升序。\n把 SQL 写在下面的 SQL 变量里（一个查询语句即可）",
+     "stub": "SQL = ''' '''   # TODO: 在这里写你的 SQL",
+     "tests": "FUNC = 'SQL'\nTITLE = '子查询过滤高于平均分'\n\nFIXTURE = \"\"\"CREATE TABLE students(id INTEGER PRIMARY KEY, name TEXT, score INTEGER);\nINSERT INTO students VALUES (1,'Alice',90),(2,'Bob',85),(3,'Cathy',70),(4,'David',85);\nCREATE TABLE courses(id INTEGER PRIMARY KEY, name TEXT, credit INTEGER);\nINSERT INTO courses VALUES (1,'Python',3),(2,'Database',4),(3,'Network',3);\nCREATE TABLE enrollments(id INTEGER PRIMARY KEY, student_id INTEGER, course_id INTEGER, grade INTEGER);\nINSERT INTO enrollments VALUES (1,1,1,92),(2,1,2,88),(3,2,2,85),(4,2,3,78),(5,3,1,65),(6,4,3,90);\"\"\"\n\nEXPECTED = [('Alice', 90), ('Bob', 85), ('David', 85)]\nORDER_SENSITIVE = True\n\ndef CHECK(ens):\n    import sqlite3\n    conn = sqlite3.connect(':memory:')\n    for stmt in FIXTURE.split(';'):\n        stmt = stmt.strip()\n        if stmt:\n            conn.execute(stmt)\n    conn.commit()\n    sql = (ens.get('SQL') or '').strip()\n    if not sql:\n        return {'ok': False, 'results': [{'passed': False, 'error': 'SQL 为空，请填入查询语句'}]}\n    try:\n        _verify = globals().get('VERIFY_SQL')\n        if _verify:\n            for stmt in sql.split(';'):\n                stmt = stmt.strip()\n                if stmt:\n                    conn.execute(stmt)\n            rows = [tuple(r) for r in conn.execute(_verify).fetchall()]\n        else:\n            rows = [tuple(r) for r in conn.execute(sql).fetchall()]\n    except Exception as e:\n        return {'ok': False, 'results': [{'passed': False, 'error': 'SQL 执行错误：%s' % e}]}\n    got = rows if ORDER_SENSITIVE else sorted(map(tuple, rows))\n    exp = EXPECTED if ORDER_SENSITIVE else sorted(map(tuple, EXPECTED))\n    if got == exp:\n        return {'ok': True, 'results': [{'passed': True}]}\n    return {'ok': False, 'results': [{'passed': False, 'expected': repr(EXPECTED), 'got': repr(rows)}]}",
+     "has_solution": true
+    }
+   ]
+  },
+  {
+   "no": "04",
+   "name": "04-增删改",
+   "exercises": [
+    {
+     "id": "ex12_insert_student",
+     "title": "插入新学生",
+     "tags": "INSERT",
+     "minutes": 4,
+     "prompt": "需求：\n向 students 表插入一名新学生：id=5, name=Eve, score=88（只写一条 INSERT）。\n把 SQL 写在下面的 SQL 变量里（一个查询语句即可）",
+     "stub": "SQL = ''' '''   # TODO: 在这里写你的 SQL",
+     "tests": "FUNC = 'SQL'\nTITLE = '插入新学生'\n\nFIXTURE = \"\"\"CREATE TABLE students(id INTEGER PRIMARY KEY, name TEXT, score INTEGER);\nINSERT INTO students VALUES (1,'Alice',90),(2,'Bob',85),(3,'Cathy',70),(4,'David',85);\nCREATE TABLE courses(id INTEGER PRIMARY KEY, name TEXT, credit INTEGER);\nINSERT INTO courses VALUES (1,'Python',3),(2,'Database',4),(3,'Network',3);\nCREATE TABLE enrollments(id INTEGER PRIMARY KEY, student_id INTEGER, course_id INTEGER, grade INTEGER);\nINSERT INTO enrollments VALUES (1,1,1,92),(2,1,2,88),(3,2,2,85),(4,2,3,78),(5,3,1,65),(6,4,3,90);\"\"\"\n\nEXPECTED = [('Eve', 88)]\nORDER_SENSITIVE = False\nVERIFY_SQL = 'SELECT name, score FROM students WHERE id = 5'\n\ndef CHECK(ens):\n    import sqlite3\n    conn = sqlite3.connect(':memory:')\n    for stmt in FIXTURE.split(';'):\n        stmt = stmt.strip()\n        if stmt:\n            conn.execute(stmt)\n    conn.commit()\n    sql = (ens.get('SQL') or '').strip()\n    if not sql:\n        return {'ok': False, 'results': [{'passed': False, 'error': 'SQL 为空，请填入查询语句'}]}\n    try:\n        _verify = globals().get('VERIFY_SQL')\n        if _verify:\n            for stmt in sql.split(';'):\n                stmt = stmt.strip()\n                if stmt:\n                    conn.execute(stmt)\n            rows = [tuple(r) for r in conn.execute(_verify).fetchall()]\n        else:\n            rows = [tuple(r) for r in conn.execute(sql).fetchall()]\n    except Exception as e:\n        return {'ok': False, 'results': [{'passed': False, 'error': 'SQL 执行错误：%s' % e}]}\n    got = rows if ORDER_SENSITIVE else sorted(map(tuple, rows))\n    exp = EXPECTED if ORDER_SENSITIVE else sorted(map(tuple, EXPECTED))\n    if got == exp:\n        return {'ok': True, 'results': [{'passed': True}]}\n    return {'ok': False, 'results': [{'passed': False, 'expected': repr(EXPECTED), 'got': repr(rows)}]}",
+     "has_solution": true
+    },
+    {
+     "id": "ex13_update_score",
+     "title": "更新学生成绩",
+     "tags": "UPDATE",
+     "minutes": 4,
+     "prompt": "需求：\n把 Bob 的 score 改为 95（只写一条 UPDATE）。\n把 SQL 写在下面的 SQL 变量里（一个查询语句即可）",
+     "stub": "SQL = ''' '''   # TODO: 在这里写你的 SQL",
+     "tests": "FUNC = 'SQL'\nTITLE = '更新学生成绩'\n\nFIXTURE = \"\"\"CREATE TABLE students(id INTEGER PRIMARY KEY, name TEXT, score INTEGER);\nINSERT INTO students VALUES (1,'Alice',90),(2,'Bob',85),(3,'Cathy',70),(4,'David',85);\nCREATE TABLE courses(id INTEGER PRIMARY KEY, name TEXT, credit INTEGER);\nINSERT INTO courses VALUES (1,'Python',3),(2,'Database',4),(3,'Network',3);\nCREATE TABLE enrollments(id INTEGER PRIMARY KEY, student_id INTEGER, course_id INTEGER, grade INTEGER);\nINSERT INTO enrollments VALUES (1,1,1,92),(2,1,2,88),(3,2,2,85),(4,2,3,78),(5,3,1,65),(6,4,3,90);\"\"\"\n\nEXPECTED = [(95,)]\nORDER_SENSITIVE = False\nVERIFY_SQL = \"SELECT score FROM students WHERE name = 'Bob'\"\n\ndef CHECK(ens):\n    import sqlite3\n    conn = sqlite3.connect(':memory:')\n    for stmt in FIXTURE.split(';'):\n        stmt = stmt.strip()\n        if stmt:\n            conn.execute(stmt)\n    conn.commit()\n    sql = (ens.get('SQL') or '').strip()\n    if not sql:\n        return {'ok': False, 'results': [{'passed': False, 'error': 'SQL 为空，请填入查询语句'}]}\n    try:\n        _verify = globals().get('VERIFY_SQL')\n        if _verify:\n            for stmt in sql.split(';'):\n                stmt = stmt.strip()\n                if stmt:\n                    conn.execute(stmt)\n            rows = [tuple(r) for r in conn.execute(_verify).fetchall()]\n        else:\n            rows = [tuple(r) for r in conn.execute(sql).fetchall()]\n    except Exception as e:\n        return {'ok': False, 'results': [{'passed': False, 'error': 'SQL 执行错误：%s' % e}]}\n    got = rows if ORDER_SENSITIVE else sorted(map(tuple, rows))\n    exp = EXPECTED if ORDER_SENSITIVE else sorted(map(tuple, EXPECTED))\n    if got == exp:\n        return {'ok': True, 'results': [{'passed': True}]}\n    return {'ok': False, 'results': [{'passed': False, 'expected': repr(EXPECTED), 'got': repr(rows)}]}",
+     "has_solution": true
+    },
+    {
+     "id": "ex14_delete_student",
+     "title": "删除学生",
+     "tags": "DELETE",
+     "minutes": 4,
+     "prompt": "需求：\n删除 name 为 Cathy 的学生（只写一条 DELETE）。\n把 SQL 写在下面的 SQL 变量里（一个查询语句即可）",
+     "stub": "SQL = ''' '''   # TODO: 在这里写你的 SQL",
+     "tests": "FUNC = 'SQL'\nTITLE = '删除学生'\n\nFIXTURE = \"\"\"CREATE TABLE students(id INTEGER PRIMARY KEY, name TEXT, score INTEGER);\nINSERT INTO students VALUES (1,'Alice',90),(2,'Bob',85),(3,'Cathy',70),(4,'David',85);\nCREATE TABLE courses(id INTEGER PRIMARY KEY, name TEXT, credit INTEGER);\nINSERT INTO courses VALUES (1,'Python',3),(2,'Database',4),(3,'Network',3);\nCREATE TABLE enrollments(id INTEGER PRIMARY KEY, student_id INTEGER, course_id INTEGER, grade INTEGER);\nINSERT INTO enrollments VALUES (1,1,1,92),(2,1,2,88),(3,2,2,85),(4,2,3,78),(5,3,1,65),(6,4,3,90);\"\"\"\n\nEXPECTED = [(3,)]\nORDER_SENSITIVE = False\nVERIFY_SQL = 'SELECT COUNT(*) FROM students'\n\ndef CHECK(ens):\n    import sqlite3\n    conn = sqlite3.connect(':memory:')\n    for stmt in FIXTURE.split(';'):\n        stmt = stmt.strip()\n        if stmt:\n            conn.execute(stmt)\n    conn.commit()\n    sql = (ens.get('SQL') or '').strip()\n    if not sql:\n        return {'ok': False, 'results': [{'passed': False, 'error': 'SQL 为空，请填入查询语句'}]}\n    try:\n        _verify = globals().get('VERIFY_SQL')\n        if _verify:\n            for stmt in sql.split(';'):\n                stmt = stmt.strip()\n                if stmt:\n                    conn.execute(stmt)\n            rows = [tuple(r) for r in conn.execute(_verify).fetchall()]\n        else:\n            rows = [tuple(r) for r in conn.execute(sql).fetchall()]\n    except Exception as e:\n        return {'ok': False, 'results': [{'passed': False, 'error': 'SQL 执行错误：%s' % e}]}\n    got = rows if ORDER_SENSITIVE else sorted(map(tuple, rows))\n    exp = EXPECTED if ORDER_SENSITIVE else sorted(map(tuple, EXPECTED))\n    if got == exp:\n        return {'ok': True, 'results': [{'passed': True}]}\n    return {'ok': False, 'results': [{'passed': False, 'expected': repr(EXPECTED), 'got': repr(rows)}]}",
+     "has_solution": true
+    }
+   ]
+  },
+  {
+   "no": "05",
+   "name": "05-约束与事务",
+   "exercises": [
+    {
+     "id": "ex15_create_scores",
+     "title": "创建带约束的表",
+     "tags": "CREATE + 约束",
+     "minutes": 6,
+     "prompt": "需求：\n创建 scores 表：id INTEGER PRIMARY KEY，student_id INTEGER NOT NULL，score INTEGER（只写一条 CREATE TABLE）。\n把 SQL 写在下面的 SQL 变量里（一个查询语句即可）",
+     "stub": "SQL = ''' '''   # TODO: 在这里写你的 SQL",
+     "tests": "FUNC = 'SQL'\nTITLE = '创建带约束的表'\n\nFIXTURE = \"\"\"CREATE TABLE students(id INTEGER PRIMARY KEY, name TEXT, score INTEGER);\nINSERT INTO students VALUES (1,'Alice',90),(2,'Bob',85),(3,'Cathy',70),(4,'David',85);\nCREATE TABLE courses(id INTEGER PRIMARY KEY, name TEXT, credit INTEGER);\nINSERT INTO courses VALUES (1,'Python',3),(2,'Database',4),(3,'Network',3);\nCREATE TABLE enrollments(id INTEGER PRIMARY KEY, student_id INTEGER, course_id INTEGER, grade INTEGER);\nINSERT INTO enrollments VALUES (1,1,1,92),(2,1,2,88),(3,2,2,85),(4,2,3,78),(5,3,1,65),(6,4,3,90);\"\"\"\n\nEXPECTED = [('id',), ('student_id',), ('score',)]\nORDER_SENSITIVE = False\nVERIFY_SQL = \"SELECT name FROM pragma_table_info('scores') ORDER BY cid\"\n\ndef CHECK(ens):\n    import sqlite3\n    conn = sqlite3.connect(':memory:')\n    for stmt in FIXTURE.split(';'):\n        stmt = stmt.strip()\n        if stmt:\n            conn.execute(stmt)\n    conn.commit()\n    sql = (ens.get('SQL') or '').strip()\n    if not sql:\n        return {'ok': False, 'results': [{'passed': False, 'error': 'SQL 为空，请填入查询语句'}]}\n    try:\n        _verify = globals().get('VERIFY_SQL')\n        if _verify:\n            for stmt in sql.split(';'):\n                stmt = stmt.strip()\n                if stmt:\n                    conn.execute(stmt)\n            rows = [tuple(r) for r in conn.execute(_verify).fetchall()]\n        else:\n            rows = [tuple(r) for r in conn.execute(sql).fetchall()]\n    except Exception as e:\n        return {'ok': False, 'results': [{'passed': False, 'error': 'SQL 执行错误：%s' % e}]}\n    got = rows if ORDER_SENSITIVE else sorted(map(tuple, rows))\n    exp = EXPECTED if ORDER_SENSITIVE else sorted(map(tuple, EXPECTED))\n    if got == exp:\n        return {'ok': True, 'results': [{'passed': True}]}\n    return {'ok': False, 'results': [{'passed': False, 'expected': repr(EXPECTED), 'got': repr(rows)}]}",
+     "has_solution": true
+    },
+    {
+     "id": "ex16_transaction",
+     "title": "事务提交两条插入",
+     "tags": "事务 BEGIN/COMMIT",
+     "minutes": 6,
+     "prompt": "需求：\n用事务插入两名新学生：id=5 Eve(88) 和 id=6 Frank(77)，以 COMMIT 结束（多语句）。\n把 SQL 写在下面的 SQL 变量里（一个查询语句即可）",
+     "stub": "SQL = ''' '''   # TODO: 在这里写你的 SQL",
+     "tests": "FUNC = 'SQL'\nTITLE = '事务提交两条插入'\n\nFIXTURE = \"\"\"CREATE TABLE students(id INTEGER PRIMARY KEY, name TEXT, score INTEGER);\nINSERT INTO students VALUES (1,'Alice',90),(2,'Bob',85),(3,'Cathy',70),(4,'David',85);\nCREATE TABLE courses(id INTEGER PRIMARY KEY, name TEXT, credit INTEGER);\nINSERT INTO courses VALUES (1,'Python',3),(2,'Database',4),(3,'Network',3);\nCREATE TABLE enrollments(id INTEGER PRIMARY KEY, student_id INTEGER, course_id INTEGER, grade INTEGER);\nINSERT INTO enrollments VALUES (1,1,1,92),(2,1,2,88),(3,2,2,85),(4,2,3,78),(5,3,1,65),(6,4,3,90);\"\"\"\n\nEXPECTED = [(6,)]\nORDER_SENSITIVE = False\nVERIFY_SQL = 'SELECT COUNT(*) FROM students'\n\ndef CHECK(ens):\n    import sqlite3\n    conn = sqlite3.connect(':memory:')\n    for stmt in FIXTURE.split(';'):\n        stmt = stmt.strip()\n        if stmt:\n            conn.execute(stmt)\n    conn.commit()\n    sql = (ens.get('SQL') or '').strip()\n    if not sql:\n        return {'ok': False, 'results': [{'passed': False, 'error': 'SQL 为空，请填入查询语句'}]}\n    try:\n        _verify = globals().get('VERIFY_SQL')\n        if _verify:\n            for stmt in sql.split(';'):\n                stmt = stmt.strip()\n                if stmt:\n                    conn.execute(stmt)\n            rows = [tuple(r) for r in conn.execute(_verify).fetchall()]\n        else:\n            rows = [tuple(r) for r in conn.execute(sql).fetchall()]\n    except Exception as e:\n        return {'ok': False, 'results': [{'passed': False, 'error': 'SQL 执行错误：%s' % e}]}\n    got = rows if ORDER_SENSITIVE else sorted(map(tuple, rows))\n    exp = EXPECTED if ORDER_SENSITIVE else sorted(map(tuple, EXPECTED))\n    if got == exp:\n        return {'ok': True, 'results': [{'passed': True}]}\n    return {'ok': False, 'results': [{'passed': False, 'expected': repr(EXPECTED), 'got': repr(rows)}]}",
+     "has_solution": true
+    },
+    {
+     "id": "ex17_alter_table",
+     "title": "添加列",
+     "tags": "ALTER TABLE",
+     "minutes": 4,
+     "prompt": "需求：\n为 students 表添加一列 email TEXT（只写一条 ALTER TABLE）。\n把 SQL 写在下面的 SQL 变量里（一个查询语句即可）",
+     "stub": "SQL = ''' '''   # TODO: 在这里写你的 SQL",
+     "tests": "FUNC = 'SQL'\nTITLE = '添加列'\n\nFIXTURE = \"\"\"CREATE TABLE students(id INTEGER PRIMARY KEY, name TEXT, score INTEGER);\nINSERT INTO students VALUES (1,'Alice',90),(2,'Bob',85),(3,'Cathy',70),(4,'David',85);\nCREATE TABLE courses(id INTEGER PRIMARY KEY, name TEXT, credit INTEGER);\nINSERT INTO courses VALUES (1,'Python',3),(2,'Database',4),(3,'Network',3);\nCREATE TABLE enrollments(id INTEGER PRIMARY KEY, student_id INTEGER, course_id INTEGER, grade INTEGER);\nINSERT INTO enrollments VALUES (1,1,1,92),(2,1,2,88),(3,2,2,85),(4,2,3,78),(5,3,1,65),(6,4,3,90);\"\"\"\n\nEXPECTED = [('id',), ('name',), ('score',), ('email',)]\nORDER_SENSITIVE = False\nVERIFY_SQL = \"SELECT name FROM pragma_table_info('students') ORDER BY cid\"\n\ndef CHECK(ens):\n    import sqlite3\n    conn = sqlite3.connect(':memory:')\n    for stmt in FIXTURE.split(';'):\n        stmt = stmt.strip()\n        if stmt:\n            conn.execute(stmt)\n    conn.commit()\n    sql = (ens.get('SQL') or '').strip()\n    if not sql:\n        return {'ok': False, 'results': [{'passed': False, 'error': 'SQL 为空，请填入查询语句'}]}\n    try:\n        _verify = globals().get('VERIFY_SQL')\n        if _verify:\n            for stmt in sql.split(';'):\n                stmt = stmt.strip()\n                if stmt:\n                    conn.execute(stmt)\n            rows = [tuple(r) for r in conn.execute(_verify).fetchall()]\n        else:\n            rows = [tuple(r) for r in conn.execute(sql).fetchall()]\n    except Exception as e:\n        return {'ok': False, 'results': [{'passed': False, 'error': 'SQL 执行错误：%s' % e}]}\n    got = rows if ORDER_SENSITIVE else sorted(map(tuple, rows))\n    exp = EXPECTED if ORDER_SENSITIVE else sorted(map(tuple, EXPECTED))\n    if got == exp:\n        return {'ok': True, 'results': [{'passed': True}]}\n    return {'ok': False, 'results': [{'passed': False, 'expected': repr(EXPECTED), 'got': repr(rows)}]}",
+     "has_solution": true
+    }
+   ]
+  },
+  {
+   "no": "06",
+   "name": "06-综合实战",
+   "exercises": [
+    {
+     "id": "ex18_course_avg",
+     "title": "每门课的平均分",
+     "tags": "JOIN + GROUP BY",
+     "minutes": 7,
+     "prompt": "需求：\n查询每门课的课程名及其平均成绩，按课程 id 升序。\n把 SQL 写在下面的 SQL 变量里（一个查询语句即可）",
+     "stub": "SQL = ''' '''   # TODO: 在这里写你的 SQL",
+     "tests": "FUNC = 'SQL'\nTITLE = '每门课的平均分'\n\nFIXTURE = \"\"\"CREATE TABLE students(id INTEGER PRIMARY KEY, name TEXT, score INTEGER);\nINSERT INTO students VALUES (1,'Alice',90),(2,'Bob',85),(3,'Cathy',70),(4,'David',85);\nCREATE TABLE courses(id INTEGER PRIMARY KEY, name TEXT, credit INTEGER);\nINSERT INTO courses VALUES (1,'Python',3),(2,'Database',4),(3,'Network',3);\nCREATE TABLE enrollments(id INTEGER PRIMARY KEY, student_id INTEGER, course_id INTEGER, grade INTEGER);\nINSERT INTO enrollments VALUES (1,1,1,92),(2,1,2,88),(3,2,2,85),(4,2,3,78),(5,3,1,65),(6,4,3,90);\"\"\"\n\nEXPECTED = [('Python', 78.5), ('Database', 86.5), ('Network', 84.0)]\nORDER_SENSITIVE = True\n\ndef CHECK(ens):\n    import sqlite3\n    conn = sqlite3.connect(':memory:')\n    for stmt in FIXTURE.split(';'):\n        stmt = stmt.strip()\n        if stmt:\n            conn.execute(stmt)\n    conn.commit()\n    sql = (ens.get('SQL') or '').strip()\n    if not sql:\n        return {'ok': False, 'results': [{'passed': False, 'error': 'SQL 为空，请填入查询语句'}]}\n    try:\n        _verify = globals().get('VERIFY_SQL')\n        if _verify:\n            for stmt in sql.split(';'):\n                stmt = stmt.strip()\n                if stmt:\n                    conn.execute(stmt)\n            rows = [tuple(r) for r in conn.execute(_verify).fetchall()]\n        else:\n            rows = [tuple(r) for r in conn.execute(sql).fetchall()]\n    except Exception as e:\n        return {'ok': False, 'results': [{'passed': False, 'error': 'SQL 执行错误：%s' % e}]}\n    got = rows if ORDER_SENSITIVE else sorted(map(tuple, rows))\n    exp = EXPECTED if ORDER_SENSITIVE else sorted(map(tuple, EXPECTED))\n    if got == exp:\n        return {'ok': True, 'results': [{'passed': True}]}\n    return {'ok': False, 'results': [{'passed': False, 'expected': repr(EXPECTED), 'got': repr(rows)}]}",
+     "has_solution": true
+    },
+    {
+     "id": "ex19_top3",
+     "title": "分数前三的学生",
+     "tags": "ORDER BY + LIMIT",
+     "minutes": 4,
+     "prompt": "需求：\n查询分数最高的前 3 名学生 name 和 score（分数相同按 id 升序）。\n把 SQL 写在下面的 SQL 变量里（一个查询语句即可）",
+     "stub": "SQL = ''' '''   # TODO: 在这里写你的 SQL",
+     "tests": "FUNC = 'SQL'\nTITLE = '分数前三的学生'\n\nFIXTURE = \"\"\"CREATE TABLE students(id INTEGER PRIMARY KEY, name TEXT, score INTEGER);\nINSERT INTO students VALUES (1,'Alice',90),(2,'Bob',85),(3,'Cathy',70),(4,'David',85);\nCREATE TABLE courses(id INTEGER PRIMARY KEY, name TEXT, credit INTEGER);\nINSERT INTO courses VALUES (1,'Python',3),(2,'Database',4),(3,'Network',3);\nCREATE TABLE enrollments(id INTEGER PRIMARY KEY, student_id INTEGER, course_id INTEGER, grade INTEGER);\nINSERT INTO enrollments VALUES (1,1,1,92),(2,1,2,88),(3,2,2,85),(4,2,3,78),(5,3,1,65),(6,4,3,90);\"\"\"\n\nEXPECTED = [('Alice', 90), ('Bob', 85), ('David', 85)]\nORDER_SENSITIVE = True\n\ndef CHECK(ens):\n    import sqlite3\n    conn = sqlite3.connect(':memory:')\n    for stmt in FIXTURE.split(';'):\n        stmt = stmt.strip()\n        if stmt:\n            conn.execute(stmt)\n    conn.commit()\n    sql = (ens.get('SQL') or '').strip()\n    if not sql:\n        return {'ok': False, 'results': [{'passed': False, 'error': 'SQL 为空，请填入查询语句'}]}\n    try:\n        _verify = globals().get('VERIFY_SQL')\n        if _verify:\n            for stmt in sql.split(';'):\n                stmt = stmt.strip()\n                if stmt:\n                    conn.execute(stmt)\n            rows = [tuple(r) for r in conn.execute(_verify).fetchall()]\n        else:\n            rows = [tuple(r) for r in conn.execute(sql).fetchall()]\n    except Exception as e:\n        return {'ok': False, 'results': [{'passed': False, 'error': 'SQL 执行错误：%s' % e}]}\n    got = rows if ORDER_SENSITIVE else sorted(map(tuple, rows))\n    exp = EXPECTED if ORDER_SENSITIVE else sorted(map(tuple, EXPECTED))\n    if got == exp:\n        return {'ok': True, 'results': [{'passed': True}]}\n    return {'ok': False, 'results': [{'passed': False, 'expected': repr(EXPECTED), 'got': repr(rows)}]}",
+     "has_solution": true
+    },
+    {
+     "id": "ex20_multi_enroll",
+     "title": "选课不少于两门的学生",
+     "tags": "JOIN + HAVING",
+     "minutes": 7,
+     "prompt": "需求：\n查询选课数量不少于 2 门的学生姓名，按学生 id 升序。\n把 SQL 写在下面的 SQL 变量里（一个查询语句即可）",
+     "stub": "SQL = ''' '''   # TODO: 在这里写你的 SQL",
+     "tests": "FUNC = 'SQL'\nTITLE = '选课不少于两门的学生'\n\nFIXTURE = \"\"\"CREATE TABLE students(id INTEGER PRIMARY KEY, name TEXT, score INTEGER);\nINSERT INTO students VALUES (1,'Alice',90),(2,'Bob',85),(3,'Cathy',70),(4,'David',85);\nCREATE TABLE courses(id INTEGER PRIMARY KEY, name TEXT, credit INTEGER);\nINSERT INTO courses VALUES (1,'Python',3),(2,'Database',4),(3,'Network',3);\nCREATE TABLE enrollments(id INTEGER PRIMARY KEY, student_id INTEGER, course_id INTEGER, grade INTEGER);\nINSERT INTO enrollments VALUES (1,1,1,92),(2,1,2,88),(3,2,2,85),(4,2,3,78),(5,3,1,65),(6,4,3,90);\"\"\"\n\nEXPECTED = [('Alice',), ('Bob',)]\nORDER_SENSITIVE = True\n\ndef CHECK(ens):\n    import sqlite3\n    conn = sqlite3.connect(':memory:')\n    for stmt in FIXTURE.split(';'):\n        stmt = stmt.strip()\n        if stmt:\n            conn.execute(stmt)\n    conn.commit()\n    sql = (ens.get('SQL') or '').strip()\n    if not sql:\n        return {'ok': False, 'results': [{'passed': False, 'error': 'SQL 为空，请填入查询语句'}]}\n    try:\n        _verify = globals().get('VERIFY_SQL')\n        if _verify:\n            for stmt in sql.split(';'):\n                stmt = stmt.strip()\n                if stmt:\n                    conn.execute(stmt)\n            rows = [tuple(r) for r in conn.execute(_verify).fetchall()]\n        else:\n            rows = [tuple(r) for r in conn.execute(sql).fetchall()]\n    except Exception as e:\n        return {'ok': False, 'results': [{'passed': False, 'error': 'SQL 执行错误：%s' % e}]}\n    got = rows if ORDER_SENSITIVE else sorted(map(tuple, rows))\n    exp = EXPECTED if ORDER_SENSITIVE else sorted(map(tuple, EXPECTED))\n    if got == exp:\n        return {'ok': True, 'results': [{'passed': True}]}\n    return {'ok': False, 'results': [{'passed': False, 'expected': repr(EXPECTED), 'got': repr(rows)}]}",
+     "has_solution": true
+    }
+   ]
+  }
+ ]
+}
