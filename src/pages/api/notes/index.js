@@ -54,7 +54,7 @@ export async function POST({ request, cookies }) {
   }
 
   const body = await request.json();
-  const { title, content, course, tags } = body;
+  const { title, content, course, tags, type, metadata } = body;
 
   if (!title) {
     return new Response(JSON.stringify({ error: '标题不能为空' }), {
@@ -62,13 +62,18 @@ export async function POST({ request, cookies }) {
     });
   }
 
-  const slug = 'note-' + Date.now();
+  const TYPES = ['note', 'hobby', 'quote', 'project'];
+  const itemType = TYPES.includes(type) ? type : 'note';
+  const slug = itemType + '-' + Date.now();
   const excerpt = (content || '').replace(/#{1,6}\s/g, '').replace(/\*\*/g, '').replace(/\n/g, ' ').trim().substring(0, 150);
+  const metaStr = metadata === undefined || metadata === null
+    ? '{}'
+    : (typeof metadata === 'string' ? metadata : JSON.stringify(metadata));
 
   const result = await query(
-    `INSERT INTO notes (type, title, slug, content, excerpt, course, tags, status)
-     VALUES ('note', ?, ?, ?, ?, ?, ?, 'published')`,
-    [title, slug, content || '', excerpt, course || '', JSON.stringify(tags || [])]
+    `INSERT INTO notes (type, title, slug, content, excerpt, course, tags, metadata, status)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'published')`,
+    [itemType, title, slug, content || '', excerpt, course || '', JSON.stringify(tags || []), metaStr]
   );
 
   return new Response(JSON.stringify({ id: result.insertId, success: true }), {

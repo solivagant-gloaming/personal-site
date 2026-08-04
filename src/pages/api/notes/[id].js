@@ -31,14 +31,19 @@ export async function PUT({ params, request, cookies }) {
 
   const id = parseInt(params.id);
   const body = await request.json();
-  const { title, content, course, tags } = body;
+  const { title, content, course, tags, metadata } = body;
 
   const excerpt = (content || '').replace(/#{1,6}\s/g, '').replace(/\*\*/g, '').replace(/\n/g, ' ').trim().substring(0, 150);
 
-  await query(
-    'UPDATE notes SET title = ?, content = ?, excerpt = ?, course = ?, tags = ? WHERE id = ?',
-    [title, content || '', excerpt, course || '', JSON.stringify(tags || []), id]
-  );
+  const fields = ['title = ?', 'content = ?', 'excerpt = ?', 'course = ?', 'tags = ?'];
+  const vals = [title, content || '', excerpt, course || '', JSON.stringify(tags || [])];
+  if (metadata !== undefined && metadata !== null) {
+    fields.push('metadata = ?');
+    vals.push(typeof metadata === 'string' ? metadata : JSON.stringify(metadata));
+  }
+  vals.push(id);
+
+  await query(`UPDATE notes SET ${fields.join(', ')} WHERE id = ?`, vals);
 
   return new Response(JSON.stringify({ success: true }), {
     headers: { 'Content-Type': 'application/json' },

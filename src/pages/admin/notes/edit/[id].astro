@@ -71,6 +71,10 @@ if (!username) return Astro.redirect('/admin/login');
         <select id="course"><option value="">无分类</option></select>
       </div>
       <div class="fg">
+        <label>封面图片路径（图片放 public/photos/ 后填，如 /photos/xxx.jpg；爱好/项目用）</label>
+        <input type="text" id="image" placeholder="/photos/xxx.jpg">
+      </div>
+      <div class="fg">
         <label>内容 (Markdown)</label>
         <textarea id="content" placeholder="用 Markdown 写笔记..."></textarea>
       </div>
@@ -90,7 +94,7 @@ if (!username) return Astro.redirect('/admin/login');
 <script>
 var noteId = window.location.pathname.split('/').pop();
 var STORAGE_KEY = 'note_draft_edit_' + noteId;
-var AUTO_FIELDS = ['title', 'content', 'tags'];
+var AUTO_FIELDS = ['title', 'content', 'tags', 'image'];
 var saveTimer = null;
 
 function saveDraft() {
@@ -151,6 +155,12 @@ Promise.all([
   document.getElementById('title').value = note.title || '';
   document.getElementById('content').value = note.content || '';
 
+  // 封面图片
+  var meta = {};
+  try { meta = typeof note.metadata === 'object' ? note.metadata : JSON.parse(note.metadata || '{}'); } catch (e) {}
+  var imgEl = document.getElementById('image');
+  if (imgEl && meta.image) imgEl.value = meta.image;
+
   // Populate courses
   var sel = document.getElementById('course');
   (data.courses || []).forEach(function(c) {
@@ -183,17 +193,22 @@ document.getElementById('saveBtn').addEventListener('click', async function() {
   if (!title) { status.textContent = '标题不能为空'; return; }
 
   var tags = document.getElementById('tags').value.split(',').map(function(t) { return t.trim(); }).filter(Boolean);
+  var imageVal = document.getElementById('image').value.trim();
+
+  var payload = {
+    title: title,
+    content: document.getElementById('content').value,
+    course: document.getElementById('course').value,
+    tags: tags
+  };
+  // 仅在填了图片时更新 metadata，避免覆盖其他内容（如项目详情）的既有 metadata
+  if (imageVal) payload.metadata = { image: imageVal };
 
   status.textContent = '保存中...';
   var res = await fetch('/api/notes/' + noteId, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      title: title,
-      content: document.getElementById('content').value,
-      course: document.getElementById('course').value,
-      tags: tags
-    })
+    body: JSON.stringify(payload)
   });
   if (res.ok) {
     localStorage.removeItem(STORAGE_KEY);

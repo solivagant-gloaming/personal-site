@@ -64,6 +64,19 @@ if (!username) return Astro.redirect('/admin/login');
         <input type="text" id="title" placeholder="笔记标题">
       </div>
       <div class="fg">
+        <label>类型</label>
+        <select id="type">
+          <option value="note">笔记</option>
+          <option value="hobby">爱好</option>
+          <option value="quote">拾句</option>
+          <option value="project">项目</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label>封面图片路径（图片放 public/photos/ 后填，如 /photos/xxx.jpg；爱好/项目用）</label>
+        <input type="text" id="image" placeholder="/photos/xxx.jpg">
+      </div>
+      <div class="fg">
         <label>课程分类</label>
         <div style="display:flex; gap:0.5rem;">
           <select id="course" style="flex:1;">
@@ -96,7 +109,7 @@ if (!username) return Astro.redirect('/admin/login');
 <script>
 // ── 自动保存草稿 ──
 const STORAGE_KEY = 'note_draft_new';
-const AUTO_FIELDS = ['title', 'content', 'tags'];
+const AUTO_FIELDS = ['title', 'content', 'tags', 'image'];
 let saveTimer = null;
 
 function saveDraft() {
@@ -112,6 +125,7 @@ function saveDraft() {
     courseVal = 'new:' + (document.getElementById('newCourse').value || '');
   }
   draft.course = courseVal;
+  draft.type = (document.getElementById('type') || {}).value || 'note';
   localStorage.setItem(STORAGE_KEY, JSON.stringify(draft));
   var st = document.getElementById('status');
   var now = new Date();
@@ -161,6 +175,10 @@ function tryRestoreDraft() {
         sel.value = draft.course;
       }
     }
+    var imgEl = document.getElementById('image');
+    if (imgEl && draft.image) imgEl.value = draft.image;
+    var typeEl = document.getElementById('type');
+    if (typeEl && draft.type) typeEl.value = draft.type;
     document.getElementById('status').textContent = '草稿已恢复';
   } catch(e) {}
 }
@@ -233,6 +251,7 @@ document.getElementById('saveBtn').addEventListener('click', async function() {
   }
 
   var tags = document.getElementById('tags').value.split(',').map(function(t) { return t.trim(); }).filter(Boolean);
+  var imageVal = document.getElementById('image').value.trim();
 
   status.textContent = '保存中...';
   var res = await fetch('/api/notes', {
@@ -242,7 +261,9 @@ document.getElementById('saveBtn').addEventListener('click', async function() {
       title: title,
       content: document.getElementById('content').value,
       course: course,
-      tags: tags
+      tags: tags,
+      type: document.getElementById('type').value,
+      metadata: imageVal ? { image: imageVal } : {}
     })
   });
   if (res.ok) {

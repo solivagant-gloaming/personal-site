@@ -1,9 +1,11 @@
 ---
+export const prerender = false;
+
 import Base from '../../layouts/Base.astro';
 import { query } from '../../db/mysql';
 
 const hobbies = await query(
-  `SELECT id, title, slug, excerpt, tags, created_at
+  `SELECT id, title, slug, excerpt, tags, metadata, created_at
    FROM notes WHERE type='hobby' AND status='published'
    ORDER BY created_at DESC`
 );
@@ -12,7 +14,7 @@ const hobbies = await query(
 <Base title="爱好" description="生活中的热爱" wide={true}>
   <div class="page-header">
     <h1>爱好</h1>
-    <p>代码之外，还有更大的世界</p>
+    <p>走过的路，看过的风景</p>
   </div>
 
   {hobbies.length === 0 ? (
@@ -24,12 +26,27 @@ const hobbies = await query(
           if (Array.isArray(h.tags)) return h.tags;
           try { return JSON.parse(h.tags || '[]'); } catch { return []; }
         })();
-        return (
+        const meta = (() => {
+          try { return JSON.parse(h.metadata || '{}'); } catch { return {}; }
+        })();
+        const img = meta.image;
+        const date = new Date(h.created_at).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long' });
+        return img ? (
+          <a href={`/hobbies/${h.slug}`} class="hb-card photo" style="--cc:#79c0ff">
+            <div class="hb-photo"><img src={img} alt={h.title} loading="lazy" /></div>
+            <div class="hb-mask">
+              <h2 class="hb-title">{h.title}</h2>
+              {h.excerpt && <p class="hb-desc">{h.excerpt}</p>}
+              <div class="hb-foot">
+                <span class="hb-date">{date}</span>
+                <span class="hb-go">→</span>
+              </div>
+            </div>
+          </a>
+        ) : (
           <a href={`/hobbies/${h.slug}`} class="hb-card" style="--cc:#79c0ff">
             <div class="hb-top">
-              <span class="hb-emoji">
-                {h.title.includes('3D') ? '✦' : '▤'}
-              </span>
+              <span class="hb-emoji">▤</span>
             </div>
             <h2 class="hb-title">{h.title}</h2>
             <p class="hb-desc">{h.excerpt}</p>
@@ -71,5 +88,39 @@ const hobbies = await query(
   .hb-desc { font-size: 0.88rem; color: var(--text-secondary); flex: 1; }
   .hb-tags { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.8rem; }
   .hb-tag { font-size: 0.7rem; padding: 0.15em 0.5em; background: var(--bg-hover); border-radius: 4px; color: var(--text-secondary); }
+
+  /* 照片卡 */
+  .hb-card.photo {
+    padding: 0;
+    overflow: hidden;
+    position: relative;
+    aspect-ratio: 4 / 3;
+    border-left-color: var(--cc);
+  }
+  .hb-card.photo .hb-photo { position: absolute; inset: 0; }
+  .hb-card.photo .hb-photo img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+    transition: transform 0.5s ease;
+  }
+  .hb-card.photo:hover .hb-photo img { transform: scale(1.05); }
+  .hb-card.photo .hb-mask {
+    position: absolute; inset: 0; z-index: 1;
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 1.2rem;
+    background: linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(0,0,0,.78));
+    color: #fff;
+  }
+  .hb-card.photo .hb-title { color: #fff; margin: 0 0 .25rem; text-shadow: 0 1px 6px rgba(0,0,0,.5); }
+  .hb-card.photo .hb-desc {
+    color: rgba(255,255,255,.82); font-size: .8rem; margin: 0 0 .5rem;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .hb-card.photo .hb-foot {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: .75rem; color: rgba(255,255,255,.75); font-family: var(--font-mono);
+  }
+  .hb-card.photo .hb-go { transition: transform .2s; }
+  .hb-card.photo:hover .hb-go { transform: translateX(4px); }
+
   .empty-state { text-align: center; padding: 4rem 0; color: var(--text-muted); }
 </style>
