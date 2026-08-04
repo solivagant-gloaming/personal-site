@@ -27,6 +27,7 @@ const hobbies = await query(
           try { return JSON.parse(h.tags || '[]'); } catch { return []; }
         })();
         const meta = (() => {
+          if (h.metadata && typeof h.metadata === 'object') return h.metadata;
           try { return JSON.parse(h.metadata || '{}'); } catch { return {}; }
         })();
         const img = meta.image;

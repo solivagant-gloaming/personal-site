@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f3443"/>
+      <stop offset="1" stop-color="#1f6f6f"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#g)"/>
+  <text x="400" y="300" font-family="serif" font-size="160" fill="rgba(255,255,255,.55)" text-anchor="middle" dominant-baseline="central">海</text>
+  <text x="400" y="420" font-family="sans-serif" font-size="26" fill="rgba(255,255,255,.8)" text-anchor="middle">示例照片 · 待替换</text>
+  <text x="400" y="560" font-family="sans-serif" font-size="18" fill="rgba(255,255,255,.4)" text-anchor="middle">public/photos/demo-hai.svg</text>
+</svg>

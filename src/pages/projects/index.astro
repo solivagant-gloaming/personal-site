@@ -33,7 +33,7 @@ const sortedGroups = Object.entries(grouped).sort((a, b) => catOrder.indexOf(a[0
 const totalStatus = { completed: 0, 'in-progress': 0, archived: 0 };
 projects.forEach(p => {
   try {
-    const m = JSON.parse(p.metadata || '{}');
+    const m = (p.metadata && typeof p.metadata === 'object') ? p.metadata : JSON.parse(p.metadata || '{}');
     if (m.projectStatus) totalStatus[m.projectStatus]++;
   } catch {}
 });
@@ -87,7 +87,7 @@ projects.forEach(p => {
             </div>
             <div class="pg-body">
               {items.map((p, i) => {
-                const meta = (() => { try { return JSON.parse(p.metadata || '{}'); } catch { return {}; } })();
+                const meta = (() => { if (p.metadata && typeof p.metadata === 'object') return p.metadata; try { return JSON.parse(p.metadata || '{}'); } catch { return {}; } })();
                 const dateStr = meta.date ? new Date(meta.date).toLocaleDateString('zh-CN', { year: 'numeric', month: 'short' }) : '';
                 const tagList = (() => { if (Array.isArray(p.tags)) return p.tags; try { return JSON.parse(p.tags || '[]'); } catch { return []; } })();
                 const statusLabel = meta.projectStatus === 'completed' ? '已完成' : meta.projectStatus === 'in-progress' ? '进行中' : '';

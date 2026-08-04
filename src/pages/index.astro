@@ -20,7 +20,7 @@ const totalProjects = (await query("SELECT COUNT(*) AS c FROM notes WHERE type='
 const totalQuotes = (await query("SELECT COUNT(*) AS c FROM notes WHERE type='quote' AND status='published'"))[0].c;
 
 const featured = dbProjects[0];
-const featuredMeta = featured ? (() => { try { return JSON.parse(featured.metadata || '{}'); } catch { return {}; } })() : {};
+const featuredMeta = featured ? (() => { if (featured.metadata && typeof featured.metadata === 'object') return featured.metadata; try { return JSON.parse(featured.metadata || '{}'); } catch { return {}; } })() : {};
 const featuredTags = featured ? (() => { if (Array.isArray(featured.tags)) return featured.tags; try { return JSON.parse(featured.tags || '[]'); } catch { return []; } })() : [];
 ---
 
@@ -121,7 +121,7 @@ const featuredTags = featured ? (() => { if (Array.isArray(featured.tags)) retur
       </div>
       <div class="proj-mini-grid">
         {dbProjects.slice(0, 4).map((p, i) => {
-          const meta = (() => { try { return JSON.parse(p.metadata || '{}'); } catch { return {}; } })();
+          const meta = (() => { if (p.metadata && typeof p.metadata === 'object') return p.metadata; try { return JSON.parse(p.metadata || '{}'); } catch { return {}; } })();
           return (
             <a href={`/projects/${p.slug}`} class="pm-card" data-reveal="bottom" data-delay={`${400 + i * 50}`}>
               <div class="pm-num">{String(i + 1).padStart(2, '0')}</div>
