@@ -66,8 +66,12 @@ const hobbies = await query(
 <style>
   .hb-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    /* 固定 2 列：避免照片卡(4:3)与文字卡混排导致 3 上 1 下的错落失衡；窄屏回 1 列 */
+    grid-template-columns: repeat(2, 1fr);
     gap: 1rem;
+  }
+  @media (max-width: 720px) {
+    .hb-grid { grid-template-columns: 1fr; }
   }
   .hb-card {
     background: var(--bg-card);
