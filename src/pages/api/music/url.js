@@ -18,6 +18,8 @@ export async function GET({ url }) {
     const songUrl = await cached(`url:${id}`, 30_000, () => fetchSongUrl(id));
     return json({ id, url: songUrl });
   } catch (err) {
-    return json({ error: '直链获取失败' }, 502);
+    // 记录具体原因（WAF 空响应 / HTTP 状态 / 网络），便于诊断
+    console.error('[music] url error:', err.message, '| status:', err.response?.status || '-');
+    return json({ error: '直链获取失败: ' + (err.message || err) }, 502);
   }
 }
