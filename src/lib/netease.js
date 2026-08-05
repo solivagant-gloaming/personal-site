@@ -69,8 +69,25 @@ function plainHeaders(extraCookie = '') {
   };
 }
 
-// ── 音频直链（weapi + cookie，br=999000 获取最高可用音质） ──
+// ── 音频直链 ──
+// 2026-08 实测：weapi/player/url 对数据中心 IP（AWS/HK/新加坡）与高频本机 IP 一律返回空 200 蜜罐；
+// 明文老接口 /api/song/enhance/player/url 未触发蜜罐，带登录 cookie 也能拿 VIP 直链。
+// 故优先明文接口，失败再回退 weapi。返回统一转 https（页面为 https，http 混合内容会被浏览器拦截）。
+function toHttps(u) { return u ? u.replace(/^http:\/\//, 'https://') : u; }
+
 export async function fetchSongUrl(songId) {
+  // ① 明文老接口（优先）
+  try {
+    const json = await requestJson(`${NETEAST_API}/api/song/enhance/player/url`, {
+      params: { id: Number(songId), ids: `[${Number(songId)}]`, br: 320000 },
+      headers: plainHeaders(),
+    });
+    const url = json?.data?.[0]?.url;
+    if (url) return toHttps(url);
+  } catch (e) {
+    // 明文接口失败 → 回退 weapi
+  }
+  // ② weapi 加密接口（兜底）
   const form = new URLSearchParams(weapi({ ids: JSON.stringify([Number(songId)]), br: 999000 })).toString();
   const json = await requestJson(`${NETEAST_API}/weapi/song/enhance/player/url`, {
     method: 'POST',
@@ -78,7 +95,7 @@ export async function fetchSongUrl(songId) {
     data: form,
   });
   const data = json?.data?.[0];
-  return data?.url || null;
+  return data?.url ? toHttps(data.url) : null;
 }
 
 // ── 歌词（官方公开接口，返回 LRC 原文） ──
