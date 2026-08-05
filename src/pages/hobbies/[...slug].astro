@@ -28,6 +28,13 @@ const tagList = hobby ? (() => {
   if (Array.isArray(hobby.tags)) return hobby.tags;
   try { return JSON.parse(hobby.tags || '[]'); } catch { return []; }
 })() : [];
+
+// metadata 可能是 mysql2 已解析的对象，也可能是 JSON 字符串（旧数据）
+const meta = hobby ? (() => {
+  if (hobby.metadata && typeof hobby.metadata === 'object') return hobby.metadata;
+  try { return JSON.parse(hobby.metadata || '{}'); } catch { return {}; }
+})() : {};
+const gallery = Array.isArray(meta.gallery) ? meta.gallery.filter(p => typeof p === 'string') : [];
 ---
 
 {error ? (
@@ -49,6 +56,16 @@ const tagList = hobby ? (() => {
           {tagList.map(t => <span class="tag">{t}</span>)}
         </div>
       </header>
+
+      {gallery.length > 0 && (
+        <div class="post-gallery">
+          {gallery.map(src => (
+            <a href={src} target="_blank" rel="noopener" class="pg-item">
+              <img src={src} alt="图集照片" loading="lazy" />
+            </a>
+          ))}
+        </div>
+      )}
 
       <div class="post-content" set:html={renderedContent}></div>
 
@@ -79,5 +96,14 @@ const tagList = hobby ? (() => {
   .post-content pre code { background: none; padding: 0; }
   .post-content blockquote { border-left: 3px solid var(--c-os); padding: 0.5rem 1rem; margin: 1rem 0; color: var(--text-secondary); background: var(--bg-hover); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
   .post-content img { max-width: 100%; border-radius: var(--radius-sm); margin: 1rem 0; }
+  .post-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 0.8rem;
+    margin-bottom: 1.5rem;
+  }
+  .pg-item { display: block; overflow: hidden; border-radius: var(--radius-sm); border: 1px solid var(--border); }
+  .pg-item img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; display: block; margin: 0; transition: transform 0.4s ease; }
+  .pg-item:hover img { transform: scale(1.04); }
   .post-nav { margin-top: 3rem; }
 </style>

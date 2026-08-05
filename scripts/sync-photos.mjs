@@ -66,6 +66,9 @@ try {
     try {
       const meta = JSON.parse(row.metadata || '{}');
       if (meta.image) usedPaths.add(meta.image.replace(/^\/photos\//, ''));
+      if (Array.isArray(meta.gallery)) {
+        meta.gallery.forEach(p => usedPaths.add(p.replace(/^\/photos\//, '')));
+      }
     } catch { }
   }
 
