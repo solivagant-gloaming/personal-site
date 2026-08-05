@@ -15,6 +15,7 @@
 ---
 
 <div class="mp-root" data-music-player>
+
   <!-- 歌单卡（嵌在爱好网格） -->
   <div class="mp-card" data-mp-card role="button" tabindex="0" aria-label="打开音乐播放器">
     <div class="mp-card-art"><img data-mp-card-cover alt="" /></div>
@@ -393,6 +394,9 @@ function initMusicPlayer() {
 </script>
 
 <style is:global>
+/* ── 根容器：不占 grid cell，让 .mp-card 直接成为网格项（避免空壳占位导致卡片错位） ── */
+.mp-root { display: contents; }
+
 /* ── 歌单卡（照片卡风格：封面背景大图 + 底部渐变遮罩，与爱好照片卡同款等比） ── */
 .mp-card {
   padding: 0;
