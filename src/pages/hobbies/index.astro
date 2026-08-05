@@ -10,6 +10,19 @@ const hobbies = await query(
    FROM notes WHERE type='hobby' AND status='published'
    ORDER BY created_at DESC`
 );
+
+// metadata/tags 可能是 mysql2 已解析的对象，也可能是 JSON 字符串（旧数据）
+const parsed = hobbies.map(h => {
+  let meta = {};
+  try { meta = (h.metadata && typeof h.metadata === 'object') ? h.metadata : JSON.parse(h.metadata || '{}'); } catch {}
+  let tagList = [];
+  if (Array.isArray(h.tags)) tagList = h.tags;
+  else { try { tagList = JSON.parse(h.tags || '[]'); } catch {} }
+  return { ...h, meta, tagList };
+});
+// 有 gallery 字段 → 照片图集（横滑条）；否则 → 文字条目（紧凑列表）
+const galleryNotes = parsed.filter(h => Array.isArray(h.meta.gallery) && h.meta.gallery.length > 0);
+const textNotes = parsed.filter(h => !(Array.isArray(h.meta.gallery) && h.meta.gallery.length > 0));
 ---
 
 <Base title="爱好" description="生活中的热爱" wide={true}>
@@ -21,113 +34,105 @@ const hobbies = await query(
   {hobbies.length === 0 ? (
     <div class="empty-state">还没有添加爱好内容</div>
   ) : (
-    <div class="hb-grid">
-      {hobbies.map(h => {
-        const tagList = (() => {
-          if (Array.isArray(h.tags)) return h.tags;
-          try { return JSON.parse(h.tags || '[]'); } catch { return []; }
-        })();
-        const meta = (() => {
-          if (h.metadata && typeof h.metadata === 'object') return h.metadata;
-          try { return JSON.parse(h.metadata || '{}'); } catch { return {}; }
-        })();
-        const img = meta.image;
-        const date = new Date(h.created_at).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long' });
-        return img ? (
-          <a href={`/hobbies/${h.slug}`} class="hb-card photo" style="--cc:#79c0ff">
-            <div class="hb-photo"><img src={img} alt={h.title} loading="lazy" /></div>
-            <div class="hb-mask">
-              <h2 class="hb-title">{h.title}</h2>
-              {h.excerpt && <p class="hb-desc">{h.excerpt}</p>}
-              <div class="hb-foot">
-                <span class="hb-date">{date}</span>
-                <span class="hb-go">→</span>
-              </div>
-            </div>
-          </a>
-        ) : (
-          <a href={`/hobbies/${h.slug}`} class="hb-card" style="--cc:#79c0ff">
-            <div class="hb-top">
-              <span class="hb-emoji">▤</span>
-            </div>
-            <h2 class="hb-title">{h.title}</h2>
-            <p class="hb-desc">{h.excerpt}</p>
-            <div class="hb-tags">
-              {tagList.slice(0, 4).map(t => <span class="hb-tag">{t}</span>)}
-            </div>
-          </a>
-        );
-      })}
+    <div class="hb-page">
+      <!-- 图集：横向滚动照片条 -->
+      {galleryNotes.map(g => (
+        <section class="hb-block" data-reveal>
+          <header class="hb-head">
+            <h2 class="hb-block-title">{g.title}</h2>
+            {g.excerpt && <span class="hb-block-sub">{g.excerpt}</span>}
+            <a class="hb-more" href={`/hobbies/${g.slug}`}>查看全部 {g.meta.gallery.length} 张 →</a>
+          </header>
+          <div class="hb-strip">
+            {g.meta.gallery.map((src, i) => (
+              <a class="hb-strip-item" href={`/hobbies/${g.slug}`} aria-label={`${g.title} · 第 ${i + 1} 张`}>
+                <img src={src} alt="" loading="lazy" />
+              </a>
+            ))}
+          </div>
+        </section>
+      ))}
+
+      <!-- 文字爱好：紧凑行列表 -->
+      {textNotes.length > 0 && (
+        <section class="hb-list" data-reveal>
+          {textNotes.map(h => (
+            <a class="hb-row" href={`/hobbies/${h.slug}`}>
+              <span class="hb-row-txt">
+                <span class="hb-row-title">{h.title}</span>
+                {h.excerpt && <span class="hb-row-desc">{h.excerpt}</span>}
+              </span>
+              {h.tagList.length > 0 && (
+                <span class="hb-row-tags">
+                  {h.tagList.slice(0, 3).map(t => <span class="hb-tag">{t}</span>)}
+                </span>
+              )}
+              <span class="hb-row-arrow" aria-hidden="true">→</span>
+            </a>
+          ))}
+        </section>
+      )}
+
       <MusicPlayer />
     </div>
   )}
 </Base>
 
 <style>
-  .hb-grid {
-    display: grid;
-    /* 固定 2 列：避免照片卡(4:3)与文字卡混排导致 3 上 1 下的错落失衡；窄屏回 1 列 */
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
-  }
-  @media (max-width: 720px) {
-    .hb-grid { grid-template-columns: 1fr; }
-  }
-  .hb-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-left: 3px solid var(--cc);
-    border-radius: var(--radius);
-    padding: 1.5rem;
-    text-decoration: none;
-    color: var(--text);
-    transition: box-shadow 0.2s, transform 0.2s;
-    display: flex;
-    flex-direction: column;
-  }
-  .hb-card:hover {
-    box-shadow: var(--shadow-hover);
-    transform: translateY(-2px);
-  }
-  .hb-top { margin-bottom: 0.8rem; }
-  .hb-emoji { font-size: 1.8rem; }
-  .hb-title { font-size: 1.2rem; font-weight: 600; margin: 0 0 0.5rem; }
-  .hb-desc { font-size: 0.88rem; color: var(--text-secondary); flex: 1; }
-  .hb-tags { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.8rem; }
-  .hb-tag { font-size: 0.7rem; padding: 0.15em 0.5em; background: var(--bg-hover); border-radius: 4px; color: var(--text-secondary); }
+  .hb-page { display: flex; flex-direction: column; gap: 2.25rem; }
 
-  /* 照片卡 */
-  .hb-card.photo {
-    padding: 0;
-    overflow: hidden;
-    position: relative;
-    aspect-ratio: 4 / 3;
-    border-left-color: var(--cc);
+  /* ── 区块标题行 ── */
+  .hb-head { display: flex; align-items: baseline; gap: 0.75rem; margin-bottom: 0.9rem; }
+  .hb-block-title { font-size: 1.15rem; font-weight: 600; margin: 0; }
+  .hb-block-sub { font-size: 0.78rem; color: var(--text-muted); }
+  .hb-more { margin-left: auto; font-size: 0.8rem; color: var(--text-secondary); text-decoration: none; white-space: nowrap; transition: color 0.15s; }
+  .hb-more:hover { color: var(--c-os); }
+
+  /* ── 图集横滑条 ── */
+  .hb-strip {
+    display: flex; gap: 0.7rem; overflow-x: auto;
+    padding-bottom: 0.5rem;          /* 给滚动条留空间 */
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
   }
-  .hb-card.photo .hb-photo { position: absolute; inset: 0; }
-  .hb-card.photo .hb-photo img {
-    width: 100%; height: 100%; object-fit: cover; display: block;
-    transition: transform 0.5s ease;
+  .hb-strip-item {
+    flex-shrink: 0; display: block;
+    width: 240px; aspect-ratio: 4 / 3;
+    border-radius: var(--radius-sm); overflow: hidden;
+    border: 1px solid var(--border);
+    scroll-snap-align: start;
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
   }
-  .hb-card.photo:hover .hb-photo img { transform: scale(1.05); }
-  .hb-card.photo .hb-mask {
-    position: absolute; inset: 0; z-index: 1;
-    display: flex; flex-direction: column; justify-content: flex-end;
-    padding: 1.2rem;
-    background: linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(0,0,0,.78));
-    color: #fff;
+  .hb-strip-item img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.5s ease; }
+  .hb-strip-item:hover { transform: translateY(-2px); box-shadow: var(--shadow-hover); border-color: var(--c-os); }
+  .hb-strip-item:hover img { transform: scale(1.05); }
+  .hb-strip::-webkit-scrollbar { height: 6px; }
+  .hb-strip::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* ── 文字行列表 ── */
+  .hb-list { display: flex; flex-direction: column; gap: 0.7rem; }
+  .hb-row {
+    display: flex; align-items: center; gap: 1rem;
+    padding: 1rem 1.2rem;
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-left: 3px solid var(--c-os);
+    border-radius: var(--radius);
+    text-decoration: none; color: var(--text);
+    transition: box-shadow 0.2s, transform 0.2s;
   }
-  .hb-card.photo .hb-title { color: #fff; margin: 0 0 .25rem; text-shadow: 0 1px 6px rgba(0,0,0,.5); }
-  .hb-card.photo .hb-desc {
-    color: rgba(255,255,255,.82); font-size: .8rem; margin: 0 0 .5rem;
-    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
-  }
-  .hb-card.photo .hb-foot {
-    display: flex; justify-content: space-between; align-items: center;
-    font-size: .75rem; color: rgba(255,255,255,.75); font-family: var(--font-mono);
-  }
-  .hb-card.photo .hb-go { transition: transform .2s; }
-  .hb-card.photo:hover .hb-go { transform: translateX(4px); }
+  .hb-row:hover { box-shadow: var(--shadow-hover); transform: translateX(4px); }
+  .hb-row-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.2rem; }
+  .hb-row-title { font-size: 1rem; font-weight: 600; }
+  .hb-row-desc { font-size: 0.8rem; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .hb-row-tags { display: flex; gap: 0.3rem; flex-shrink: 0; }
+  .hb-tag { font-size: 0.7rem; padding: 0.15em 0.5em; background: var(--bg-hover); border-radius: 4px; color: var(--text-secondary); }
+  .hb-row-arrow { color: var(--text-muted); font-size: 1rem; transition: transform 0.2s, color 0.2s; }
+  .hb-row:hover .hb-row-arrow { transform: translateX(4px); color: var(--c-os); }
 
   .empty-state { text-align: center; padding: 4rem 0; color: var(--text-muted); }
+
+  @media (max-width: 640px) {
+    .hb-row-tags { display: none; }
+  }
 </style>
