@@ -109,7 +109,7 @@
 
     // ══ 流星 ══
     const METEORS = isMobile ? 2 : 4;
-    const TAIL = 34;                       // 每颗流星的尾粒子数
+    const TAIL = 80;                       // 每颗流星的尾粒子数
     const TOTAL = METEORS * TAIL;
     const MT_PLANE_Z = -360;               // 流星所在平面（比星星近）
 
@@ -152,7 +152,7 @@
           vec3 cool = vec3(0.86, 0.92, 1.00);
           vec3 col = mix(cool, warm, vA);
           float a = (core + glow * 0.55) * vA;
-          gl_FragColor = vec4(col * (0.9 * core + 0.5 * glow) * vA * 1.6, a);
+          gl_FragColor = vec4(col * (0.95 * core + 0.55 * glow) * vA * 2.1, a);
         }
       `,
     });
@@ -189,7 +189,7 @@
       m.dx /= n; m.dy /= n;
 
       m.speed = 620 + Math.random() * 780;
-      m.len   = 130 + Math.random() * 150;
+      m.len   = 70 + Math.random() * 75;
       m.w     = 0.7 + Math.random() * 0.6;
       m.active = true;
     }
@@ -223,8 +223,8 @@
           mPos[idx * 3]     = m.hx - m.dx * off;
           mPos[idx * 3 + 1] = m.hy - m.dy * off;
           mPos[idx * 3 + 2] = MT_PLANE_Z;
-          mAlpha[idx] = Math.pow(1 - t, 1.6) * m.w;   // 头亮尾暗
-          mSize[idx]  = (1 - t) * 7.5 + 1.2;          // 头大尾小
+          mAlpha[idx] = Math.pow(1 - t, 1.25) * m.w;  // 头亮尾暗
+          mSize[idx]  = (1 - t) * 8.5 + 2.6;          // 尾粒子保持可见 → 连成连续拖尾
         }
       }
       mGeo.attributes.position.needsUpdate = true;
