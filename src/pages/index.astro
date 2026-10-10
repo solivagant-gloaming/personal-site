@@ -1,6 +1,8 @@
 ---
 import Base from '../layouts/Base.astro';
 import { query } from '../db/mysql';
+import { existsSync } from 'node:fs';
+import path from 'node:path';
 
 const dbNotes = await query(
   "SELECT id, title, excerpt, course, tags, created_at FROM notes WHERE type='note' AND status='published' ORDER BY created_at DESC LIMIT 6"
@@ -22,23 +24,25 @@ const totalQuotes = (await query("SELECT COUNT(*) AS c FROM notes WHERE type='qu
 const featured = dbProjects[0];
 const featuredMeta = featured ? (() => { if (featured.metadata && typeof featured.metadata === 'object') return featured.metadata; try { return JSON.parse(featured.metadata || '{}'); } catch { return {}; } })() : {};
 const featuredTags = featured ? (() => { if (Array.isArray(featured.tags)) return featured.tags; try { return JSON.parse(featured.tags || '[]'); } catch { return []; } })() : [];
+
+const coversDir = path.join(process.cwd(), 'public', 'covers');
+function hasCover(slug) { return existsSync(path.join(coversDir, `${slug}.png`)); }
 ---
 
 <Base title="首页" description="Solivagant 的个人网站" wide={true}>
   <div class="home">
 
-    <!-- Signature Quote — CSS entrance animation -->
-    <div class="sig-wrapper" data-reveal="bottom">
-      <div class="sig-line sig-line-1">倦随尘絮争朝暮</div>
-      <div class="sig-line sig-line-2">独逐星鸿赴大荒</div>
-      <div class="sig-sub">—— 行路 · 自题</div>
-    </div>
-
-    <!-- Hero -->
-    <div class="hero-bento" data-reveal="bottom" data-delay="100">
-      <div class="hero-text">
-        <h1>Solivagant</h1>
-        <p class="hero-sub">软件工程 · 大三 · 贵州大学</p>
+    <!-- ─── Hero ─── -->
+    <section class="hero" data-reveal="bottom">
+      <div class="hero-glow" aria-hidden="true"></div>
+      <div class="hero-inner">
+        <p class="hero-eyebrow">贵州大学 · 软件工程 · 大三</p>
+        <h1 class="hero-name">Solivagant</h1>
+        <p class="hero-verse">
+          <span>倦随尘絮争朝暮</span>
+          <span class="hv-dot">·</span>
+          <span>独逐星鸿赴大荒</span>
+        </p>
         <div class="hero-typewriter">
           <span class="ht-prompt">$</span>
           <span class="ht-text" id="typewriter-text"></span>
@@ -47,388 +51,335 @@ const featuredTags = featured ? (() => { if (Array.isArray(featured.tags)) retur
         <div class="hero-links">
           <a href="/projects" class="btn">浏览项目</a>
           <a href="/about" class="btn btn-outline">关于我</a>
+          <a href="https://github.com/solivagant-gloaming" target="_blank" rel="noopener" class="btn btn-ghost">GitHub ↗</a>
         </div>
       </div>
-      <div class="hero-stats">
-        <div class="hs-item" style="--c:var(--c-os);--g:var(--c-os-glow)">
-          <span class="hs-num" data-count="{Number(totalNotes)}">{Number(totalNotes)}</span>
-          <span class="hs-label">笔记</span>
+      <div class="hero-metrics">
+        <div class="hm-item" style="--c:var(--c-os);--g:var(--c-os-glow)">
+          <span class="hm-num" data-count="{Number(totalNotes)}">{Number(totalNotes)}</span>
+          <span class="hm-label">笔记</span>
         </div>
-        <div class="hs-item" style="--c:var(--c-db);--g:var(--c-db-glow)">
-          <span class="hs-num" data-count="{Number(totalProjects)}">{Number(totalProjects)}</span>
-          <span class="hs-label">项目</span>
+        <div class="hm-item" style="--c:var(--c-db);--g:var(--c-db-glow)">
+          <span class="hm-num" data-count="{Number(totalProjects)}">{Number(totalProjects)}</span>
+          <span class="hm-label">项目</span>
         </div>
-        <div class="hs-item" style="--c:var(--c-prob);--g:var(--c-prob-glow)">
-          <span class="hs-num" data-count="{Number(dbHobbies.length)}">{Number(dbHobbies.length)}</span>
-          <span class="hs-label">爱好</span>
+        <div class="hm-item" style="--c:var(--c-prob);--g:var(--c-prob-glow)">
+          <span class="hm-num" data-count="{Number(dbHobbies.length)}">{Number(dbHobbies.length)}</span>
+          <span class="hm-label">爱好</span>
         </div>
-        <div class="hs-item" style="--c:#bc8cff;--g:rgba(188,140,255,0.3)">
-          <span class="hs-num" data-count="{Number(totalQuotes)}">{Number(totalQuotes)}</span>
-          <span class="hs-label">拾句</span>
+        <div class="hm-item" style="--c:#bc8cff;--g:rgba(188,140,255,0.3)">
+          <span class="hm-num" data-count="{Number(totalQuotes)}">{Number(totalQuotes)}</span>
+          <span class="hm-label">拾句</span>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- GitHub Stats -->
-    <div class="github-strip" data-reveal="bottom" data-delay="150">
-      <a href="https://github.com/solivagant-gloaming" target="_blank" rel="noopener" class="gs-link">
-        <span class="gs-icon">🐙</span>
-        <span class="gs-text">github.com/solivagant-gloaming</span>
-        <span class="gs-arrow">↗</span>
-      </a>
-    </div>
-
-    <!-- Featured Project -->
+    <!-- ─── Featured Project ─── -->
     {featured && (
-      <a href={`/projects/${featured.slug}`} class="featured-card" style="--cc:#f0883e" data-reveal="bottom" data-delay="200">
-        <div class="fc-label">
-          <span class="fc-badge">精选项目</span>
-          <span class="fc-date">{featuredMeta.date ? new Date(featuredMeta.date).toLocaleDateString('zh-CN', { year: 'numeric', month: 'short' }) : ''}</span>
-        </div>
-        <h2 class="fc-title">{featured.title}</h2>
-        <p class="fc-desc">{featured.excerpt}</p>
-        <div class="fc-tags">
-          {featuredTags.slice(0, 4).map(t => <span class="fc-tag">{t}</span>)}
+      <a href={`/projects/${featured.slug}`} class="featured-card" style="--cc:#f0883e" data-reveal="bottom" data-delay="120">
+        {hasCover(featured.slug) && (
+          <div class="fc-cover">
+            <img src={`/covers/${featured.slug}.png`} alt={featured.title} loading="lazy" decoding="async" />
+          </div>
+        )}
+        <div class="fc-info">
+          <div class="fc-label">
+            <span class="fc-badge">精选项目</span>
+            <span class="fc-date">{featuredMeta.date ? new Date(featuredMeta.date).toLocaleDateString('zh-CN', { year: 'numeric', month: 'short' }) : ''}</span>
+          </div>
+          <h2 class="fc-title">{featured.title}</h2>
+          <p class="fc-desc">{featured.excerpt}</p>
+          <div class="fc-tags">
+            {featuredTags.slice(0, 4).map(t => <span class="fc-tag">{t}</span>)}
+          </div>
         </div>
       </a>
     )}
 
-    <!-- Recent Notes -->
-    <div data-reveal="bottom" data-delay="300">
-      <div class="section-header">
-        <h2>最近笔记</h2>
-        <a href="/notes" class="section-more">查看全部 →</a>
-      </div>
-      <div class="notes-row">
-        {dbNotes.slice(0, 4).map((n, i) => {
-          const shortTitle = n.title.replace(/^.*?·\s*/, '');
-          return (
-            <a href={`/notes/${n.id}`} class="nr-mini" style={`--c:${n.course === '操作系统' ? 'var(--c-os)' : n.course === '数据库原理' ? 'var(--c-db)' : n.course === '概率论与数理统计' ? 'var(--c-prob)' : 'var(--c-pol)'}`} data-reveal="bottom" data-delay={`${350 + i * 50}`}>
-              <span class="nrm-dot"></span>
-              <span class="nrm-title">{shortTitle}</span>
-              <span class="nrm-course">{n.course}</span>
-            </a>
-          );
-        })}
-      </div>
-    </div>
-
-    <!-- Projects Mini -->
-    <div data-reveal="bottom" data-delay="350">
-      <div class="section-header">
-        <h2>项目速览</h2>
-        <a href="/projects" class="section-more">查看全部 →</a>
-      </div>
-      <div class="proj-mini-grid">
-        {dbProjects.slice(0, 4).map((p, i) => {
-          const meta = (() => { if (p.metadata && typeof p.metadata === 'object') return p.metadata; try { return JSON.parse(p.metadata || '{}'); } catch { return {}; } })();
-          return (
-            <a href={`/projects/${p.slug}`} class="pm-card" data-reveal="bottom" data-delay={`${400 + i * 50}`}>
-              <div class="pm-num">{String(i + 1).padStart(2, '0')}</div>
-              <div class="pm-title">{p.title}</div>
-              <div class="pm-date">{meta.date ? new Date(meta.date).toLocaleDateString('zh-CN', { year: 'numeric', month: 'short' }) : ''}</div>
-            </a>
-          );
-        })}
-      </div>
-    </div>
-
-    <!-- Hobbies -->
-    {dbHobbies.length > 0 && (
-      <div data-reveal="bottom" data-delay="400">
+    <!-- ─── Two columns: notes | projects ─── -->
+    <div class="grid-2">
+      <div class="panel" data-reveal="bottom" data-delay="200">
         <div class="section-header">
-          <h2>爱好</h2>
-          <a href="/hobbies" class="section-more">查看全部 →</a>
+          <h2>最近笔记</h2>
+          <a href="/notes" class="section-more">查看全部 →</a>
         </div>
-        <div class="hobby-row">
-          {dbHobbies.map((h, i) => (
-            <a href={`/hobbies/${h.slug}`} class="hb-mini" data-reveal="bottom" data-delay={`${450 + i * 50}`}>
-              <span class="hbm-icon">{h.title.includes('3D') ? '✦' : '▤'}</span>
-              <span class="hbm-title">{h.title}</span>
-            </a>
-          ))}
-        </div>
-      </div>
-    )}
-
-    <!-- 拾句 -->
-    {dbQuotes.length > 0 && (
-      <div data-reveal="bottom" data-delay="450">
-        <div class="section-header">
-          <h2>拾句</h2>
-          <a href="/quotes" class="section-more">查看全部 →</a>
-        </div>
-        <div class="quote-row">
-          {dbQuotes.map((q, i) => {
-            const excerpt = (q.excerpt || q.content || '').replace(/\n/g, '·').substring(0, 60);
+        <div class="notes-row">
+          {dbNotes.slice(0, 4).map((n, i) => {
+            const shortTitle = n.title.replace(/^.*?·\s*/, '');
             return (
-              <a href={`/quotes/${q.slug}`} class="qb-card" data-reveal="bottom" data-delay={`${500 + i * 50}`}>
-                <span class="qb-icon">{i === 0 ? '❶' : '❷'}</span>
-                <div class="qb-body">
-                  <span class="qb-text">{excerpt}…</span>
-                  <span class="qb-title">{q.title}</span>
-                </div>
+              <a href={`/notes/${n.id}`} class="nr-mini" style={`--c:${n.course === '操作系统' ? 'var(--c-os)' : n.course === '数据库原理' ? 'var(--c-db)' : n.course === '概率论与数理统计' ? 'var(--c-prob)' : 'var(--c-pol)'}`}>
+                <span class="nrm-dot"></span>
+                <span class="nrm-title">{shortTitle}</span>
+                <span class="nrm-course">{n.course}</span>
               </a>
             );
           })}
         </div>
       </div>
-    )}
+
+      <div class="panel" data-reveal="bottom" data-delay="260">
+        <div class="section-header">
+          <h2>项目速览</h2>
+          <a href="/projects" class="section-more">查看全部 →</a>
+        </div>
+        <div class="notes-row">
+          {dbProjects.slice(0, 4).map((p, i) => {
+            const meta = (() => { if (p.metadata && typeof p.metadata === 'object') return p.metadata; try { return JSON.parse(p.metadata || '{}'); } catch { return {}; } })();
+            return (
+              <a href={`/projects/${p.slug}`} class="nr-mini" style="--c:var(--c-db)">
+                <span class="nrm-num">{String(i + 1).padStart(2, '0')}</span>
+                <span class="nrm-title">{p.title}</span>
+                <span class="nrm-course">{meta.date ? new Date(meta.date).toLocaleDateString('zh-CN', { month: 'short' }) : ''}</span>
+              </a>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── Two columns: hobbies | quotes ─── -->
+    <div class="grid-2">
+      {dbHobbies.length > 0 && (
+        <div class="panel" data-reveal="bottom" data-delay="320">
+          <div class="section-header">
+            <h2>爱好</h2>
+            <a href="/hobbies" class="section-more">查看全部 →</a>
+          </div>
+          <div class="hobby-row">
+            {dbHobbies.map((h, i) => (
+              <a href={`/hobbies/${h.slug}`} class="hb-mini">
+                <span class="hbm-icon">{h.title.includes('3D') ? '✦' : '▤'}</span>
+                <span class="hbm-title">{h.title}</span>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {dbQuotes.length > 0 && (
+        <div class="panel" data-reveal="bottom" data-delay="380">
+          <div class="section-header">
+            <h2>拾句</h2>
+            <a href="/quotes" class="section-more">查看全部 →</a>
+          </div>
+          <div class="quote-row">
+            {dbQuotes.map((q, i) => {
+              const excerpt = (q.excerpt || q.content || '').replace(/\n/g, '·').substring(0, 48);
+              return (
+                <a href={`/quotes/${q.slug}`} class="qb-card">
+                  <span class="qb-icon">{i === 0 ? '❶' : '❷'}</span>
+                  <div class="qb-body">
+                    <span class="qb-text">{excerpt}…</span>
+                    <span class="qb-title">{q.title}</span>
+                  </div>
+                </a>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
 
   </div>
 </Base>
 
 <style>
-  .home { display: flex; flex-direction: column; gap: 1.5rem; }
-
-  /* ── Signature Quote ── */
-  .sig-wrapper {
-    text-align: center;
-    padding: 3rem 1rem 1.5rem;
-    position: relative;
-  }
-  .sig-line {
-    font-size: 2.2rem;
-    font-weight: 300;
-    letter-spacing: 6px;
-    line-height: 1.6;
-    background: linear-gradient(135deg, #e6edf3 0%, #58a6ff 40%, #bc8cff 70%, #e6edf3 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    text-shadow: none;
-    filter: drop-shadow(0 0 30px rgba(88,166,255,0.15));
-  }
-  .sig-sub {
-    font-size: 0.8rem;
-    color: var(--text-muted);
-    margin-top: 0.6rem;
-    letter-spacing: 3px;
-    font-weight: 300;
-  }
+  .home { display: flex; flex-direction: column; gap: 1.4rem; }
 
   /* ── Hero ── */
-  .hero-bento {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 1rem;
-    align-items: stretch;
-  }
-  .hero-text {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
+  .hero {
+    position: relative;
+    padding: 2.4rem 1.6rem 1.4rem;
     border-radius: var(--radius);
-    padding: 2rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    overflow: hidden;
   }
-  .hero-text h1 {
-    font-size: 2.4rem;
+  .hero-glow {
+    position: absolute;
+    top: -40%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 720px;
+    height: 420px;
+    background: radial-gradient(ellipse at center, rgba(88,166,255,0.16), rgba(188,140,255,0.08) 45%, transparent 70%);
+    filter: blur(20px);
+    pointer-events: none;
+  }
+  .hero-inner { position: relative; text-align: center; }
+  .hero-eyebrow {
+    font-size: 0.72rem;
+    letter-spacing: 0.22em;
+    color: var(--text-muted);
+    margin: 0 0 0.5rem;
+  }
+  .hero-name {
+    font-size: clamp(2.8rem, 8vw, 4.6rem);
     font-weight: 700;
-    margin-bottom: 0.3rem;
-    background: linear-gradient(135deg, #e6edf3, #8b949e);
+    line-height: 1.05;
+    margin: 0 0 0.8rem;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, #e6edf3 0%, #58a6ff 45%, #bc8cff 80%, #e6edf3 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 34px rgba(88,166,255,0.22));
   }
-  .hero-sub { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.8rem; }
-  .hero-desc { font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 1.2rem; }
-  .hero-links { display: flex; gap: 0.6rem; }
-  .hero-stats { display: flex; flex-direction: column; gap: 0.5rem; }
-  .hs-item {
-    flex: 1;
-    background: var(--bg-card);
-    border: 1px solid var(--g);
-    border-radius: var(--radius);
-    padding: 1rem;
+  .hero-verse {
+    font-size: 0.95rem;
+    letter-spacing: 0.16em;
+    color: var(--text-secondary);
+    margin: 0 0 1rem;
+  }
+  .hv-dot { margin: 0 0.5em; color: var(--text-muted); }
+
+  .hero-typewriter {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    margin: 0 auto 1.2rem;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    min-height: 1.5rem;
+  }
+  .ht-prompt { color: var(--c-db); font-weight: 700; user-select: none; }
+  .ht-text { color: var(--text-secondary); white-space: pre-wrap; word-break: break-word; }
+  .ht-cursor { color: var(--c-os); animation: blink 0.8s step-end infinite; font-size: 0.72rem; }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .hero-links { display: flex; gap: 0.6rem; flex-wrap: wrap; justify-content: center; }
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+  .btn-ghost:hover { border-color: var(--c-os); color: var(--c-os); }
+
+  .hero-metrics {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.6rem;
+    margin-top: 1.8rem;
+    padding-top: 1.2rem;
+    border-top: 1px solid var(--border);
+  }
+  .hm-item {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    transition: box-shadow 0.3s, transform 0.2s;
+    gap: 0.1rem;
+    padding: 0.4rem 0.2rem;
+    border-radius: var(--radius-sm);
+    transition: background 0.2s;
   }
-  .hs-item:hover {
-    box-shadow: 0 0 20px var(--g);
-    transform: translateY(-1px);
-  }
-  .hs-num { font-size: 1.5rem; font-weight: 700; color: var(--c); line-height: 1.1; }
-  .hs-label { font-size: 0.75rem; color: var(--text-muted); }
+  .hm-item:hover { background: var(--bg-hover); }
+  .hm-num { font-size: 1.5rem; font-weight: 700; color: var(--c); line-height: 1.1; }
+  .hm-label { font-size: 0.72rem; color: var(--text-muted); }
 
   /* ── Featured ── */
   .featured-card {
-    display: block;
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 0;
     background: linear-gradient(135deg, var(--bg-card), rgba(240,136,62,0.04));
     border: 1px solid var(--border);
     border-left: 3px solid var(--cc);
     border-radius: var(--radius);
-    padding: 1.5rem;
     text-decoration: none;
     color: var(--text);
-    transition: box-shadow 0.3s, transform 0.2s, border-color 0.2s;
-    position: relative;
     overflow: hidden;
+    transition: box-shadow 0.3s, transform 0.2s, border-color 0.2s;
   }
-  .featured-card::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    background: linear-gradient(135deg, rgba(240,136,62,0.06), transparent);
-    transition: opacity 0.3s;
-  }
-  .featured-card:hover::before { opacity: 1; }
   .featured-card:hover { box-shadow: var(--shadow-hover); transform: translateY(-2px); border-color: var(--cc); }
+  .fc-cover { overflow: hidden; background: var(--bg-hover); }
+  .fc-cover img { display: block; width: 100%; height: 100%; min-height: 160px; object-fit: cover; object-position: top center; transition: transform 0.35s ease; }
+  .featured-card:hover .fc-cover img { transform: scale(1.04); }
+  .fc-info { padding: 1.4rem 1.5rem; display: flex; flex-direction: column; justify-content: center; }
   .fc-label { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.5rem; }
   .fc-badge { font-size: 0.68rem; padding: 0.15em 0.6em; background: rgba(240,136,62,0.15); color: #f0883e; border-radius: 4px; }
   .fc-date { font-size: 0.75rem; color: var(--text-muted); }
-  .fc-title { font-size: 1.2rem; font-weight: 600; margin-bottom: 0.4rem; }
-  .fc-desc { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; }
-  .fc-tags { display: flex; gap: 0.3rem; margin-top: 0.6rem; flex-wrap: wrap; }
+  .fc-title { font-size: 1.25rem; font-weight: 600; margin: 0 0 0.45rem; }
+  .fc-desc { font-size: 0.86rem; color: var(--text-secondary); line-height: 1.6; margin: 0 0 0.7rem; }
+  .fc-tags { display: flex; gap: 0.3rem; flex-wrap: wrap; }
   .fc-tag { font-size: 0.7rem; padding: 0.15em 0.5em; background: var(--bg-hover); border-radius: 4px; color: var(--text-secondary); }
+
+  /* ── Two-column grid ── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.4rem; }
+  .panel {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.1rem 1.1rem;
+  }
 
   .section-header {
     display: flex; justify-content: space-between; align-items: baseline;
-    border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; margin-bottom: 0.6rem;
   }
   .section-header h2 { font-size: 0.95rem; font-weight: 600; margin: 0; }
   .section-more { font-size: 0.78rem; color: var(--text-muted); text-decoration: none; transition: color 0.2s; }
   .section-more:hover { color: var(--accent); }
 
-  .notes-row { display: flex; flex-direction: column; gap: 0.2rem; }
+  .notes-row { display: flex; flex-direction: column; gap: 0.15rem; }
   .nr-mini {
     display: flex; align-items: center; gap: 0.6rem;
-    padding: 0.45rem 0.8rem; border-radius: 6px;
+    padding: 0.42rem 0.7rem; border-radius: 6px;
     text-decoration: none; color: var(--text);
     transition: background 0.15s, padding 0.2s;
   }
-  .nr-mini:hover { background: var(--bg-hover); padding-left: 1rem; }
+  .nr-mini:hover { background: var(--bg-hover); padding-left: 0.95rem; }
   .nrm-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--c); flex-shrink: 0; }
-  .nrm-title { font-size: 0.88rem; flex: 1; }
-  .nrm-course { font-size: 0.7rem; color: var(--text-muted); }
+  .nrm-num { font-size: 0.7rem; font-family: var(--font-mono); color: var(--text-muted); flex-shrink: 0; }
+  .nrm-title { font-size: 0.85rem; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .nrm-course { font-size: 0.68rem; color: var(--text-muted); flex-shrink: 0; }
 
-  .proj-mini-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.6rem;
-  }
-  .pm-card {
-    display: flex; align-items: center; gap: 0.6rem;
-    padding: 0.65rem 1rem;
-    background: var(--bg-card);
+  .hobby-row { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+  .hb-mini {
+    display: flex; align-items: center; gap: 0.5rem;
+    padding: 0.5rem 0.9rem;
+    background: var(--bg-hover);
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     text-decoration: none; color: var(--text);
     transition: box-shadow 0.2s, transform 0.15s, border-color 0.2s;
   }
-  .pm-card:hover {
-    box-shadow: var(--shadow-hover);
-    transform: translateY(-1px);
-    border-color: var(--accent);
-  }
-  .pm-num { font-size: 0.72rem; font-family: var(--font-mono); color: var(--text-muted); }
-  .pm-title { font-size: 0.85rem; flex: 1; }
-  .pm-date { font-size: 0.72rem; color: var(--text-muted); }
+  .hb-mini:hover { box-shadow: var(--shadow-hover); transform: translateY(-1px); border-color: var(--accent); }
+  .hbm-icon { font-size: 1.05rem; }
+  .hbm-title { font-size: 0.82rem; }
 
-  .hobby-row { display: flex; gap: 0.8rem; }
-  .hb-mini {
-    display: flex; align-items: center; gap: 0.5rem;
-    padding: 0.55rem 1rem;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    text-decoration: none; color: var(--text);
-    transition: box-shadow 0.2s, transform 0.15s;
-  }
-  .hb-mini:hover { box-shadow: var(--shadow-hover); transform: translateY(-1px); }
-  .hbm-icon { font-size: 1.2rem; }
-  .hbm-title { font-size: 0.85rem; }
-
-  /* ── 拾句 ── */
-  .quote-row { display: flex; flex-direction: column; gap: 0.5rem; }
+  .quote-row { display: flex; flex-direction: column; gap: 0.45rem; }
   .qb-card {
     display: flex; align-items: center; gap: 0.7rem;
-    padding: 0.7rem 1rem;
-    background: var(--bg-card);
+    padding: 0.6rem 0.9rem;
+    background: var(--bg-hover);
     border: 1px solid var(--border);
     border-left: 3px solid #bc8cff;
     border-radius: var(--radius-sm);
     text-decoration: none; color: var(--text);
     transition: box-shadow 0.2s, transform 0.15s, border-color 0.2s;
   }
-  .qb-card:hover {
-    box-shadow: var(--shadow-hover);
-    transform: translateY(-1px);
-    border-color: #bc8cff;
-  }
-  .qb-icon { font-size: 1rem; color: #bc8cff; flex-shrink: 0; }
-  .qb-body { flex: 1; display: flex; flex-direction: column; gap: 0.1rem; }
+  .qb-card:hover { box-shadow: var(--shadow-hover); transform: translateY(-1px); border-color: #bc8cff; }
+  .qb-icon { font-size: 0.95rem; color: #bc8cff; flex-shrink: 0; }
+  .qb-body { flex: 1; display: flex; flex-direction: column; gap: 0.1rem; min-width: 0; }
   .qb-text {
-    font-size: 0.85rem;
+    font-size: 0.82rem;
     color: var(--text-secondary);
     font-family: 'Noto Serif SC', 'Source Han Serif SC', serif;
     line-height: 1.5;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
-  .qb-title { font-size: 0.7rem; color: #bc8cff; }
+  .qb-title { font-size: 0.68rem; color: #bc8cff; }
 
-  /* ── Typewriter ── */
-  .hero-typewriter {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    margin-bottom: 1rem;
-    font-family: var(--font-mono);
-    font-size: 0.88rem;
-    min-height: 1.6rem;
+  @media (max-width: 860px) {
+    .featured-card { grid-template-columns: 1fr; }
+    .fc-cover img { min-height: 150px; max-height: 180px; }
+    .grid-2 { grid-template-columns: 1fr; }
   }
-  .ht-prompt {
-    color: var(--c-db);
-    font-weight: 700;
-    user-select: none;
-  }
-  .ht-text {
-    color: var(--text-secondary);
-    white-space: pre-wrap;
-    word-break: break-word;
-  }
-  .ht-cursor {
-    color: var(--c-os);
-    animation: blink 0.8s step-end infinite;
-    font-size: 0.75rem;
-  }
-  @keyframes blink {
-    50% { opacity: 0; }
-  }
-
-  /* ── GitHub Strip ── */
-  .github-strip {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    overflow: hidden;
-    transition: border-color 0.2s;
-  }
-  .github-strip:hover { border-color: var(--c-os); }
-  .gs-link {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    padding: 0.5rem 0.9rem;
-    text-decoration: none;
-    color: var(--text-secondary);
-    font-size: 0.82rem;
-    transition: color 0.2s;
-  }
-  .gs-link:hover { color: var(--c-os); }
-  .gs-icon { font-size: 1rem; }
-  .gs-text { flex: 1; }
-  .gs-arrow { font-size: 0.8rem; opacity: 0.4; transition: transform 0.2s, opacity 0.2s; }
-  .gs-link:hover .gs-arrow { opacity: 1; transform: translate(2px, -2px); }
-
   @media (max-width: 640px) {
-    .hero-bento { grid-template-columns: 1fr; }
-    .proj-mini-grid { grid-template-columns: 1fr; }
-    .hobby-row { flex-direction: column; }
-    .sig-line { font-size: 1.4rem; letter-spacing: 4px; }
-    .hero-typewriter { font-size: 0.78rem; }
+    .hero { padding: 1.8rem 1rem 1rem; }
+    .hero-metrics { grid-template-columns: repeat(2, 1fr); }
+    .hero-typewriter { font-size: 0.76rem; }
   }
 </style>
 
@@ -468,13 +419,12 @@ const featuredTags = featured ? (() => { if (Array.isArray(featured.tags)) retur
       tick();
     }
 
-    // ── Count-up animation（稳退：target 无效则不动画） ──
-    document.querySelectorAll('.hs-num[data-count]').forEach(el => {
+    // ── Count-up ──
+    document.querySelectorAll('.hm-num[data-count]').forEach(el => {
       if (el.dataset.counted) return;
       el.dataset.counted = 'true';
       const target = parseInt(el.dataset.count, 10);
       if (isNaN(target) || target <= 0) return;
-      const display = el.textContent.trim();
       el.textContent = '0';
       const duration = 1000;
       const start = performance.now();

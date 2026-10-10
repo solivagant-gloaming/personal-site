@@ -17,20 +17,27 @@
         fpsLimit: 60,
         detectRetina: true,
         particles: {
-          number: { value: 90, density: { enable: true, width: 1920, height: 1080 } },
-          paint: [{ fill: { color: { value: '#b4c8e6' }, enable: true } }],
+          number: { value: 130, density: { enable: true, width: 1920, height: 1080 } },
+          paint: [{ fill: { color: { value: '#c9d9f0' }, enable: true } }],
           shape: { type: 'circle' },
           opacity: {
-            value: { min: 0.15, max: 0.7 },
-            animation: { enable: true, speed: 0.35, sync: false, startValue: 'random' },
+            value: { min: 0.2, max: 0.9 },
+            animation: { enable: true, speed: 0.6, sync: false, startValue: 'random' },
           },
           size: {
-            value: { min: 0.4, max: 2.2 },
-            animation: { enable: true, speed: 1.6, sync: false, startValue: 'random' },
+            value: { min: 0.5, max: 3.2 },
+            animation: { enable: true, speed: 2.5, sync: false, startValue: 'random' },
+          },
+          links: {
+            enable: true,
+            distance: 140,
+            color: '#b4c8e6',
+            opacity: 0.18,
+            width: 1,
           },
           move: {
             enable: true,
-            speed: 0.32,
+            speed: 0.45,
             direction: 'top',
             random: true,
             straight: false,
@@ -40,11 +47,11 @@
         interactivity: {
           detectsOn: 'window',
           events: {
-            onHover: { enable: true, mode: 'bubble' },
+            onHover: { enable: true, mode: 'grab' },
             resize: { enable: true },
           },
           modes: {
-            bubble: { distance: 140, size: 2.6, duration: 2, opacity: 0.85 },
+            grab: { distance: 180, links: { opacity: 0.45 } },
           },
         },
       },
