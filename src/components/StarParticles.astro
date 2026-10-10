@@ -1,5 +1,5 @@
 ---
-// 星空穹顶 — Three.js 球壳星场（有纵深 + 单星闪烁 + 鼠标视差）
+// 星空穹顶 + 流星 — Three.js
 ---
 <div id="starfield3d" aria-hidden="true"></div>
 
@@ -17,7 +17,7 @@
     try {
       renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true, powerPreference: 'low-power' });
     } catch {
-      return; // WebGL 不可用，安静退出
+      return;
     }
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -28,14 +28,13 @@
     const camera = new THREE.PerspectiveCamera(62, window.innerWidth / window.innerHeight, 1, 4000);
     camera.position.set(0, 0, 0);
 
-    // ── 星场 ──
+    // ══ 星场 ══
     const COUNT = isMobile ? 1400 : 2800;
     const positions = new Float32Array(COUNT * 3);
     const colors = new Float32Array(COUNT * 3);
     const sizes = new Float32Array(COUNT);
     const phases = new Float32Array(COUNT);
 
-    // 色温：蓝白 / 白 / 淡黄 / 微橙
     const TINTS = [
       [0.78, 0.86, 1.00],
       [0.95, 0.97, 1.00],
@@ -46,9 +45,8 @@
     for (let i = 0; i < COUNT; i++) {
       const u = Math.random() * 2 - 1;
       const theta = Math.random() * Math.PI * 2;
-      const r = 420 + Math.random() * 980;          // 球壳：近远交织 → 纵深
+      const r = 420 + Math.random() * 980;
       const s = Math.sqrt(1 - u * u);
-
       positions[i * 3]     = r * s * Math.cos(theta);
       positions[i * 3 + 1] = r * s * Math.sin(theta);
       positions[i * 3 + 2] = r * u;
@@ -60,7 +58,7 @@
       colors[i * 3 + 1] = c[1] * b;
       colors[i * 3 + 2] = c[2] * b;
 
-      sizes[i]  = 1.7 + Math.pow(Math.random(), 2.6) * 6.0;   // 少量亮星
+      sizes[i]  = 1.7 + Math.pow(Math.random(), 2.6) * 6.0;
       phases[i] = Math.random() * Math.PI * 2;
     }
 
@@ -74,10 +72,7 @@
       transparent: true,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
-      uniforms: {
-        uTime: { value: 0 },
-        uDpr: { value: renderer.getPixelRatio() },
-      },
+      uniforms: { uTime: { value: 0 }, uDpr: { value: renderer.getPixelRatio() } },
       vertexShader: `
         attribute float aSize;
         attribute float aPhase;
@@ -101,8 +96,8 @@
           vec2 uv = gl_PointCoord - 0.5;
           float d = length(uv);
           if (d > 0.5) discard;
-          float core = smoothstep(0.5, 0.04, d);
-          float glow = smoothstep(0.5, 0.0, d);
+          float core = 1.0 - smoothstep(0.04, 0.5, d);
+          float glow = 1.0 - smoothstep(0.0, 0.5, d);
           vec3 col = vColor * (1.05 * core + 0.55 * glow);
           gl_FragColor = vec4(col * vTw, (core + glow * 0.45) * vTw);
         }
@@ -112,27 +107,157 @@
     const stars = new THREE.Points(geo, mat);
     scene.add(stars);
 
-    // ── 鼠标视差 ──
+    // ══ 流星 ══
+    const METEORS = isMobile ? 2 : 4;
+    const TAIL = 34;                       // 每颗流星的尾粒子数
+    const TOTAL = METEORS * TAIL;
+    const MT_PLANE_Z = -360;               // 流星所在平面（比星星近）
+
+    const mPos = new Float32Array(TOTAL * 3);
+    const mAlpha = new Float32Array(TOTAL);
+    const mSize = new Float32Array(TOTAL);
+
+    const mGeo = new THREE.BufferGeometry();
+    mGeo.setAttribute('position', new THREE.BufferAttribute(mPos, 3));
+    mGeo.setAttribute('aAlpha', new THREE.BufferAttribute(mAlpha, 1));
+    mGeo.setAttribute('aSize', new THREE.BufferAttribute(mSize, 1));
+
+    const mMat = new THREE.ShaderMaterial({
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+      uniforms: { uDpr: { value: renderer.getPixelRatio() } },
+      vertexShader: `
+        attribute float aAlpha;
+        attribute float aSize;
+        uniform float uDpr;
+        varying float vA;
+        void main() {
+          vA = aAlpha;
+          vec4 mv = modelViewMatrix * vec4(position, 1.0);
+          gl_PointSize = aSize * uDpr * (430.0 / -mv.z);
+          gl_Position = projectionMatrix * mv;
+        }
+      `,
+      fragmentShader: `
+        varying float vA;
+        void main() {
+          vec2 uv = gl_PointCoord - 0.5;
+          float d = length(uv);
+          if (d > 0.5) discard;
+          float core = 1.0 - smoothstep(0.02, 0.5, d);
+          float glow = 1.0 - smoothstep(0.0, 0.5, d);
+          // 暖金 → 冷白，头部偏金
+          vec3 warm = vec3(1.00, 0.88, 0.62);
+          vec3 cool = vec3(0.86, 0.92, 1.00);
+          vec3 col = mix(cool, warm, vA);
+          float a = (core + glow * 0.55) * vA;
+          gl_FragColor = vec4(col * (0.9 * core + 0.5 * glow) * vA * 1.6, a);
+        }
+      `,
+    });
+
+    const meteorsMesh = new THREE.Points(mGeo, mMat);
+    scene.add(meteorsMesh);
+
+    // 每颗流星的状态
+    const meteors = Array.from({ length: METEORS }, (_, i) => ({
+      active: false,
+      hx: 0, hy: 0,                          // 头部位置
+      dx: 0, dy: 0,                          // 单位方向
+      speed: 0,
+      len: 0,                                // 拖尾长度
+      wait: i * 1.2 + Math.random() * 3,     // 下次出现的等待时间
+      w: 0.85,                               // 亮度权重
+    }));
+
+    function spawn(m) {
+      const halfW = 620, halfH = 420;
+      // 从上方或侧上方进入
+      const fromTop = Math.random() < 0.7;
+      if (fromTop) {
+        m.hx = (Math.random() * 2 - 1) * halfW;
+        m.hy = halfH + 80;
+      } else {
+        m.hx = (Math.random() < 0.5 ? -1 : 1) * (halfW + 80);
+        m.hy = halfH * (0.2 + Math.random() * 0.8);
+      }
+      const ang = -Math.PI * (0.28 + Math.random() * 0.28);   // 斜向下
+      m.dx = Math.cos(ang) * (m.hx > 0 ? -1 : 1);
+      m.dy = Math.sin(ang);
+      const n = Math.hypot(m.dx, m.dy);
+      m.dx /= n; m.dy /= n;
+
+      m.speed = 620 + Math.random() * 780;
+      m.len   = 130 + Math.random() * 150;
+      m.w     = 0.7 + Math.random() * 0.6;
+      m.active = true;
+    }
+
+    function updateMeteors(dt) {
+      for (let i = 0; i < METEORS; i++) {
+        const m = meteors[i];
+
+        if (!m.active) {
+          m.wait -= dt;
+          if (m.wait <= 0) spawn(m);
+        } else {
+          m.hx += m.dx * m.speed * dt;
+          m.hy += m.dy * m.speed * dt;
+          if (m.hy < -480 || Math.abs(m.hx) > 900) {
+            m.active = false;
+            m.wait = 1.6 + Math.random() * 4.2;
+          }
+        }
+
+        const base = i * TAIL;
+        for (let k = 0; k < TAIL; k++) {
+          const t = k / (TAIL - 1);                   // 0=头 1=尾
+          const idx = base + k;
+          if (!m.active) {
+            mAlpha[idx] = 0;
+            mPos[idx * 3] = 0; mPos[idx * 3 + 1] = 0; mPos[idx * 3 + 2] = MT_PLANE_Z;
+            continue;
+          }
+          const off = t * m.len;
+          mPos[idx * 3]     = m.hx - m.dx * off;
+          mPos[idx * 3 + 1] = m.hy - m.dy * off;
+          mPos[idx * 3 + 2] = MT_PLANE_Z;
+          mAlpha[idx] = Math.pow(1 - t, 1.6) * m.w;   // 头亮尾暗
+          mSize[idx]  = (1 - t) * 7.5 + 1.2;          // 头大尾小
+        }
+      }
+      mGeo.attributes.position.needsUpdate = true;
+      mGeo.attributes.aAlpha.needsUpdate = true;
+      mGeo.attributes.aSize.needsUpdate = true;
+    }
+
+    // ══ 鼠标视差 ══
     const target = { x: 0, y: 0 };
     window.addEventListener('pointermove', (e) => {
       target.x = (e.clientX / window.innerWidth - 0.5) * 2;
       target.y = (e.clientY / window.innerHeight - 0.5) * 2;
     }, { passive: true });
 
-    // ── 渲染循环 ──
+    // ══ 循环 ══
     const clock = new THREE.Clock();
     let rx = 0, ry = 0, raf = 0;
 
+    let elapsed = 0;
+
     function animate() {
       raf = requestAnimationFrame(animate);
-      const t = clock.getElapsedTime();
-      mat.uniforms.uTime.value = t;
+      const dt = Math.min(clock.getDelta(), 0.05);
+      elapsed += dt;
+
+      mat.uniforms.uTime.value = elapsed;
 
       rx += (target.y * 0.22 - rx) * 0.045;
       ry += (target.x * 0.22 - ry) * 0.045;
-
-      stars.rotation.y = t * 0.009 + ry;
+      stars.rotation.y = elapsed * 0.009 + ry;
       stars.rotation.x = rx;
+
+      updateMeteors(dt);
 
       renderer.render(scene, camera);
     }
@@ -147,6 +272,7 @@
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
       mat.uniforms.uDpr.value = renderer.getPixelRatio();
+      mMat.uniforms.uDpr.value = renderer.getPixelRatio();
     });
 
     if (reduceMotion) renderer.render(scene, camera);
