@@ -159,7 +159,9 @@ const projectDir = codeData?.githubUrl?.replace('https://github.com/solivagant-g
             <div class="pd-card">
               <div class="pd-card-hd">
                 <span>📖 技术分析报告</span>
-                <a href={codeData?.githubUrl?.replace('/tree/master/', '/blob/master/') + '/ANALYSIS.md'} target="_blank" class="pd-analysis-link">在 GitHub 查看 ↗</a>
+                {codeData?.githubUrl && (
+                  <a href={codeData.githubUrl.replace('/tree/master/', '/blob/master/') + '/ANALYSIS.md'} target="_blank" class="pd-analysis-link">在 GitHub 查看 ↗</a>
+                )}
               </div>
               <div class="pd-card-body pd-analysis" set:html={renderedAnalysis}></div>
             </div>
@@ -179,7 +181,9 @@ const projectDir = codeData?.githubUrl?.replace('https://github.com/solivagant-g
                 ) : (
                   <div class="pd-demo-na">
                     <p>该项目为 CLI/GUI 应用，无法在网页端直接运行。</p>
-                    <p>查看源码：<a href={codeData.githubUrl} target="_blank">GitHub 仓库 ↗</a></p>
+                    {codeData?.githubUrl && (
+                      <p>查看源码：<a href={codeData.githubUrl} target="_blank">GitHub 仓库 ↗</a></p>
+                    )}
                   </div>
                 )}
               </div>
@@ -238,7 +242,9 @@ const projectDir = codeData?.githubUrl?.replace('https://github.com/solivagant-g
             <div class="pd-card">
               <div class="pd-card-hd">
                 <span>📁 源文件清单</span>
-                <a href={codeData.githubUrl} target="_blank" class="pd-analysis-link">GitHub 仓库 ↗</a>
+                {codeData?.githubUrl && (
+                  <a href={codeData.githubUrl} target="_blank" class="pd-analysis-link">GitHub 仓库 ↗</a>
+                )}
               </div>
               <div class="pd-card-body">
                 <table class="pd-file-table">
