@@ -192,9 +192,7 @@ function hasCover(slug) { return existsSync(path.join(coversDir, `${slug}.png`))
     padding: 2.4rem 1.6rem 1.4rem;
     border-radius: var(--radius);
     border: 1px solid var(--border);
-    background: color-mix(in srgb, var(--bg-card) 68%, transparent);
-    backdrop-filter: blur(9px);
-    -webkit-backdrop-filter: blur(9px);
+    background: color-mix(in srgb, var(--bg-card) 42%, transparent);
     overflow: hidden;
   }
   .hero-glow {
@@ -284,7 +282,7 @@ function hasCover(slug) { return existsSync(path.join(coversDir, `${slug}.png`))
     display: grid;
     grid-template-columns: 300px 1fr;
     gap: 0;
-    background: linear-gradient(135deg, var(--bg-card), rgba(240,136,62,0.04));
+    background: linear-gradient(135deg, color-mix(in srgb, var(--bg-card) 80%, transparent), rgba(240,136,62,0.05));
     border: 1px solid var(--border);
     border-left: 3px solid var(--cc);
     border-radius: var(--radius);
@@ -309,7 +307,7 @@ function hasCover(slug) { return existsSync(path.join(coversDir, `${slug}.png`))
   /* ── Two-column grid ── */
   .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.4rem; }
   .panel {
-    background: var(--bg-card);
+    background: color-mix(in srgb, var(--bg-card) 78%, transparent);
     border: 1px solid var(--border);
     border-radius: var(--radius);
     padding: 1rem 1.1rem 1.1rem;
