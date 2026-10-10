@@ -24,14 +24,14 @@ const {
   jsonLd,
 } = Astro.props;
 
-const siteTitle = title === '首页' ? 'Guorui — 童国睿的个人网站' : `${title} — Guorui`;
+const siteTitle = title === '首页' ? 'Solivagant — 个人网站' : `${title} — Solivagant`;
 const absoluteUrl = url.startsWith('http') ? url : `https://shengxia.dev${url}`;
 const absoluteImage = image.startsWith('http') ? image : `https://shengxia.dev${image}`;
 
 const baseLd = {
   '@context': 'https://schema.org',
   '@type': 'Person',
-  name: '童国睿',
+  name: 'Solivagant',
   url: 'https://shengxia.dev',
   jobTitle: '软件工程学生',
   alumniOf: '贵州大学',
@@ -52,7 +52,7 @@ const baseLd = {
 <meta property="og:title" content={siteTitle} />
 <meta property="og:description" content={description} />
 <meta property="og:image" content={absoluteImage} />
-<meta property="og:site_name" content="Guorui" />
+<meta property="og:site_name" content="Solivagant" />
 <meta property="og:locale" content="zh_CN" />
 
 <!-- Twitter Card -->
@@ -71,7 +71,7 @@ const baseLd = {
 <script type="application/ld+json" set:html={JSON.stringify({
   '@context': 'https://schema.org',
   '@type': 'WebSite',
-  name: 'Guorui',
+  name: 'Solivagant',
   url: 'https://shengxia.dev',
-  description: '童国睿的个人网站 — 软件工程学习笔记与项目展示',
+  description: 'Solivagant 的个人网站 — 软件工程学习笔记与项目展示',
 })}></script>

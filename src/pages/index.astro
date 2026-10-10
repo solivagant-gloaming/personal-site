@@ -24,7 +24,7 @@ const featuredMeta = featured ? (() => { if (featured.metadata && typeof feature
 const featuredTags = featured ? (() => { if (Array.isArray(featured.tags)) return featured.tags; try { return JSON.parse(featured.tags || '[]'); } catch { return []; } })() : [];
 ---
 
-<Base title="首页" description="童国睿的个人网站" wide={true}>
+<Base title="首页" description="Solivagant 的个人网站" wide={true}>
   <div class="home">
 
     <!-- Signature Quote — CSS entrance animation -->
@@ -37,7 +37,7 @@ const featuredTags = featured ? (() => { if (Array.isArray(featured.tags)) retur
     <!-- Hero -->
     <div class="hero-bento" data-reveal="bottom" data-delay="100">
       <div class="hero-text">
-        <h1>童国睿</h1>
+        <h1>Solivagant</h1>
         <p class="hero-sub">软件工程 · 大三 · 贵州大学</p>
         <div class="hero-typewriter">
           <span class="ht-prompt">$</span>
