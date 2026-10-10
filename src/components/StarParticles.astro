@@ -108,7 +108,7 @@
     scene.add(stars);
 
     // ══ 流星 ══
-    const METEORS = isMobile ? 2 : 4;
+    const METEORS = isMobile ? 5 : 12;
     const TAIL = 80;                       // 每颗流星的尾粒子数
     const TOTAL = METEORS * TAIL;
     const MT_PLANE_Z = -360;               // 流星所在平面（比星星近）
@@ -167,7 +167,7 @@
       dx: 0, dy: 0,                          // 单位方向
       speed: 0,
       len: 0,                                // 拖尾长度
-      wait: i * 1.2 + Math.random() * 3,     // 下次出现的等待时间
+      wait: i * 0.28 + Math.random() * 0.9,  // 下次出现的等待时间
       w: 0.85,                               // 亮度权重
     }));
 
@@ -206,7 +206,7 @@
           m.hy += m.dy * m.speed * dt;
           if (m.hy < -480 || Math.abs(m.hx) > 900) {
             m.active = false;
-            m.wait = 1.6 + Math.random() * 4.2;
+            m.wait = 0.25 + Math.random() * 1.1;
           }
         }
 
