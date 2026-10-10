@@ -192,7 +192,9 @@ function hasCover(slug) { return existsSync(path.join(coversDir, `${slug}.png`))
     padding: 2.4rem 1.6rem 1.4rem;
     border-radius: var(--radius);
     border: 1px solid var(--border);
-    background: var(--bg-card);
+    background: color-mix(in srgb, var(--bg-card) 68%, transparent);
+    backdrop-filter: blur(9px);
+    -webkit-backdrop-filter: blur(9px);
     overflow: hidden;
   }
   .hero-glow {

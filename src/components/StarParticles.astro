@@ -60,7 +60,7 @@
       colors[i * 3 + 1] = c[1] * b;
       colors[i * 3 + 2] = c[2] * b;
 
-      sizes[i]  = 1.0 + Math.pow(Math.random(), 3.2) * 4.8;   // 少量亮星
+      sizes[i]  = 1.7 + Math.pow(Math.random(), 2.6) * 6.0;   // 少量亮星
       phases[i] = Math.random() * Math.PI * 2;
     }
 
@@ -90,7 +90,7 @@
           vColor = aColor;
           vTw = 0.55 + 0.45 * sin(uTime * 1.35 + aPhase);
           vec4 mv = modelViewMatrix * vec4(position, 1.0);
-          gl_PointSize = aSize * uDpr * (430.0 / -mv.z);
+          gl_PointSize = aSize * uDpr * (520.0 / -mv.z);
           gl_Position = projectionMatrix * mv;
         }
       `,
@@ -103,7 +103,7 @@
           if (d > 0.5) discard;
           float core = smoothstep(0.5, 0.04, d);
           float glow = smoothstep(0.5, 0.0, d);
-          vec3 col = vColor * (0.80 * core + 0.42 * glow);
+          vec3 col = vColor * (1.05 * core + 0.55 * glow);
           gl_FragColor = vec4(col * vTw, (core + glow * 0.45) * vTw);
         }
       `,
