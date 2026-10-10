@@ -13,3 +13,7 @@ Thumbs.db
 .vercel
 .env*
 __pycache__/
+.playwright-mcp/
+notes-prep/
+projects-source/
+design-proposals/

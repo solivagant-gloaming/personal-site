@@ -10,13 +10,20 @@ import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 
+// ── 读 .env.local（凭证只存本地，不进仓库）──
+const env = {};
+for (const line of readFileSync(join(ROOT, '.env.local'), 'utf8').split(/\r?\n/)) {
+  const m = line.match(/^\s*([A-Z0-9_]+)\s*=\s*(.*)\s*$/);
+  if (m) env[m[1]] = m[2].replace(/^["']|["']$/g, '');
+}
+
 // ── DB 连接 ──
 const conn = await mysql.createPool({
-  host: process.env.DB_HOST,
-  port: 4000,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: 'personal_site',
+  host: env.DB_HOST,
+  port: Number(env.DB_PORT || 4000),
+  user: env.DB_USER,
+  password: env.DB_PASSWORD,
+  database: env.DB_NAME,
   ssl: { rejectUnauthorized: true },
   connectionLimit: 5,
 });
