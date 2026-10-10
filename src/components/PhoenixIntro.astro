@@ -88,7 +88,14 @@
     // 自动进入：留约 2.4s 阅读时间
     if (!HOLD) autoTimer = window.setTimeout(() => finish(false), 5600);
 
-    window.addEventListener('astro:before-swap', () => { clearTimeout(uiTimer); clearTimeout(autoTimer); }, { once: true });
+    // 视图切换离开时：清定时器，并把 <html> 上的滚动锁还原。
+    // <html> 在 view transition 中是保留的，不还原的话新页面会滚不动。
+    window.addEventListener('astro:before-swap', () => {
+      clearTimeout(uiTimer);
+      clearTimeout(autoTimer);
+      done = true;
+      document.documentElement.style.overflow = '';
+    }, { once: true });
   })();
 </script>
 
