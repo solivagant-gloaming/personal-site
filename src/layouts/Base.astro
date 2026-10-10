@@ -31,7 +31,7 @@ Astro.response.headers.set('Content-Security-Policy', [
   "script-src 'self' 'unsafe-inline'",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https://*.music.126.net",
-  "media-src https://*.music.126.net",
+  "media-src 'self' https://*.music.126.net",
   "connect-src 'self'",
   "font-src 'self'",
   "form-action 'self'",
@@ -74,6 +74,7 @@ Astro.response.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-r
     </script>
   </head>
   <body>
+    <slot name="overlay" />
     <a href="#main-content" class="skip-link">跳到主要内容</a>
     <StarParticles />
     <div id="scroll-progress"></div>

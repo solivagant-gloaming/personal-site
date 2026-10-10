@@ -1,0 +1,250 @@
+---
+// 鎏金神凰 — 首屏入场
+// 素材：public/phoenix.mp4（已用 delogo 去水印、压到 1.87MB）
+// 手法：mix-blend-mode: screen —— 视频是"黑底 + 发光主体"，
+//       screen 混合会让纯黑部分自动消失，无需抠图或透明通道
+// 演示：?intro=hold 停在入场页；?intro=force 重放
+---
+<div id="phx-intro" class="phx-intro" hidden>
+  <video
+    id="phx-video"
+    class="phx-video"
+    src="/phoenix.mp4"
+    poster="/phoenix-poster.jpg"
+    muted
+    playsinline
+    preload="auto"
+  ></video>
+
+  <div class="phx-vignette"></div>
+  <div class="phx-scrim"></div>
+
+  <div class="phx-ui">
+    <div class="phx-title">Solivagant</div>
+    <div class="phx-rule"></div>
+    <div class="phx-sub">A wanderer of ash and light</div>
+    <button class="phx-enter" type="button">进 入 <span>&#8594;</span></button>
+  </div>
+
+  <button class="phx-skip" type="button">跳过</button>
+</div>
+
+<script>
+  const SEEN_KEY = 'phx-seen';
+
+  (function boot() {
+    const el = document.getElementById('phx-intro');
+    const video = document.getElementById('phx-video');
+    if (!el || !video) return;
+
+    // ?intro=hold  → 停在入场页不自动进入（演示/调试）
+    // ?intro=force → 忽略本会话已看过，重放一次
+    const q = new URLSearchParams(location.search).get('intro');
+    const HOLD = q === 'hold';
+    const FORCE = HOLD || q === 'force';
+
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let seen = false;
+    try { seen = sessionStorage.getItem(SEEN_KEY) === '1'; } catch {}
+    // 硬刷新（F5）视为"我想再看一次"
+    const isReload = performance.getEntriesByType?.('navigation')[0]?.type === 'reload';
+    if (reduce || (seen && !FORCE && !isReload)) return;
+
+    el.hidden = false;
+    document.documentElement.style.overflow = 'hidden';
+
+    const ui = el.querySelector('.phx-ui');
+    const skipBtn = el.querySelector('.phx-skip');
+    const enterBtn = el.querySelector('.phx-enter');
+
+    let done = false;
+    let uiTimer = 0, autoTimer = 0;
+
+    function finish(instant?: boolean) {
+      if (done) return;
+      done = true;
+      clearTimeout(uiTimer);
+      clearTimeout(autoTimer);
+      try { sessionStorage.setItem(SEEN_KEY, '1'); } catch {}
+      document.documentElement.style.overflow = '';
+      try { video.pause(); } catch {}
+      if (instant) { el.hidden = true; el.remove(); return; }
+      el.classList.add('is-out');
+      setTimeout(() => { el.hidden = true; el.remove(); }, 900);
+    }
+
+    skipBtn?.addEventListener('click', () => finish(false));
+    enterBtn?.addEventListener('click', () => finish(false));
+
+    // 自动播放：muted + playsinline 已满足所有浏览器策略；失败则直接放行
+    const p = video.play();
+    if (p && typeof p.catch === 'function') p.catch(() => finish(true));
+
+    // 视频加载失败（网络/编码）→ 不留白屏，直接进主页
+    video.addEventListener('error', () => finish(true), { once: true });
+
+    // 文字入场（视频只有 3.23s，标题要早出来）
+    uiTimer = window.setTimeout(() => ui.classList.add('is-on'), 1500);
+    // 自动进入：留约 2.4s 阅读时间
+    if (!HOLD) autoTimer = window.setTimeout(() => finish(false), 5600);
+
+    window.addEventListener('astro:before-swap', () => { clearTimeout(uiTimer); clearTimeout(autoTimer); }, { once: true });
+  })();
+</script>
+
+<style>
+  .phx-intro {
+    position: fixed;
+    inset: 0;
+    z-index: 100000;
+    background: #05070c;
+    opacity: 1;
+    transition: opacity 0.9s ease;
+    overflow: hidden;
+  }
+  .phx-intro[hidden] { display: none; }
+  .phx-intro.is-out { opacity: 0; pointer-events: none; }
+
+  /*
+   * 关键：screen 混合。
+   * 视频是"近黑底 + 发光凤凰"，screen 让纯黑区域等价于透明，
+   * 于是不需要抠图/透明通道，凤凰直接"浮"在深色页面之上。
+   */
+  .phx-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 48% 44%;
+    mix-blend-mode: screen;
+    display: block;
+  }
+
+  /* 四角压暗，把注意力收到凤凰身上，同时盖掉视频边缘的任何残留 */
+  .phx-vignette {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(78% 64% at 46% 46%, transparent 40%, rgba(3, 5, 10, 0.78) 100%);
+  }
+
+  /* 底部压暗：凤凰的蓝色尾羽会流到画面下方，不压暗标题读不清 */
+  .phx-scrim {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 46%;
+    pointer-events: none;
+    background: linear-gradient(
+      to top,
+      rgba(3, 5, 10, 0.90) 0%,
+      rgba(3, 5, 10, 0.62) 34%,
+      rgba(3, 5, 10, 0.22) 66%,
+      transparent 100%
+    );
+  }
+
+  .phx-ui {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 9vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.7rem;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(14px);
+    transition: opacity 1.2s ease, transform 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .phx-ui.is-on { opacity: 1; transform: translateY(0); }
+
+  .phx-title {
+    font-family: var(--font-display, Georgia, 'Times New Roman', serif);
+    font-size: clamp(2.1rem, 6.2vw, 4.1rem);
+    font-weight: 400;
+    letter-spacing: 0.16em;
+    line-height: 1;
+    padding-left: 0.16em;
+    background: linear-gradient(96deg, #ffe6ae 0%, #ffffff 34%, #ffd07a 62%, #9fdcff 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    filter: drop-shadow(0 0 26px rgba(255, 190, 100, 0.42));
+  }
+
+  .phx-rule {
+    width: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 210, 140, 0.85), transparent);
+    transition: width 1.5s cubic-bezier(0.22, 1, 0.36, 1) 0.35s;
+  }
+  .phx-ui.is-on .phx-rule { width: min(30rem, 62vw); }
+
+  .phx-sub {
+    /* 英文标语比中文长得多，字距要收到 0.30em 才不会顶到边 */
+    font-size: clamp(0.58rem, 1.32vw, 0.74rem);
+    letter-spacing: 0.30em;
+    text-transform: uppercase;
+    color: rgba(226, 232, 240, 0.62);
+    padding-left: 0.30em;
+    text-align: center;
+    max-width: 92vw;
+  }
+
+  .phx-enter {
+    margin-top: 0.9rem;
+    pointer-events: auto;
+    cursor: pointer;
+    font: inherit;
+    font-size: clamp(0.72rem, 1.6vw, 0.84rem);
+    letter-spacing: 0.34em;
+    color: #ffe1ad;
+    background: rgba(255, 208, 130, 0.05);
+    border: 1px solid rgba(255, 208, 130, 0.34);
+    border-radius: 999px;
+    padding: 0.6rem 1.9rem 0.6rem 2.24rem;
+    backdrop-filter: blur(3px);
+    transition: background 0.3s, border-color 0.3s, box-shadow 0.3s, letter-spacing 0.3s;
+  }
+  .phx-enter span { display: inline-block; transition: transform 0.3s; }
+  .phx-enter:hover {
+    background: rgba(255, 208, 130, 0.14);
+    border-color: rgba(255, 208, 130, 0.72);
+    box-shadow: 0 0 32px rgba(255, 190, 100, 0.3);
+    letter-spacing: 0.42em;
+  }
+  .phx-enter:hover span { transform: translateX(4px); }
+
+  .phx-skip {
+    position: absolute;
+    top: 1.6rem;
+    right: 1.8rem;
+    z-index: 2;
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.7rem;
+    letter-spacing: 0.26em;
+    padding: 0.4rem 1.2rem 0.4rem 1.46rem;
+    color: rgba(203, 213, 225, 0.5);
+    background: transparent;
+    border: 1px solid rgba(203, 213, 225, 0.18);
+    border-radius: 999px;
+    opacity: 0;
+    animation: phx-skip-in 0.6s ease 1s forwards;
+    transition: color 0.25s, border-color 0.25s;
+  }
+  .phx-skip:hover { color: rgba(255, 226, 175, 0.95); border-color: rgba(255, 208, 130, 0.5); }
+  @keyframes phx-skip-in { to { opacity: 1; } }
+
+  @media (max-width: 820px) {
+    /* 竖屏：16:9 素材横向溢出，稍作偏置让凤凰留在画面里 */
+    .phx-video { object-position: 52% 40%; }
+    .phx-ui { bottom: 7vh; gap: 0.55rem; }
+    .phx-sub { letter-spacing: 0.17em; font-size: 0.56rem; }
+    .phx-skip { top: 1rem; right: 1rem; }
+  }
+</style>

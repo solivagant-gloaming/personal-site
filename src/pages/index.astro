@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+import PhoenixIntro from '../components/PhoenixIntro.astro';
 import { query } from '../db/mysql';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
@@ -30,6 +31,7 @@ function hasCover(slug) { return existsSync(path.join(coversDir, `${slug}.png`))
 ---
 
 <Base title="首页" description="Solivagant 的个人网站" wide={true}>
+  <PhoenixIntro slot="overlay" />
   <div class="home">
 
     <!-- ─── Hero ─── -->
