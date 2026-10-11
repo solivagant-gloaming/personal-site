@@ -1,0 +1,203 @@
+---
+import { verifyToken, COOKIE_NAME } from '../../lib/auth.js';
+const token = Astro.cookies.get(COOKIE_NAME)?.value;
+const username = token ? verifyToken(token) : null;
+if (!username) return Astro.redirect('/admin/login');
+---
+
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>拾句投稿审核</title>
+  <!-- is:global 必需：投稿卡片由 JS 动态插入，拿不到 Astro 的 data-astro-cid-* 属性，
+       scoped 选择器匹配不上它们，样式会整片失效。本页是独立文档，不存在外泄问题。 -->
+  <style is:global>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans SC", sans-serif; background:#f5f4f0; color:#1c1a18; }
+    .layout { display:flex; min-height:100vh; }
+    .side { width:200px; background:#1a1a24; color:#c8c8d0; display:flex; flex-direction:column; flex-shrink:0; position:sticky; top:0; height:100vh; }
+    .side-logo { padding:1.2rem; font-size:0.85rem; font-weight:600; border-bottom:1px solid rgba(255,255,255,0.08); }
+    .side-nav { flex:1; padding:0.5rem 0; }
+    .side-nav a { display:block; padding:0.6rem 1.2rem; font-size:0.85rem; color:#9a9aa8; text-decoration:none; border-left:2px solid transparent; }
+    .side-nav a:hover { background:rgba(255,255,255,0.04); color:#e8e8f0; }
+    .side-nav a.active { background:rgba(255,255,255,0.06); color:#fff; border-left-color:#c17f59; }
+    .side-foot { padding:1rem 1.2rem; border-top:1px solid rgba(255,255,255,0.08); font-size:0.78rem; }
+    .side-foot a { color:#7a7a8a; text-decoration:none; }
+    .side-foot a:hover { color:#c17f59; }
+    .main { flex:1; padding:2rem; max-width:900px; min-width:0; }
+    .hd { display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:1.5rem; gap:1rem; flex-wrap:wrap; }
+    .hd h1 { font-size:1.4rem; font-weight:600; margin:0; }
+    .hd p { font-size:0.82rem; color:#8a8a9a; margin:0.3rem 0 0; }
+    .btn { padding:0.45rem 1rem; border-radius:4px; font-size:0.82rem; cursor:pointer; border:none; text-decoration:none; display:inline-block; transition:opacity 0.15s; font-family:inherit; }
+    .btn:hover { opacity:0.85; }
+    .btn-pri { background:#c17f59; color:#fff; }
+    .btn-sec { background:#f0eeea; color:#1c1a18; }
+    .btn-del { background:#ff6b6b; color:#fff; }
+    .btn:disabled { opacity:0.5; cursor:default; }
+    .list { display:flex; flex-direction:column; gap:0.9rem; }
+    .card { background:#fff; border:1px solid rgba(0,0,0,0.06); border-radius:8px; padding:1.2rem 1.4rem; }
+    .card-body { font-family:'Noto Serif SC', Georgia, serif; font-size:0.95rem; line-height:1.9; color:#1c1a18; white-space:pre-wrap; word-break:break-word; }
+    .card-meta { display:flex; flex-wrap:wrap; gap:0.4rem 1rem; margin-top:0.9rem; padding-top:0.7rem; border-top:1px solid rgba(0,0,0,0.06); font-size:0.76rem; color:#8a8a9a; }
+    .card-meta b { font-weight:500; color:#6b625b; }
+    .card-actions { display:flex; gap:0.5rem; margin-top:0.9rem; }
+    .empty { background:#fff; border:1px dashed rgba(0,0,0,0.12); border-radius:8px; padding:3rem 1rem; text-align:center; color:#9a9aa8; font-size:0.88rem; line-height:1.9; }
+    .loading { padding:2rem; text-align:center; color:#9a9aa8; font-size:0.85rem; }
+    .toast { position:fixed; bottom:1.5rem; right:1.5rem; padding:0.6rem 1.2rem; border-radius:6px; font-size:0.82rem; color:#fff; opacity:0; transition:opacity 0.3s; pointer-events:none; z-index:999; }
+    .toast.show { opacity:1; }
+    .toast.ok { background:#4caf50; }
+    .toast.err { background:#ff6b6b; }
+    .tip { background:#fff8ec; border:1px solid #f2dcb0; border-radius:8px; padding:0.9rem 1.1rem; font-size:0.8rem; color:#8a6d3b; line-height:1.7; margin-bottom:1.2rem; }
+    @media (max-width:768px) {
+      .side { width:56px; }
+      .side-logo, .side-nav a { font-size:0; padding:0.8rem 0; text-align:center; }
+      .side-nav a::before { content:'·'; font-size:1rem; }
+      .side-foot { display:none; }
+      .main { padding:1.2rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <aside class="side">
+    <div class="side-logo">管理后台</div>
+    <nav class="side-nav">
+      <a href="/admin">概览</a>
+      <a href="/admin/notes">内容</a>
+      <a href="/admin/quotes" class="active">投稿审核</a>
+    </nav>
+    <div class="side-foot">
+      <a href="/quotes" target="_blank">查看拾句</a>
+      <a href="#" id="logoutBtn" style="display:block;margin-top:0.3rem;">退出登录</a>
+    </div>
+  </aside>
+  <main class="main">
+    <div class="hd">
+      <div>
+        <h1>拾句投稿审核</h1>
+        <p id="countInfo">加载中...</p>
+      </div>
+      <button class="btn btn-sec" id="refreshBtn">刷新</button>
+    </div>
+
+    <div id="listWrap">
+      <div class="loading">加载中...</div>
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  function escapeHtml(str) {
+    var div = document.createElement('div');
+    div.appendChild(document.createTextNode(str || ''));
+    return div.innerHTML;
+  }
+
+  function readMeta(m) {
+    if (!m) return {};
+    if (typeof m === 'object') return m;
+    try { return JSON.parse(m); } catch (e) { return {}; }
+  }
+
+  function showToast(msg, type) {
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast ' + type + ' show';
+    setTimeout(function () { t.classList.remove('show'); }, 2000);
+  }
+
+  function render(pending, publishedTotal) {
+    var wrap = document.getElementById('listWrap');
+    var count = document.getElementById('countInfo');
+
+    if (!pending.length) {
+      count.textContent = '已上墙 ' + publishedTotal + ' 句，暂无待审投稿';
+      wrap.innerHTML = '<div class="empty">投稿箱是空的。<br>有人投稿、且需要你点头时，会出现在这里。</div>';
+      return;
+    }
+
+    count.textContent = pending.length + ' 句待审 · 已上墙 ' + publishedTotal + ' 句';
+
+    var html = '<div class="tip">通过 → 立刻出现在 <b>/quotes</b> 的弹幕里；删除 → 永久丢弃。这两个动作都不会通知投稿人。</div>';
+    html += '<div class="list">';
+
+    pending.forEach(function (q) {
+      var meta = readMeta(q.metadata);
+      var source = meta.source || q.title || '';
+      var by = meta.submitter || '';
+      var at = q.created_at ? new Date(q.created_at).toLocaleString('zh-CN') : '';
+
+      html += '<div class="card" data-id="' + q.id + '">';
+      html += '<div class="card-body">' + escapeHtml(q.content) + '</div>';
+      html += '<div class="card-meta">';
+      html += '<span><b>出处</b> ' + escapeHtml(source || '未填') + '</span>';
+      html += '<span><b>署名</b> ' + escapeHtml(by || '匿名') + '</span>';
+      html += '<span><b>投于</b> ' + escapeHtml(at) + '</span>';
+      html += '</div>';
+      html += '<div class="card-actions">';
+      html += '<button class="btn btn-pri" data-act="publish" data-id="' + q.id + '">✓ 通过并上墙</button>';
+      html += '<button class="btn btn-del" data-act="delete" data-id="' + q.id + '">✕ 删除</button>';
+      html += '</div>';
+      html += '</div>';
+    });
+
+    html += '</div>';
+    wrap.innerHTML = html;
+  }
+
+  async function load() {
+    var res = await fetch('/api/admin/quotes');
+    if (res.status === 401) { window.location.href = '/admin/login'; return; }
+    if (!res.ok) { showToast('加载失败', 'err'); return; }
+    var data = await res.json();
+    render(data.pending || [], data.publishedTotal || 0);
+  }
+
+  document.getElementById('listWrap').addEventListener('click', async function (e) {
+    var btn = e.target.closest('button[data-act]');
+    if (!btn) return;
+
+    var id = btn.dataset.id;
+    var act = btn.dataset.act;
+
+    if (act === 'delete' && !confirm('确定删除这句投稿？此操作不可撤销。')) return;
+
+    var card = btn.closest('.card');
+    card.querySelectorAll('button').forEach(function (b) { b.disabled = true; });
+
+    try {
+      var res = act === 'publish'
+        ? await fetch('/api/notes/' + id, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: 'published' }),
+          })
+        : await fetch('/api/notes/' + id, { method: 'DELETE' });
+
+      if (!res.ok) throw new Error();
+      showToast(act === 'publish' ? '已上墙' : '已删除', 'ok');
+      card.remove();
+      await load();
+    } catch (err) {
+      showToast(act === 'publish' ? '上墙失败' : '删除失败', 'err');
+      card.querySelectorAll('button').forEach(function (b) { b.disabled = false; });
+    }
+  });
+
+  document.getElementById('refreshBtn').addEventListener('click', load);
+
+  document.getElementById('logoutBtn')?.addEventListener('click', async (e) => {
+    e.preventDefault();
+    if (!confirm('确定退出管理后台？')) return;
+    await fetch('/api/admin/logout', { method: 'POST' });
+    window.location.href = '/admin/login';
+  });
+
+  load();
+</script>
+<script is:inline src="/admin-pending-badge.js" defer></script>
+</body>
+</html>

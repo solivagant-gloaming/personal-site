@@ -5,15 +5,33 @@ import Base from '../../layouts/Base.astro';
 import { query } from '../../db/mysql';
 
 const quotes = await query(
-  `SELECT id, title, slug, excerpt, content, tags, created_at
+  `SELECT id, title, slug, excerpt, content, tags, metadata, created_at
    FROM notes WHERE type='quote' AND status='published'
    ORDER BY created_at DESC`
 );
 
-const items = quotes.map(q => ({
+/** metadata 是 JSON 列，mysql2 可能给对象也可能给字符串。 */
+function readMeta(m) {
+  if (!m) return {};
+  if (typeof m === 'object') return m;
+  try { return JSON.parse(m); } catch { return {}; }
+}
+
+const list = quotes.map(q => {
+  const meta = readMeta(q.metadata);
+  return {
+    slug: q.slug,
+    title: q.title || '',
+    by: meta.submitter || '',
+    text: q.excerpt || q.content || '',
+    date: q.created_at,
+  };
+});
+
+const items = list.map(q => ({
   slug: q.slug,
-  title: q.title || '',
-  text: (q.excerpt || q.content || '').replace(/\s+/g, ' ').trim().slice(0, 64),
+  title: q.by ? `${q.title} · 由 ${q.by} 拾` : q.title,
+  text: q.text.replace(/\s+/g, ' ').trim().slice(0, 64),
 }));
 const hasQuotes = items.length > 0;
 ---
@@ -26,17 +44,72 @@ const hasQuotes = items.length > 0;
       <span class="dm-sub">遇见好句，随手拾起 · 弹幕模式</span>
     </div>
 
-    {hasQuotes && (
-      <div class="dm-controls">
-        <button class="dm-btn" id="dmPause" title="暂停 / 继续">⏸ 暂停</button>
-        <button class="dm-btn" id="dmDensity" title="弹幕密度">密度: 中</button>
-      </div>
-    )}
-
     {!hasQuotes && <div class="dm-empty">还没有收藏的句子</div>}
   </div>
 
+  <!-- 悬浮控制条：独立于弹幕舞台，reduced-motion 降级时依然在 -->
+  <div class="dm-bar">
+    <button class="dm-btn dm-btn-add" id="dmAdd" title="把好句子放进来">＋ 添一句</button>
+    {hasQuotes && (
+      <>
+        <button class="dm-btn" id="dmPause" title="暂停 / 继续">⏸ 暂停</button>
+        <button class="dm-btn" id="dmDensity" title="弹幕密度">密度: 中</button>
+      </>
+    )}
+  </div>
+
   <script type="application/json" id="danmaku-data" is:inline set:html={JSON.stringify(items).replace(/</g, '\\u003c')}></script>
+
+  <!-- 投稿浮层：弹幕在背后继续飞，投完立刻成为其中一句 -->
+  <div class="qs" id="qs" hidden>
+    <div class="qs-mask" data-qs-close></div>
+    <div class="qs-panel" role="dialog" aria-modal="true" aria-labelledby="qsTitle">
+      <div id="qsFormWrap">
+        <h2 class="qs-title" id="qsTitle">添一句</h2>
+        <p class="qs-hint">你读到过的好句子，放在这里，别人也会遇见。</p>
+        <form id="qsForm" novalidate>
+          <label class="qs-label" for="qsContent">句子 <span class="qs-req">*</span></label>
+          <textarea id="qsContent" name="content" rows="5" maxlength="300"
+            placeholder="一行一句，也可以整段贴上"></textarea>
+
+          <div class="qs-row">
+            <div class="qs-col">
+              <label class="qs-label" for="qsSource">出处</label>
+              <input id="qsSource" name="source" type="text" maxlength="60"
+                placeholder="谁说的 / 哪本书，可留空">
+            </div>
+            <div class="qs-col">
+              <label class="qs-label" for="qsNick">署名</label>
+              <input id="qsNick" name="submitter" type="text" maxlength="20"
+                placeholder="你的名字，可留空">
+            </div>
+          </div>
+
+          <!-- 蜜罐：真人在界面上看不到这个字段 -->
+          <div class="qs-hp" aria-hidden="true">
+            <label for="qsWebsite">网站</label>
+            <input id="qsWebsite" name="website" type="text" tabindex="-1" autocomplete="off">
+          </div>
+
+          <input type="hidden" id="qsStartedAt" name="startedAt" value="">
+
+          <div class="qs-actions">
+            <span class="qs-counter" id="qsCounter">0 / 300</span>
+            <button type="button" class="qs-btn qs-btn-sec" data-qs-close>再看看</button>
+            <button type="submit" class="qs-btn qs-btn-pri" id="qsSend">送进去</button>
+          </div>
+          <p class="qs-msg" id="qsMsg" hidden></p>
+        </form>
+      </div>
+
+      <div class="qs-done" id="qsDone" hidden>
+        <div class="qs-done-mark">✦</div>
+        <p class="qs-done-t">收到了</p>
+        <p class="qs-done-s">审核通过后，它就会出现在弹幕里。</p>
+        <button type="button" class="qs-btn qs-btn-sec" data-qs-close>好</button>
+      </div>
+    </div>
+  </div>
 
   <!-- reduced-motion 降级：静态列表 -->
   {hasQuotes && (
@@ -46,14 +119,16 @@ const hasQuotes = items.length > 0;
         <p>遇见好句，随手拾起</p>
       </div>
       <div class="quote-list">
-        {quotes.map(q => (
+        {list.map(q => (
           <a href={`/quotes/${q.slug}`} class="quote-card">
             <div class="qc-body">
-              <div class="qc-text">{q.excerpt || q.content}</div>
+              <div class="qc-text">{q.text}</div>
             </div>
             <div class="qc-foot">
-              <span class="qc-title">{q.title}</span>
-              <span class="qc-date">{new Date(q.created_at).toLocaleDateString('zh-CN')}</span>
+              <span class="qc-title">
+                {q.title}{q.by && <span class="qc-by"> · 由 {q.by} 拾</span>}
+              </span>
+              <span class="qc-date">{new Date(q.date).toLocaleDateString('zh-CN')}</span>
             </div>
           </a>
         ))}
@@ -139,8 +214,120 @@ const hasQuotes = items.length > 0;
         start();
       }
 
-      document.addEventListener('astro:before-swap', stop);
-      document.addEventListener('astro:page-load', init);
+      // ── 投稿浮层 ──
+      // 元素级绑定 + dataset 标记防重复：View Transitions 下脚本可能重跑，
+      // 而每次导航后元素都是新的，所以「按元素」判断比全局标记更准。
+      function qsEl(id) { return document.getElementById(id); }
+
+      function closeQs() {
+        var box = qsEl('qs');
+        if (!box) return;
+        box.hidden = true;
+        var form = qsEl('qsForm');
+        if (form) form.reset();
+        var wrap = qsEl('qsFormWrap');
+        var done = qsEl('qsDone');
+        if (wrap) wrap.hidden = false;
+        if (done) done.hidden = true;
+        var msg = qsEl('qsMsg');
+        if (msg) { msg.hidden = true; msg.textContent = ''; }
+        var counter = qsEl('qsCounter');
+        if (counter) counter.textContent = '0 / 300';
+        var send = qsEl('qsSend');
+        if (send) { send.disabled = false; send.textContent = '送进去'; }
+      }
+
+      function openQs() {
+        var box = qsEl('qs');
+        if (!box) return;
+        box.hidden = false;
+        // 计时起点在这里：API 用它判断「秒填秒交」
+        var startedAt = qsEl('qsStartedAt');
+        if (startedAt) startedAt.value = String(Date.now());
+        setPaused(true);
+        var ta = qsEl('qsContent');
+        if (ta) setTimeout(function () { ta.focus(); }, 30);
+      }
+
+      function bindQs() {
+        var box = qsEl('qs');
+        if (!box || box.dataset.bound) return;
+        box.dataset.bound = '1';
+
+        // 挂到 body 下：main.page 带 `position:relative; z-index:1`，自成一个层叠上下文，
+        // 浮层的 z-index 关在里面就压不过同为 body 子节点的 header（z-index:100）。
+        if (box.parentElement !== document.body) document.body.appendChild(box);
+
+        box.addEventListener('click', function (e) {
+          if (e.target.closest && e.target.closest('[data-qs-close]')) closeQs();
+        });
+        box.addEventListener('keydown', function (e) {
+          if (e.key === 'Escape') closeQs();
+        });
+
+        var ta = qsEl('qsContent');
+        var counter = qsEl('qsCounter');
+        if (ta && counter) {
+          ta.addEventListener('input', function () {
+            counter.textContent = ta.value.length + ' / 300';
+          });
+        }
+
+        var form = qsEl('qsForm');
+        if (form) form.addEventListener('submit', sendQuote);
+
+        var addBtn = qsEl('dmAdd');
+        if (addBtn && !addBtn.dataset.bound) {
+          addBtn.dataset.bound = '1';
+          addBtn.addEventListener('click', openQs);
+        }
+      }
+
+      async function sendQuote(e) {
+        e.preventDefault();
+        var send = qsEl('qsSend');
+        var msg = qsEl('qsMsg');
+        var content = qsEl('qsContent');
+        var payload = {
+          content: content ? content.value : '',
+          source: (qsEl('qsSource') || {}).value || '',
+          submitter: (qsEl('qsNick') || {}).value || '',
+          website: (qsEl('qsWebsite') || {}).value || '',
+          startedAt: Number((qsEl('qsStartedAt') || {}).value || 0),
+        };
+
+        if (msg) { msg.hidden = true; msg.textContent = ''; }
+        if (!payload.content.trim()) {
+          if (msg) { msg.textContent = '写点什么再送吧'; msg.hidden = false; }
+          if (content) content.focus();
+          return;
+        }
+
+        if (send) { send.disabled = true; send.textContent = '送出中…'; }
+
+        try {
+          var res = await fetch('/api/quotes/submit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+          var data = {};
+          try { data = await res.json(); } catch (err) {}
+
+          if (!res.ok) throw new Error(data.error || '提交失败，稍后再试');
+
+          var wrap = qsEl('qsFormWrap');
+          var done = qsEl('qsDone');
+          if (wrap) wrap.hidden = true;
+          if (done) done.hidden = false;
+        } catch (err) {
+          if (msg) { msg.textContent = err.message || '提交失败，稍后再试'; msg.hidden = false; }
+          if (send) { send.disabled = false; send.textContent = '送进去'; }
+        }
+      }
+
+      document.addEventListener('astro:before-swap', function () { stop(); closeQs(); });
+      document.addEventListener('astro:page-load', function () { init(); bindQs(); });
       document.addEventListener('click', function (e) {
         if (e.target && e.target.id === 'dmPause') setPaused(!paused);
         if (e.target && e.target.id === 'dmDensity') {
@@ -158,6 +345,7 @@ const hasQuotes = items.length > 0;
         if (document.hidden) setPaused(true);
       });
       init();
+      bindQs();
     })();
   </script>
 </Base>
@@ -184,12 +372,13 @@ const hasQuotes = items.length > 0;
   }
   .dm-title { font-size: 1.6rem; font-weight: 700; color: var(--text); letter-spacing: 3px; }
   .dm-sub { display: block; font-size: .78rem; color: var(--text-muted); letter-spacing: 1px; margin-top: 4px; }
-  .danmaku-stage .dm-controls {
-    position: absolute;
+  /* 控制条独立于舞台：舞台在 reduced-motion 下整块 display:none，
+     控制条若跟着它走，投稿入口就会跟着消失。 */
+  .dm-bar {
+    position: fixed;
     top: 74px; right: 30px;
     display: flex; gap: 8px;
-    pointer-events: auto;
-    z-index: 2;
+    z-index: 20;
   }
   .dm-btn {
     background: rgba(13,17,23,.72);
@@ -201,8 +390,80 @@ const hasQuotes = items.length > 0;
     cursor: pointer;
     font-family: inherit;
     transition: color .15s, border-color .15s;
+     backdrop-filter: blur(6px);
   }
   .dm-btn:hover { color: var(--text); border-color: var(--c-os); }
+  /* 主入口：唯一带底色的按钮，一眼能看见 */
+  .dm-btn-add {
+    color: var(--bg);
+    background: var(--c-os);
+    border-color: var(--c-os);
+    font-weight: 600;
+  }
+  .dm-btn-add:hover {
+    color: var(--bg);
+    filter: brightness(1.1);
+    box-shadow: 0 0 14px rgba(88,166,255,.35);
+  }
+
+  /* ── 投稿浮层 ── */
+  /* z-index 要压过顶部导航（Header 是 sticky + z-index:100），否则遮罩盖不住它 */
+  .qs { position: fixed; inset: 0; z-index: 200; display: flex; align-items: center; justify-content: center; padding: 1.5rem; }
+  .qs[hidden] { display: none; }
+  .qs-mask { position: absolute; inset: 0; background: rgba(0,0,0,.62); backdrop-filter: blur(3px); }
+  .qs-panel {
+    position: relative;
+    width: 100%; max-width: 520px;
+    max-height: 90vh; overflow-y: auto;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: 0 24px 60px rgba(0,0,0,.55);
+    padding: 1.8rem;
+  }
+  .qs-title { font-size: 1.25rem; font-weight: 700; color: var(--text); margin: 0 0 .4rem; letter-spacing: 2px; }
+  .qs-hint { font-size: .82rem; color: var(--text-muted); margin: 0 0 1.4rem; line-height: 1.7; }
+  .qs-label { display: block; font-size: .78rem; color: var(--text-secondary); margin-bottom: .35rem; }
+  .qs-req { color: var(--c-os); }
+  .qs textarea, .qs input[type="text"] {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: 'Noto Serif SC', 'Source Han Serif SC', 'STSong', Georgia, serif;
+    font-size: .95rem;
+    line-height: 1.9;
+    padding: .65rem .8rem;
+    resize: vertical;
+    transition: border-color .15s;
+  }
+  .qs textarea:focus, .qs input[type="text"]:focus { outline: none; border-color: var(--c-os); }
+  .qs textarea::placeholder, .qs input::placeholder { color: var(--text-muted); opacity: .7; }
+  .qs-row { display: flex; gap: .8rem; margin-top: 1rem; }
+  .qs-col { flex: 1; min-width: 0; }
+  .qs-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  .qs-actions {
+    display: flex; align-items: center; gap: .6rem;
+    margin-top: 1.4rem;
+  }
+  .qs-counter { flex: 1; font-size: .72rem; color: var(--text-muted); font-family: var(--font-mono); }
+  .qs-btn {
+    border-radius: 6px; padding: .5rem 1.1rem;
+    font-size: .82rem; font-family: inherit; cursor: pointer;
+    border: 1px solid transparent;
+    transition: filter .15s, color .15s, border-color .15s;
+  }
+  .qs-btn-pri { background: var(--c-os); color: var(--bg); font-weight: 600; }
+  .qs-btn-pri:hover { filter: brightness(1.1); }
+  .qs-btn-pri:disabled { opacity: .6; cursor: default; filter: none; }
+  .qs-btn-sec { background: transparent; color: var(--text-secondary); border-color: var(--border); }
+  .qs-btn-sec:hover { color: var(--text); border-color: var(--c-os); }
+  .qs-msg { margin: .9rem 0 0; font-size: .8rem; color: #ff7b72; }
+  .qs-done { text-align: center; padding: 1.5rem 0 .5rem; }
+  .qs-done-mark { font-size: 1.8rem; color: var(--c-os); margin-bottom: .8rem; }
+  .qs-done-t { font-size: 1.05rem; font-weight: 600; color: var(--text); margin: 0 0 .4rem; }
+  .qs-done-s { font-size: .82rem; color: var(--text-muted); margin: 0 0 1.4rem; }
 
   /* 子弹 */
   .danmaku-item {
@@ -240,7 +501,9 @@ const hasQuotes = items.length > 0;
 
   @media (prefers-reduced-motion: reduce) {
     .danmaku-stage { display: none; }
-    .quote-static { display: block; }
+    .quote-static { display: block; padding-top: 3rem; }
+    /* 弹幕都没有了，暂停/密度点了也没反应，只留投稿入口 */
+    .dm-bar .dm-btn:not(.dm-btn-add) { display: none; }
   }
 
   .quote-list { display: flex; flex-direction: column; gap: 1.2rem; }
@@ -278,6 +541,7 @@ const hasQuotes = items.length > 0;
     padding-top: 0.6rem; border-top: 1px solid var(--border);
   }
   .qc-title { font-size: 0.85rem; font-weight: 600; color: var(--c-os); }
+  .qc-by { font-weight: 400; color: var(--text-muted); }
   .qc-date {
     font-size: 0.75rem; color: var(--text-muted);
     font-family: var(--font-mono);
@@ -285,7 +549,10 @@ const hasQuotes = items.length > 0;
 
   @media (max-width: 520px) {
     .dm-brand { top: 64px; left: 16px; }
-    .danmaku-stage .dm-controls { top: 64px; right: 16px; }
+    .dm-bar { top: 64px; right: 16px; left: 16px; flex-wrap: wrap; justify-content: flex-end; }
+    .qs { padding: .8rem; }
+    .qs-panel { padding: 1.3rem 1.1rem; }
+    .qs-row { flex-direction: column; gap: .9rem; }
     .quote-card { padding: 1.4rem 1.2rem; }
     .qc-text { font-size: 1rem; line-height: 1.9; }
   }

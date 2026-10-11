@@ -11,7 +11,9 @@ if (!username) return Astro.redirect('/admin/login');
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>编辑笔记</title>
-  <style>
+  <!-- is:global 必需：本页大量节点由 JS 动态插入，拿不到 Astro 的 data-astro-cid-* 属性，
+       scoped 选择器匹配不上，样式会整片失效。后台各页是独立文档，不存在外泄。 -->
+  <style is:global>
     * { margin:0; padding:0; box-sizing:border-box; }
     body { font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans SC", sans-serif; background:#f5f4f0; color:#1c1a18; }
     .layout { display:flex; min-height:100vh; }
@@ -50,6 +52,7 @@ if (!username) return Astro.redirect('/admin/login');
     <nav class="side-nav">
       <a href="/admin">概览</a>
       <a href="/admin/notes" class="active">笔记</a>
+      <a href="/admin/quotes">投稿审核</a>
     </nav>
     <div class="side-foot">
       <a href="/">查看网站</a>
@@ -226,5 +229,6 @@ document.getElementById('logoutBtn')?.addEventListener('click', async (e) => {
   window.location.href = '/admin/login';
 });
 </script>
+<script is:inline src="/admin-pending-badge.js" defer></script>
 </body>
 </html>

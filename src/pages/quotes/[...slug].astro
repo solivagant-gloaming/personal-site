@@ -21,6 +21,15 @@ const tagList = quote ? (() => {
   if (Array.isArray(quote.tags)) return quote.tags;
   try { return JSON.parse(quote.tags || '[]'); } catch { return []; }
 })() : [];
+
+/** 投稿人署名：公开投稿时写进 metadata，管理后台自己写的句子没有这个字段。 */
+const submitter = quote ? (() => {
+  const m = quote.metadata;
+  const meta = m && typeof m === 'object' ? m : (() => {
+    try { return JSON.parse(m || '{}'); } catch { return {}; }
+  })();
+  return meta.submitter || '';
+})() : '';
 ---
 
 {error ? (
@@ -44,6 +53,7 @@ const tagList = quote ? (() => {
       <div class="qd-meta">
         <h1 class="qd-title">{quote.title}</h1>
         <time class="qd-date">{new Date(quote.created_at).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })}</time>
+        {submitter && <p class="qd-by">由 {submitter} 拾</p>}
       </div>
 
       {tagList.length > 0 && (
@@ -114,6 +124,13 @@ const tagList = quote ? (() => {
     font-size: 0.78rem;
     color: var(--text-muted);
     font-family: var(--font-mono);
+  }
+
+  .qd-by {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    margin: 0.2rem 0 0;
+    letter-spacing: 0.05em;
   }
 
   .qd-tags {
