@@ -44,7 +44,18 @@ Astro.response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
 Astro.response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), interest-cohort=()');
 
 // Moderate CDN caching for public pages (data changes infrequently)
-Astro.response.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=60');
+//
+// 例外：拾句页是公开投稿喂出来的，审核一通过就该让读者看到，不该等 5 分钟。
+// 单独给它 30s（原先 300s 的实测后果：后台点完「通过」，刷新页面看不到，
+// 很容易误判成没生效）。这条 SQL 只是一次带索引的查询，多回源几次没有压力。
+const path = Astro.url.pathname.replace(/\/+$/, '') || '/';
+const isQuoteFeed = path === '/quotes';
+Astro.response.headers.set(
+  'Cache-Control',
+  isQuoteFeed
+    ? 'public, s-maxage=30, stale-while-revalidate=20'
+    : 'public, s-maxage=300, stale-while-revalidate=60'
+);
 ---
 
 <!doctype html>
