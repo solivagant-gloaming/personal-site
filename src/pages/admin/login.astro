@@ -1,8 +1,10 @@
 ---
 import { verifyToken, COOKIE_NAME } from '../../lib/auth.js';
+import '../../styles/admin.css';
+
 const token = Astro.cookies.get(COOKIE_NAME)?.value;
 if (token && verifyToken(token)) {
-    return Astro.redirect('/admin');
+  return Astro.redirect('/admin');
 }
 ---
 
@@ -11,69 +13,94 @@ if (token && verifyToken(token)) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
   <title>登录 — 管理后台</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans SC", sans-serif;
-      background: #f5f4f0; display: flex; align-items: center; justify-content: center;
-      min-height: 100vh; color: #1c1a18;
-    }
-    .login-card {
-      background: #fff; padding: 2.5rem; border-radius: 12px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.04); width: 340px;
-    }
-    .login-card h1 { font-size: 1.3rem; font-weight: 600; margin-bottom: 0.3rem; text-align: center; }
-    .login-card .sub { font-size: 0.85rem; color: #8a8a9a; margin-bottom: 1.5rem; text-align: center; }
-    .form-group { margin-bottom: 1rem; }
-    .form-group label { display: block; font-size: 0.8rem; color: #8a8a9a; margin-bottom: 0.3rem; }
-    .form-group input {
-      width: 100%; padding: 0.6rem 0.8rem; border: 1px solid rgba(0,0,0,0.08);
-      border-radius: 6px; font-size: 0.9rem; transition: border-color 0.15s;
-    }
-    .form-group input:focus { outline: none; border-color: #c17f59; }
-    .btn {
-      width: 100%; padding: 0.6rem; background: #c17f59; color: #fff;
-      border: none; border-radius: 6px; font-size: 0.9rem; cursor: pointer;
-      transition: opacity 0.15s; font-family: inherit;
-    }
-    .btn:hover { opacity: 0.9; }
-    .error { color: #ff6b6b; font-size: 0.82rem; margin-top: 0.5rem; display: none; }
-  </style>
 </head>
 <body>
-  <div class="login-card">
-    <h1>📝 管理后台</h1>
-    <p class="sub">登录以管理内容</p>
-    <form id="loginForm">
-      <div class="form-group">
-        <label>用户名</label>
-        <input type="text" name="username" required autocomplete="username">
-      </div>
-      <div class="form-group">
-        <label>密码</label>
-        <input type="password" name="password" required autocomplete="current-password">
-      </div>
-      <button type="submit" class="btn">登录</button>
-      <div class="error" id="errorMsg">用户名或密码错误</div>
-    </form>
+  <div class="login-shell">
+    <div class="login-card">
+      <div class="side-mark" style="margin:0 auto 16px">S</div>
+      <h1>管理后台</h1>
+      <p class="sub">登录以管理内容</p>
+
+      <form id="loginForm">
+        <div class="fg">
+          <label for="username">用户名</label>
+          <input type="text" id="username" name="username" required autocomplete="username">
+        </div>
+        <div class="fg">
+          <label for="password">密码</label>
+          <input type="password" id="password" name="password" required autocomplete="current-password">
+        </div>
+        <button type="submit" class="btn btn-pri login-btn" id="loginBtn">登录</button>
+        <p class="login-err" id="errorMsg" hidden>用户名或密码错误</p>
+      </form>
+
+      <a class="login-back" href="/">← 返回网站</a>
+    </div>
   </div>
 
   <script>
-    document.getElementById('loginForm').onsubmit = async (e) => {
+    const form = document.getElementById('loginForm');
+    const err = document.getElementById('errorMsg');
+    const btn = document.getElementById('loginBtn');
+
+    form.onsubmit = async (e) => {
       e.preventDefault();
-      const form = e.target;
-      const res = await fetch('/api/admin/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: form.username.value, password: form.password.value }),
-      });
-      if (res.ok) {
-        window.location.href = '/admin';
-      } else {
-        document.getElementById('errorMsg').style.display = 'block';
+      err.hidden = true;
+      btn.disabled = true;
+      btn.textContent = '登录中…';
+      try {
+        const res = await fetch('/api/admin/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          body: JSON.stringify({ username: form.username.value, password: form.password.value }),
+        });
+        if (res.ok) {
+          window.location.href = '/admin';
+          return;
+        }
+        const data = await res.json().catch(() => ({}));
+        err.textContent = data.error || '用户名或密码错误';
+        err.hidden = false;
+      } catch (e2) {
+        err.textContent = '网络异常，请重试';
+        err.hidden = false;
       }
+      btn.disabled = false;
+      btn.textContent = '登录';
     };
   </script>
 </body>
 </html>
+
+<style>
+  .login-shell {
+    min-height: 100vh; display: grid; place-items: center; padding: 24px;
+    background:
+      radial-gradient(ellipse 70% 55% at 50% 0%, rgba(88,166,255,.09), transparent 70%),
+      var(--a-plane);
+  }
+  .login-card {
+    width: 100%; max-width: 360px;
+    background: var(--a-card); border: 1px solid var(--a-line);
+    border-radius: var(--a-r); padding: 32px 28px 24px;
+    box-shadow: 0 20px 50px rgba(0,0,0,.5);
+    text-align: center;
+  }
+  .login-card h1 { font-size: 17px; font-weight: 600; }
+  .login-card .sub { font-size: 12.5px; color: var(--a-ink-3); margin: 4px 0 24px; }
+  .login-card .fg { text-align: left; margin-bottom: 16px; }
+  .login-btn { width: 100%; justify-content: center; padding: 9px; margin-top: 4px; }
+  .login-err {
+    margin-top: 14px; font-size: 12.5px; color: var(--a-danger);
+    background: rgba(248,81,73,.1); border: 1px solid rgba(248,81,73,.28);
+    border-radius: var(--a-r-sm); padding: 8px 10px;
+  }
+  .login-back {
+    display: inline-block; margin-top: 22px; font-size: 12.5px;
+    color: var(--a-ink-3); text-decoration: none; transition: color .15s;
+  }
+  .login-back:hover { color: var(--a-ink-2); }
+</style>

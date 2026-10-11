@@ -1,9 +1,33 @@
 ---
-import { verifyToken, COOKIE_NAME } from '../lib/auth.js';
+/**
+ * 后台共享外壳。
+ *
+ * 五个后台页面此前各自复制了一份 HTML 骨架 + 一份内联样式，既容易走样又要改五处，
+ * 还因为 Astro 的 scoped 样式匹配不到 JS 动态插入的节点而整片失效。
+ * 这里收成唯一一份：侧栏、导航、待审徽标、退出登录都在这一处。
+ *
+ * 登录门禁在 src/middleware.ts —— 布局是渲染期组件，那时响应流已经开了，
+ * 在这里重定向会抛 ResponseSentError。
+ */
+import '../styles/admin.css';
 
-const adminToken = Astro.cookies.get(COOKIE_NAME)?.value;
-const username = adminToken ? verifyToken(adminToken) : null;
-const authenticated = !!username;
+export interface Props {
+  /** 页面标题，同时用于 <title> */
+  title: string;
+  /** 主区宽度：wide 给内容管理这种分栏页 */
+  width?: 'narrow' | 'wide';
+}
+
+const { title, width = 'narrow' } = Astro.props;
+
+const path = Astro.url.pathname;
+const NAV = [
+  { href: '/admin', label: '概览', icon: '◈' },
+  { href: '/admin/notes', label: '内容', icon: '▤' },
+  { href: '/admin/quotes', label: '投稿审核', icon: '✦', badge: true },
+];
+const isActive = (href: string) =>
+  href === '/admin' ? path === '/admin' : path.startsWith(href);
 ---
 
 <!doctype html>
@@ -11,89 +35,65 @@ const authenticated = !!username;
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{title ? `${title} — 管理后台` : '管理后台'}</title>
-  <link rel="stylesheet" href="/admin/admin.css">
+  <meta name="robots" content="noindex, nofollow">
+  <title>{title} — 管理后台</title>
 </head>
 <body>
-  <div class="admin-wrap">
-    {authenticated && (
-      <aside class="admin-sidebar">
-        <div class="admin-logo">📝 管理后台</div>
-        <nav class="admin-nav">
-          <a href="/admin" class={Astro.url.pathname === '/admin' ? 'active' : ''}>📊 概览</a>
-          <a href="/admin/notes" class={Astro.url.pathname.startsWith('/admin/notes') ? 'active' : ''}>📄 笔记</a>
-          <a href="/admin/hobbies" class={Astro.url.pathname.startsWith('/admin/hobbies') ? 'active' : ''}>✏️ 爱好</a>
-        </nav>
-        <div class="admin-sidebar-footer">
-          <a href="/" target="_blank">← 查看网站</a>
-          <button onclick="logout()" class="btn-logout">退出</button>
+  <div class="layout">
+    <aside class="side">
+      <div class="side-logo">
+        <div class="side-mark">S</div>
+        <div>
+          <b>Solivagant</b>
+          <span>内容管理后台</span>
         </div>
-      </aside>
-    )}
-    <main class="admin-main">
+      </div>
+
+      <nav class="side-nav">
+        <div class="nav-label">工作台</div>
+        {NAV.map((item) => (
+          <a href={item.href} class={isActive(item.href) ? 'active' : ''}>
+            <span class="ic">{item.icon}</span>
+            <span>{item.label}</span>
+            {item.badge && <span class="badge" id="pendingBadge" hidden></span>}
+          </a>
+        ))}
+      </nav>
+
+      <div class="side-foot">
+        <a href="/" target="_blank" rel="noopener">↗ 查看网站</a>
+        <button type="button" id="logoutBtn">⏻ 退出登录</button>
+      </div>
+    </aside>
+
+    <main class={`main ${width === 'wide' ? 'main-wide' : 'main-narrow'}`}>
       <slot />
     </main>
   </div>
 
-  {authenticated && (
-    <script>
-      async function logout() {
-        await fetch('/api/admin/logout', { method: 'POST' });
-        window.location.href = '/admin/login';
-      }
-    </script>
-  )}
+  <script>
+    // ── 待审徽标：0 条时不显示，免得没投稿也占视线 ──
+    (function () {
+      const badge = document.getElementById('pendingBadge');
+      if (!badge) return;
+      fetch('/api/admin/pending-count', { credentials: 'same-origin' })
+        .then((r) => (r.ok ? r.json() : null))
+        .then((d) => {
+          const n = d && d.pending;
+          if (!n) return;
+          badge.textContent = n > 99 ? '99+' : String(n);
+          badge.title = n + ' 句待审';
+          badge.hidden = false;
+        })
+        .catch(() => { /* 徽标拿不到就算了，不能拖累页面本身 */ });
+    })();
+
+    // ── 退出登录 ──
+    document.getElementById('logoutBtn')?.addEventListener('click', async () => {
+      if (!confirm('确定退出管理后台？')) return;
+      await fetch('/api/admin/logout', { method: 'POST' });
+      window.location.href = '/admin/login';
+    });
+  </script>
 </body>
 </html>
-
-<style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  :root {
-    --bg: #f5f4f0;
-    --bg-card: #fff;
-    --sidebar: #1a1a24;
-    --text: #1c1a18;
-    --text-muted: #8a8a9a;
-    --accent: #c17f59;
-    --border: rgba(0,0,0,0.06);
-    --radius: 8px;
-  }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans SC", sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    line-height: 1.5;
-  }
-  .admin-wrap { display: flex; min-height: 100vh; }
-  .admin-sidebar {
-    width: 200px; background: var(--sidebar); color: #c8c8d0;
-    display: flex; flex-direction: column; padding: 1.5rem 0;
-    flex-shrink: 0; position: sticky; top: 0; height: 100vh;
-  }
-  .admin-logo {
-    padding: 0 1.2rem 1rem; font-size: 0.85rem; font-weight: 600;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
-    margin-bottom: 1rem;
-  }
-  .admin-nav { flex: 1; display: flex; flex-direction: column; gap: 0; }
-  .admin-nav a {
-    padding: 0.6rem 1.2rem; font-size: 0.85rem;
-    color: #9a9aa8; text-decoration: none;
-    transition: all 0.15s; border-left: 2px solid transparent;
-  }
-  .admin-nav a:hover { background: rgba(255,255,255,0.04); color: #e8e8f0; }
-  .admin-nav a.active { background: rgba(255,255,255,0.06); color: #fff; border-left-color: var(--accent); }
-  .admin-sidebar-footer {
-    padding: 1rem 1.2rem; border-top: 1px solid rgba(255,255,255,0.08);
-    display: flex; flex-direction: column; gap: 0.5rem;
-  }
-  .admin-sidebar-footer a { font-size: 0.78rem; color: #7a7a8a; text-decoration: none; }
-  .admin-sidebar-footer a:hover { color: var(--accent); }
-  .btn-logout {
-    background: none; border: 1px solid rgba(255,255,255,0.1);
-    color: #7a7a8a; padding: 0.3rem 0.6rem; border-radius: 4px;
-    font-size: 0.75rem; cursor: pointer;
-  }
-  .btn-logout:hover { border-color: #ff6b6b; color: #ff6b6b; }
-  .admin-main { flex: 1; padding: 2rem; max-width: 900px; }
-</style>

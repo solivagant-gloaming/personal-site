@@ -1,159 +1,400 @@
 ---
-import { verifyToken, COOKIE_NAME } from '../../lib/auth.js';
-const token = Astro.cookies.get(COOKIE_NAME)?.value;
-const username = token ? verifyToken(token) : null;
-if (!username) return Astro.redirect('/admin/login');
+import Admin from '../../layouts/Admin.astro';
 ---
 
-<!doctype html>
-<html lang="zh-CN">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>管理概览</title>
-  <!-- is:global 必需：本页大量节点由 JS 动态插入，拿不到 Astro 的 data-astro-cid-* 属性，
-       scoped 选择器匹配不上，样式会整片失效。后台各页是独立文档，不存在外泄。 -->
-  <style is:global>
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body { font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans SC", sans-serif; background:#f5f4f0; color:#1c1a18; }
-    .layout { display:flex; min-height:100vh; }
-    .side { width:200px; background:#1a1a24; color:#c8c8d0; display:flex; flex-direction:column; flex-shrink:0; position:sticky; top:0; height:100vh; }
-    .side-logo { padding:1.2rem; font-size:0.85rem; font-weight:600; border-bottom:1px solid rgba(255,255,255,0.08); }
-    .side-nav { flex:1; padding:0.5rem 0; }
-    .side-nav a { display:block; padding:0.6rem 1.2rem; font-size:0.85rem; color:#9a9aa8; text-decoration:none; border-left:2px solid transparent; }
-    .side-nav a:hover { background:rgba(255,255,255,0.04); color:#e8e8f0; }
-    .side-nav a.active { background:rgba(255,255,255,0.06); color:#fff; border-left-color:#c17f59; }
-    .side-foot { padding:1rem 1.2rem; border-top:1px solid rgba(255,255,255,0.08); font-size:0.78rem; }
-    .side-foot a { color:#7a7a8a; text-decoration:none; }
-    .side-foot a:hover { color:#c17f59; }
-    .main { flex:1; padding:2rem; max-width:900px; }
-    .hd { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; }
-    .hd h1 { font-size:1.4rem; font-weight:600; margin:0; }
-    .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:2rem; }
-    .stat { background:#fff; border:1px solid rgba(0,0,0,0.06); border-radius:8px; padding:1.5rem; text-align:center; }
-    .stat-num { font-size:2rem; font-weight:700; }
-    .stat-label { font-size:0.8rem; color:#8a8a9a; margin-top:0.2rem; }
-    .stat.s-note .stat-num { color:#c17f59; }
-    .stat.s-project .stat-num { color:#f0883e; }
-    .stat.s-hobby .stat-num { color:#3fb950; }
-    .stat.s-total .stat-num { color:#1a1a24; }
-    .card { background:#fff; border:1px solid rgba(0,0,0,0.06); border-radius:8px; padding:1.5rem; }
-    .card h2 { font-size:1rem; font-weight:600; margin-bottom:0.8rem; }
-    .item { display:flex; justify-content:space-between; padding:0.5rem 0; border-bottom:1px solid rgba(0,0,0,0.04); }
-    .item:last-child { border:none; }
-    .item a { color:#1c1a18; text-decoration:none; font-size:0.9rem; }
-    .item a:hover { color:#c17f59; }
-    .item .date { font-size:0.78rem; color:#8a8a9a; }
-    .item .type { font-size:0.7rem; padding:0.1em 0.4em; border-radius:3px; }
-    .t-note { background:#ede3d8; color:#c17f59; }
-    .t-project { background:#fef3e2; color:#f0883e; }
-    .t-hobby { background:#e6f4ea; color:#3fb950; }
-    .t-quote { background:#f0e6f6; color:#bc8cff; }
-    .btn { padding:0.5rem 1.2rem; border-radius:4px; font-size:0.85rem; cursor:pointer; border:none; text-decoration:none; display:inline-block; }
-    .btn-pri { background:#c17f59; color:#fff; }
-    .btn-pri:hover { opacity:0.9; }
-    .loading { color:#8a8a9a; font-size:0.85rem; padding:1rem 0; }
-  </style>
-</head>
-<body>
-<div class="layout">
-  <aside class="side">
-    <div class="side-logo">管理后台</div>
-    <nav class="side-nav">
-      <a href="/admin" class="active">概览</a>
-      <a href="/admin/notes">内容</a>
-      <a href="/admin/quotes">投稿审核</a>
-    </nav>
-    <div class="side-foot">
-      <a href="/">查看网站</a>
-      <a href="#" id="logoutBtn" style="display:block;margin-top:0.3rem;">退出登录</a>
-    </div>
-  </aside>
-  <main class="main">
-    <div class="hd">
+<Admin title="概览" width="wide">
+  <div class="hd">
+    <div>
       <h1>概览</h1>
-      <a href="/admin/notes/new" class="btn btn-pri">写笔记</a>
+      <p id="subline">正在读取…</p>
     </div>
-
-    <div class="stats">
-      <div class="stat s-note"><div class="stat-num" id="noteCount">-</div><div class="stat-label">笔记</div></div>
-      <div class="stat s-project"><div class="stat-num" id="projectCount">-</div><div class="stat-label">项目</div></div>
-      <div class="stat s-hobby"><div class="stat-num" id="hobbyCount">-</div><div class="stat-label">爱好</div></div>
-      <div class="stat" style="--sc:#bc8cff"><div class="stat-num" id="quoteCount">-</div><div class="stat-label">拾句</div></div>
-      <div class="stat s-total"><div class="stat-num" id="totalCount">-</div><div class="stat-label">总计</div></div>
+    <div class="hd-actions">
+      <a href="/admin/notes/new" class="btn btn-pri">＋ 写笔记</a>
     </div>
+  </div>
 
-    <div class="card">
+  <div id="pendingAlert"></div>
+
+  <section class="card card-pad" style="margin-bottom:16px">
+    <div id="hud"><div class="loading">正在读取…</div></div>
+  </section>
+
+  <div class="grid-2">
+    <section class="card card-pad">
+      <div class="viz-hd">
+        <h3>月度新增</h3>
+        <p id="monthSub">每月新增的内容条数</p>
+      </div>
+      <div id="monthChart" class="viz"></div>
+    </section>
+
+    <section class="card card-pad">
+      <div class="viz-hd">
+        <h3>各科笔记分布</h3>
+        <p id="courseSub">笔记按课程分类的条数</p>
+      </div>
+      <div id="courseChart" class="viz"></div>
+    </section>
+  </div>
+
+  <section class="card" style="margin-top:16px">
+    <div class="card-hd">
       <h2>最近更新</h2>
-      <div id="recentItems"><div class="loading">加载中...</div></div>
+      <a href="/admin/notes">全部 →</a>
     </div>
-  </main>
-</div>
+    <div id="recent"></div>
+  </section>
+
+  <div class="viz-tip" id="vizTip"></div>
+</Admin>
+
+<style>
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+  @media (max-width: 1000px) { .grid-2 { grid-template-columns: 1fr; } }
+</style>
 
 <script>
-async function loadDashboard() {
-  // 分别获取各类别总数
-  const [notesRes, projectsRes, hobbiesRes, quotesRes, allRes] = await Promise.all([
-    fetch('/api/contents?type=note&limit=1'),
-    fetch('/api/contents?type=project&limit=1'),
-    fetch('/api/contents?type=hobby&limit=1'),
-    fetch('/api/contents?type=quote&limit=1'),
-    fetch('/api/contents?limit=10'),
-  ]);
-  const notesData = await notesRes.json();
-  const projectsData = await projectsRes.json();
-  const hobbiesData = await hobbiesRes.json();
-  const quotesData = await quotesRes.json();
-  const allData = await allRes.json();
+  // ══════════════════════════════════════════════════════════════════
+  //  仪表盘
+  //
+  //  形状跟着数据的职责走（照 dataviz 规范）：
+  //   · 占比 → 圆盘仪表。圆盘擅长「单一比值」（占了多少），
+  //     四个盘各读「这一类占全部的百分之几」，是仪表而非甜甜圈。
+  //   · 趋势 → 柱状。圆盘表达不了「哪个月多」。
+  //   · 排名 → 横条。一眼比长短，圆盘做不到。
+  //
+  //  配色分工：
+  //   · 四类占比编码的是「身份」→ 分类色，四档都过了验证器
+  //     （站点品牌绿 #3fb950 与橙 #f0883e 在红绿色盲下 ΔE 仅 5.7，低于 6 的下限，没用）
+  //   · 月度与课程编码的是「量」→ 单一色相。按值深浅上色是反模式：
+  //     长度已经表达了量，再用颜色编码一遍是浪费通道。
+  // ══════════════════════════════════════════════════════════════════
 
-  var noteTotal = notesData.total || 0;
-  var projectTotal = projectsData.total || 0;
-  var hobbyTotal = hobbiesData.total || 0;
-  var quoteTotal = quotesData.total || 0;
+  const TYPES = [
+    { key: 'note',    label: '笔记', color: '#3987e5' },
+    { key: 'project', label: '项目', color: '#d95926' },
+    { key: 'hobby',   label: '爱好', color: '#199e70' },
+    { key: 'quote',   label: '拾句', color: '#9085e9' },
+  ];
+  const SEQ = '#3987e5';
+  const AXIS = '#6e7681';
 
-  document.getElementById('noteCount').textContent = noteTotal;
-  document.getElementById('projectCount').textContent = projectTotal;
-  document.getElementById('hobbyCount').textContent = hobbyTotal;
-  document.getElementById('quoteCount').textContent = quoteTotal;
-  document.getElementById('totalCount').textContent = noteTotal + projectTotal + hobbyTotal + quoteTotal;
+  const tip = document.getElementById('vizTip');
 
-  var items = allData.contents || [];
-  var container = document.getElementById('recentItems');
-  if (items.length === 0) {
-    container.innerHTML = '<div style="color:#8a8a9a;font-size:0.85rem;">还没有内容</div>';
-    return;
+  function showTip(e, key, value) {
+    tip.innerHTML = '<span class="k"></span><span class="n"></span>';
+    tip.querySelector('.k').textContent = key;
+    tip.querySelector('.n').textContent = value;
+    tip.classList.add('on');
+    moveTip(e);
   }
-  var html = '';
-  items.forEach(function(n) {
-    var dateStr = n.created_at ? new Date(n.created_at).toLocaleDateString() : '';
-    var typeLabel = { note: '笔记', project: '项目', hobby: '爱好', quote: '拾句' }[n.type] || n.type;
-    var typeClass = { note: 't-note', project: 't-project', hobby: 't-hobby', quote: 't-quote' }[n.type] || '';
-    var link = n.type === 'note' ? '/notes/' + n.id : (n.type === 'project' ? '/projects/' + (n.slug || n.id) : n.type === 'hobby' ? '/hobbies/' + (n.slug || n.id) : '/quotes/' + (n.slug || n.id));
-    html += '<div class="item">'
-      + '<span class="type ' + typeClass + '">' + typeLabel + '</span> '
-      + '<a href="' + link + '" target="_blank">' + escapeHtml(n.title) + '</a>'
-      + '<span class="date">' + dateStr + '</span>'
-      + '</div>';
+  function moveTip(e) {
+    let x = e.clientX + 14;
+    let y = e.clientY - 12;
+    const r = tip.getBoundingClientRect();
+    if (x + r.width + 12 > innerWidth) x = e.clientX - r.width - 14;
+    if (y < 12) y = 12;
+    tip.style.left = x + 'px';
+    tip.style.top = y + 'px';
+  }
+  function hideTip() { tip.classList.remove('on'); }
+
+  function esc(s) {
+    const d = document.createElement('div');
+    d.appendChild(document.createTextNode(s == null ? '' : s));
+    return d.innerHTML;
+  }
+
+  // ── 几何helper ──
+  function arcSeg(cx, cy, r, a0, a1) {
+    const p0 = (a0 * Math.PI) / 180;
+    const p1 = (a1 * Math.PI) / 180;
+    const x0 = cx + r * Math.cos(p0), y0 = cy + r * Math.sin(p0);
+    const x1 = cx + r * Math.cos(p1), y1 = cy + r * Math.sin(p1);
+    const large = Math.abs(a1 - a0) > 180 ? 1 : 0;
+    return `M${x0.toFixed(2)},${y0.toFixed(2)} A${r},${r} 0 ${large} 1 ${x1.toFixed(2)},${y1.toFixed(2)}`;
+  }
+  // 数据端 4px 圆角、基线端方角
+  function topRounded(x, y, w, h, r) {
+    r = Math.min(r, w / 2, Math.max(h, 0));
+    if (h <= 0) return '';
+    return `M${x},${y + h} L${x},${y + r} Q${x},${y} ${x + r},${y} L${x + w - r},${y} Q${x + w},${y} ${x + w},${y + r} L${x + w},${y + h} Z`;
+  }
+  function rightRounded(x, y, w, h, r) {
+    r = Math.min(r, h / 2, Math.max(w, 0));
+    if (w <= 0) return '';
+    return `M${x},${y} L${x + w - r},${y} Q${x + w},${y} ${x + w},${y + r} L${x + w},${y + h - r} Q${x + w},${y + h} ${x + w - r},${y + h} L${x},${y + h} Z`;
+  }
+
+  // ── 圆盘仪表：分段弧 + 刻度环 + 发光端点 ──
+  function meterSVG(value, total, color, size = 98) {
+    const START = 135, SWEEP = 270, N = 22;
+    const cx = size / 2, cy = size / 2;
+    const r = size / 2 - 13;
+    const frac = total > 0 ? Math.min(value / total, 1) : 0;
+    const lit = Math.round(frac * N);
+    const span = SWEEP / N;
+    const gap = 2.6;
+
+    let out = '';
+    // 刻度环：HUD 质感主要来自这里
+    for (let i = 0; i <= 30; i += 1) {
+      const a = ((START + (SWEEP / 30) * i) * Math.PI) / 180;
+      const r1 = size / 2 - 5;
+      const r2 = size / 2 - (i % 5 === 0 ? 1 : 3.5);
+      out += `<line x1="${(cx + r1 * Math.cos(a)).toFixed(2)}" y1="${(cy + r1 * Math.sin(a)).toFixed(2)}" `
+        + `x2="${(cx + r2 * Math.cos(a)).toFixed(2)}" y2="${(cy + r2 * Math.sin(a)).toFixed(2)}" `
+        + `stroke="rgba(255,255,255,.15)" stroke-width="1" stroke-linecap="round"/>`;
+    }
+    // 分段弧：亮的段 = 占比，暗的段 = 余量（同色系的暗档，量程看得见）
+    for (let i = 0; i < N; i += 1) {
+      const a0 = START + i * span + gap / 2;
+      const a1 = START + (i + 1) * span - gap / 2;
+      const on = i < lit;
+      out += `<path d="${arcSeg(cx, cy, r, a0, a1)}" fill="none" `
+        + `stroke="${on ? color : 'rgba(255,255,255,.07)'}" stroke-width="7" stroke-linecap="butt"/>`;
+    }
+    if (lit > 0) {
+      const ae = ((START + lit * span - gap / 2) * Math.PI) / 180;
+      out += `<circle cx="${(cx + r * Math.cos(ae)).toFixed(2)}" cy="${(cy + r * Math.sin(ae)).toFixed(2)}" `
+        + `r="3" style="fill:${color};filter:drop-shadow(0 0 5px ${color})"/>`;
+    }
+    // 中心数值：大号独立数字用比例数字，tabular 会显得松散
+    out += `<text x="${cx}" y="${cy + 8}" text-anchor="middle" `
+      + `style="font-size:23px;font-weight:650;letter-spacing:-.5px;fill:#e6edf3">${value}</text>`;
+    return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" role="img" `
+      + `aria-label="${value} 条，占全部的 ${Math.round(frac * 100)}%">${out}</svg>`;
+  }
+
+  let DATA = null;
+
+  function compute() {
+    const items = (DATA && DATA.contents) || [];
+    const byType = {}, byCourse = {}, byMonth = {}, recent30 = {};
+    TYPES.forEach((t) => { byType[t.key] = 0; recent30[t.key] = 0; });
+    const now = Date.now();
+
+    items.forEach((it) => {
+      if (byType[it.type] !== undefined) {
+        byType[it.type] += 1;
+        if (now - new Date(it.created_at).getTime() < 30 * 864e5) recent30[it.type] += 1;
+      }
+      if (it.type === 'note' && it.course) byCourse[it.course] = (byCourse[it.course] || 0) + 1;
+      if (it.created_at) {
+        const d = new Date(it.created_at);
+        const k = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+        byMonth[k] = (byMonth[k] || 0) + 1;
+      }
+    });
+
+    return { items, byType, byCourse, byMonth, recent30, total: items.length };
+  }
+
+  // ── 总览：中心大数 + 四个圆盘 ──
+  function renderHud(a) {
+    const meters = TYPES.map((t) => {
+      const n = a.byType[t.key];
+      const pc = a.total ? Math.round((n / a.total) * 100) : 0;
+      const d = a.recent30[t.key];
+      return `<div class="meter">
+        ${meterSVG(n, a.total, t.color)}
+        <div class="meter-name">${t.label}</div>
+        <div class="meter-pct">占 <b>${pc}%</b>${d > 0 ? ` · 近 30 天 +${d}` : ''}</div>
+      </div>`;
+    }).join('');
+
+    document.getElementById('hud').innerHTML = `<div class="hud">
+      <div class="hud-hero">
+        <div class="hero-num">${a.total}</div>
+        <div class="hero-cap">条内容</div>
+      </div>
+      <div class="hud-meters">${meters}</div>
+    </div>`;
+    document.getElementById('subline').textContent = `${a.total} 条内容 · 四类占比见下`;
+  }
+
+  // ── 月度新增：柱状，单一色相 ──
+  /** 把刻度凑成整齐数字（0/20/40/60/80），而不是 80÷3 得来的 27/53 */
+  function niceScale(max) {
+    if (max <= 4) return { top: 4, step: 1 };
+    const raw = max / 4;
+    const mag = Math.pow(10, Math.floor(Math.log10(raw)));
+    const norm = raw / mag;
+    const step = (norm <= 1 ? 1 : norm <= 2 ? 2 : norm <= 5 ? 5 : 10) * mag;
+    return { top: Math.ceil(max / step) * step, step };
+  }
+
+  function renderMonths(a) {
+    const el = document.getElementById('monthChart');
+    const keys = Object.keys(a.byMonth).sort();
+    if (keys.length < 2) {
+      el.innerHTML = '<div class="viz-empty">内容还不够分散到多个月份</div>';
+      document.getElementById('monthSub').textContent = keys.length === 1
+        ? `目前内容都集中在 ${keys[0].replace('-', ' 年 ')} 月`
+        : '每月新增的内容条数';
+      return;
+    }
+
+    // 从最早到最晚按月连续铺开，缺的月份补 0。
+    // 跳过空月会让相邻柱子不等距，横轴就不再是时间轴了。
+    const seq = [];
+    const start = new Date(keys[0] + '-01T00:00:00');
+    const end = new Date(keys[keys.length - 1] + '-01T00:00:00');
+    for (let d = start; d <= end; d = new Date(d.getFullYear(), d.getMonth() + 1, 1)) {
+      seq.push(d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'));
+    }
+    const months = seq.slice(-12);
+    const vals = months.map((k) => a.byMonth[k] || 0);
+    const multiYear = new Set(months.map((k) => k.slice(0, 4))).size > 1;
+    const { top, step } = niceScale(Math.max(...vals, 1));
+
+    const W = el.clientWidth || 520;
+    const H = 200;
+    const padL = 34, padR = 8, padT = 18, padB = 26;
+    const iw = W - padL - padR;
+    const ih = H - padT - padB;
+    const band = iw / months.length;
+    const bw = Math.min(band * 0.52, 24);   // 条不填满槽位，留白
+
+    let g = '';
+    for (let v = 0; v <= top; v += step) {
+      const y = padT + ih - (v / top) * ih;
+      g += `<line class="grid" x1="${padL}" y1="${y.toFixed(1)}" x2="${W - padR}" y2="${y.toFixed(1)}"/>`;
+      g += `<text class="axis-label" x="${padL - 8}" y="${(y + 4).toFixed(1)}" text-anchor="end">${v}</text>`;
+    }
+
+    const maxIdx = vals.indexOf(Math.max(...vals));
+    let bars = '';
+    months.forEach((k, i) => {
+      const v = vals[i];
+      const h = (v / top) * ih;
+      const x = padL + band * i + (band - bw) / 2;
+      const y = padT + ih - h;
+      const label = multiYear
+        ? `${k.slice(2, 4)}/${Number(k.slice(5, 7))}`
+        : `${Number(k.slice(5, 7))}月`;
+      if (v > 0) {
+        bars += `<path class="bar" d="${topRounded(x, y, bw, h, 4)}" fill="${SEQ}" data-k="${k.replace('-', '/')}" data-v="${v}"/>`;
+      }
+      // 只给最高的一根直接标值——每根都标就成了噪音
+      if (i === maxIdx && v > 0) {
+        bars += `<text class="axis-label" x="${(x + bw / 2).toFixed(1)}" y="${(y - 7).toFixed(1)}" text-anchor="middle" fill="${AXIS}">${v}</text>`;
+      }
+      if (months.length <= 8 || i % 2 === months.length % 2) {
+        bars += `<text class="axis-label" x="${(padL + band * i + band / 2).toFixed(1)}" y="${H - 8}" text-anchor="middle">${label}</text>`;
+      }
+    });
+
+    el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="最近 ${months.length} 个月的月度新增内容条数">${g}${bars}</svg>`;
+    el.querySelectorAll('.bar').forEach((p) => {
+      p.addEventListener('mousemove', (e) => showTip(e, p.dataset.k, p.dataset.v + ' 条'));
+      p.addEventListener('mouseleave', hideTip);
+    });
+    document.getElementById('monthSub').textContent = `最近 ${months.length} 个月，每月新增条数`;
+  }
+
+  // ── 课程分布：横条，单一色相，值标在条尾 ──
+  function renderCourses(a) {
+    const el = document.getElementById('courseChart');
+    const rows = Object.entries(a.byCourse).sort((x, y) => y[1] - x[1]);
+    if (!rows.length) {
+      el.innerHTML = '<div class="viz-empty">还没有归类的笔记</div>';
+      return;
+    }
+    const top = rows.slice(0, 8);
+    const rest = rows.length - top.length;
+
+    const W = el.clientWidth || 520;
+    const rowH = 30;
+    const H = top.length * rowH + (rest > 0 ? 20 : 4);
+    const labelW = 118, valW = 40;
+    const iw = Math.max(W - labelW - valW, 40);
+    const max = Math.max(...top.map((r) => r[1]), 1);
+    const bh = 10;
+
+    let g = '';
+    top.forEach(([course, n], i) => {
+      const y = i * rowH + 6;
+      const w = (n / max) * iw;
+      const name = course.length > 8 ? course.slice(0, 8) + '…' : course;
+      g += `<text class="axis-label" x="${labelW - 10}" y="${y + bh}" text-anchor="end">${esc(name)}</text>`;
+      // 轨道：同色极淡档，让「条有多长」有参照
+      g += `<rect x="${labelW}" y="${y}" width="${iw}" height="${bh}" rx="4" fill="rgba(255,255,255,.045)"/>`;
+      g += `<path class="bar" d="${rightRounded(labelW, y, w, bh, 4)}" fill="${SEQ}" data-k="${esc(course)}" data-v="${n}"/>`;
+      g += `<text class="axis-label" x="${labelW + iw + 8}" y="${y + bh}" fill="#8b949e">${n}</text>`;
+    });
+    if (rest > 0) {
+      g += `<text class="axis-label" x="${labelW - 10}" y="${H - 6}" text-anchor="end">还有 ${rest} 门</text>`;
+    }
+
+    el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="笔记数最多的 ${top.length} 门课程">${g}</svg>`;
+    el.querySelectorAll('.bar').forEach((p) => {
+      p.addEventListener('mousemove', (e) => showTip(e, p.dataset.k, p.dataset.v + ' 条'));
+      p.addEventListener('mouseleave', hideTip);
+    });
+    document.getElementById('courseSub').textContent =
+      rows.length > top.length ? `笔记最多的 ${top.length} 门（共 ${rows.length} 门）` : `共 ${rows.length} 门课程`;
+  }
+
+  // ── 最近更新 ──
+  function renderRecent(a) {
+    const el = document.getElementById('recent');
+    const items = a.items.slice().sort((x, y) => new Date(y.created_at) - new Date(x.created_at)).slice(0, 8);
+    if (!items.length) {
+      el.innerHTML = '<div class="loading">还没有内容</div>';
+      return;
+    }
+    const label = { note: '笔记', project: '项目', hobby: '爱好', quote: '拾句' };
+    const cls = { note: 't-note', project: 't-project', hobby: 't-hobby', quote: 't-quote' };
+    const href = (n) => n.type === 'note'
+      ? '/notes/' + n.id
+      : '/' + (n.type === 'project' ? 'projects' : n.type === 'hobby' ? 'hobbies' : 'quotes') + '/' + (n.slug || n.id);
+    el.innerHTML = items.map((n) => `<a class="item" href="${href(n)}" target="_blank" rel="noopener">
+      <span class="pill ${cls[n.type] || ''}">${label[n.type] || n.type}</span>
+      <span class="t">${esc(n.title)}</span>
+      <span class="date">${new Date(n.created_at).toLocaleDateString('zh-CN')}</span>
+    </a>`).join('');
+  }
+
+  // ── 待审提醒 ──
+  async function renderPending() {
+    try {
+      const r = await fetch('/api/admin/pending-count', { credentials: 'same-origin' });
+      if (!r.ok) return;
+      const d = await r.json();
+      if (!d.pending) return;
+      document.getElementById('pendingAlert').innerHTML =
+        `<div class="tip"><b>${d.pending} 句待审投稿</b>　有人往拾句投了句子，点「通过」才会出现在弹幕里。　<a href="/admin/quotes" style="color:inherit">去审核 →</a></div>`;
+    } catch (e) { /* 拿不到就不显示提醒 */ }
+  }
+
+  function renderAll() {
+    if (!DATA) return;
+    const a = compute();
+    renderHud(a);
+    renderMonths(a);
+    renderCourses(a);
+    renderRecent(a);
+  }
+
+  let rt = null;
+  window.addEventListener('resize', () => {
+    clearTimeout(rt);
+    rt = setTimeout(renderAll, 160);   // 图表按容器实际宽度重绘，文字不缩放
   });
-  container.innerHTML = html;
-}
 
-function escapeHtml(str) {
-  var div = document.createElement('div');
-  div.appendChild(document.createTextNode(str || ''));
-  return div.innerHTML;
-}
-
-loadDashboard();
-
-// ── Logout ──
-document.getElementById('logoutBtn')?.addEventListener('click', async (e) => {
-  e.preventDefault();
-  if (!confirm('确定退出管理后台？')) return;
-  await fetch('/api/admin/logout', { method: 'POST' });
-  window.location.href = '/admin/login';
-});
+  (async function boot() {
+    try {
+      const r = await fetch('/api/contents?limit=500', { credentials: 'same-origin' });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      DATA = await r.json();
+    } catch (e) {
+      document.getElementById('subline').textContent = '读取失败，稍后重试';
+      document.getElementById('hud').innerHTML = '<div class="viz-empty">内容读取失败，刷新页面重试</div>';
+      document.getElementById('recent').innerHTML = '<div class="loading">内容读取失败，刷新页面重试</div>';
+      return;
+    }
+    renderAll();
+    renderPending();
+  })();
 </script>
-<script is:inline src="/admin-pending-badge.js" defer></script>
-</body>
-</html>

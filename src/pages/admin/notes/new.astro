@@ -1,291 +1,237 @@
 ---
-import { verifyToken, COOKIE_NAME } from '../../../lib/auth.js';
-const token = Astro.cookies.get(COOKIE_NAME)?.value;
-const username = token ? verifyToken(token) : null;
-if (!username) return Astro.redirect('/admin/login');
+import Admin from '../../../layouts/Admin.astro';
 ---
 
-<!doctype html>
-<html lang="zh-CN">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>写笔记</title>
-  <!-- is:global 必需：本页大量节点由 JS 动态插入，拿不到 Astro 的 data-astro-cid-* 属性，
-       scoped 选择器匹配不上，样式会整片失效。后台各页是独立文档，不存在外泄。 -->
-  <style is:global>
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body { font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans SC", sans-serif; background:#f5f4f0; color:#1c1a18; }
-    .layout { display:flex; min-height:100vh; }
-    .side { width:200px; background:#1a1a24; color:#c8c8d0; display:flex; flex-direction:column; flex-shrink:0; position:sticky; top:0; height:100vh; }
-    .side-logo { padding:1.2rem; font-size:0.85rem; font-weight:600; border-bottom:1px solid rgba(255,255,255,0.08); }
-    .side-nav { flex:1; padding:0.5rem 0; }
-    .side-nav a { display:block; padding:0.6rem 1.2rem; font-size:0.85rem; color:#9a9aa8; text-decoration:none; border-left:2px solid transparent; }
-    .side-nav a:hover { background:rgba(255,255,255,0.04); color:#e8e8f0; }
-    .side-nav a.active { background:rgba(255,255,255,0.06); color:#fff; border-left-color:#c17f59; }
-    .side-foot { padding:1rem 1.2rem; border-top:1px solid rgba(255,255,255,0.08); font-size:0.78rem; }
-    .side-foot a { color:#7a7a8a; text-decoration:none; }
-    .side-foot a:hover { color:#c17f59; }
-    .main { flex:1; padding:2rem; max-width:960px; }
-    .hd { margin-bottom:1.5rem; }
-    .hd h1 { font-size:1.4rem; font-weight:600; }
-    .card { background:#fff; border:1px solid rgba(0,0,0,0.06); border-radius:8px; padding:1.5rem; max-width:700px; }
-    .fg { margin-bottom:1.2rem; }
-    .fg label { display:block; font-size:0.82rem; font-weight:500; margin-bottom:0.3rem; color:#6b625b; }
-    .fg input, .fg textarea, .fg select { width:100%; padding:0.5rem 0.8rem; border:1px solid rgba(0,0,0,0.08); border-radius:4px; font-size:0.9rem; font-family:inherit; }
-    .fg input:focus, .fg textarea:focus { outline:none; border-color:#c17f59; }
-    .fg textarea { resize:vertical; min-height:400px; font-family:Consolas, "JetBrains Mono", monospace; font-size:0.85rem; line-height:1.7; }
-    .actions { display:flex; gap:0.5rem; align-items:center; margin-top:1.5rem; }
-    .btn { padding:0.5rem 1.2rem; border-radius:4px; font-size:0.85rem; cursor:pointer; border:none; text-decoration:none; display:inline-block; }
-    .btn-pri { background:#c17f59; color:#fff; }
-    .btn-pri:hover { opacity:0.9; }
-    .btn-sec { background:#f5f4f0; color:#1c1a18; border:1px solid rgba(0,0,0,0.1); }
-    .btn-sec:hover { background:#e8e4dd; }
-    .status { font-size:0.85rem; color:#8a8a9a; margin-left:1rem; }
-  </style>
-</head>
-<body>
-<div class="layout">
-  <aside class="side">
-    <div class="side-logo">管理后台</div>
-    <nav class="side-nav">
-      <a href="/admin">概览</a>
-      <a href="/admin/notes" class="active">笔记</a>
-      <a href="/admin/quotes">投稿审核</a>
-    </nav>
-    <div class="side-foot">
-      <a href="/">查看网站</a>
-      <a href="#" id="logoutBtn" style="display:block;margin-top:0.3rem;">退出登录</a>
+<Admin title="写笔记">
+  <div class="hd">
+    <div>
+      <h1>写笔记</h1>
+      <p>内容支持 Markdown；离开页面前草稿会自动存在本地</p>
     </div>
-  </aside>
-  <main class="main">
-    <div class="hd"><h1>写笔记</h1></div>
+  </div>
 
-    <div class="card">
-      <div class="fg">
-        <label>标题</label>
-        <input type="text" id="title" placeholder="笔记标题">
-      </div>
-      <div class="fg">
-        <label>类型</label>
-        <select id="type">
-          <option value="note">笔记</option>
-          <option value="hobby">爱好</option>
-          <option value="quote">拾句</option>
-          <option value="project">项目</option>
+  <div class="card card-pad">
+    <div class="fg">
+      <label for="title">标题</label>
+      <input type="text" id="title" placeholder="笔记标题">
+    </div>
+
+    <div class="fg">
+      <label for="type">类型</label>
+      <select id="type">
+        <option value="note">笔记</option>
+        <option value="hobby">爱好</option>
+        <option value="quote">拾句</option>
+        <option value="project">项目</option>
+      </select>
+    </div>
+
+    <div class="fg">
+      <label for="image">封面图片路径</label>
+      <input type="text" id="image" placeholder="/photos/xxx.jpg">
+      <div class="hint">图片放进 public/photos/ 后填路径，爱好与项目会用到</div>
+    </div>
+
+    <div class="fg">
+      <label for="course">课程分类</label>
+      <div class="row-2">
+        <select id="course">
+          <option value="">无分类</option>
+          <option value="__new__">＋ 新建分类…</option>
         </select>
-      </div>
-      <div class="fg">
-        <label>封面图片路径（图片放 public/photos/ 后填，如 /photos/xxx.jpg；爱好/项目用）</label>
-        <input type="text" id="image" placeholder="/photos/xxx.jpg">
-      </div>
-      <div class="fg">
-        <label>课程分类</label>
-        <div style="display:flex; gap:0.5rem;">
-          <select id="course" style="flex:1;">
-            <option value="">无分类</option>
-          </select>
-          <input type="text" id="newCourse" placeholder="新分类" style="display:none; flex:1;">
-        </div>
-      </div>
-      <div class="fg">
-        <label>
-          内容 (Markdown)
-          <span style="float:right; font-size:0.78rem; color:#8a8a9a; cursor:pointer;" id="togglePreview">预览</span>
-        </label>
-        <textarea id="content" placeholder="用 Markdown 写笔记..."></textarea>
-        <div id="preview" style="display:none; min-height:400px; padding:0.8rem; border:1px solid rgba(0,0,0,0.06); border-radius:4px; background:#faf8f3; line-height:1.8; font-size:0.9rem;"></div>
-      </div>
-      <div class="fg">
-        <label>标签（逗号分隔）</label>
-        <input type="text" id="tags" placeholder="例: 操作系统, 进程管理">
-      </div>
-      <div class="actions">
-        <button class="btn btn-pri" id="saveBtn">发布</button>
-        <a href="/admin/notes" class="btn btn-sec">取消</a>
-        <span class="status" id="status"></span>
+        <input type="text" id="newCourse" placeholder="新分类名" style="display:none">
       </div>
     </div>
-  </main>
-</div>
+
+    <div class="fg">
+      <label for="content">
+        内容（Markdown）
+        <span class="label-action" id="togglePreview">预览</span>
+      </label>
+      <textarea id="content" placeholder="用 Markdown 写笔记…"></textarea>
+      <div id="preview" class="preview-pane" style="display:none"></div>
+    </div>
+
+    <div class="fg">
+      <label for="tags">标签</label>
+      <input type="text" id="tags" placeholder="逗号分隔，例：操作系统, 进程管理">
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-pri" id="saveBtn">发布</button>
+      <a href="/admin/notes" class="btn btn-sec">取消</a>
+      <span class="status" id="status"></span>
+    </div>
+  </div>
+</Admin>
 
 <script>
-// ── 自动保存草稿 ──
-const STORAGE_KEY = 'note_draft_new';
-const AUTO_FIELDS = ['title', 'content', 'tags', 'image'];
-let saveTimer = null;
+  const STORAGE_KEY = 'note_draft_new';
+  const AUTO_FIELDS = ['title', 'content', 'tags', 'image'];
+  let saveTimer = null;
 
-function saveDraft() {
-  var draft = {};
-  AUTO_FIELDS.forEach(function(f) {
-    var el = document.getElementById(f);
-    draft[f] = el ? el.value : '';
-  });
-  // 额外保存课程（处理新增课程输入框）
-  var courseEl = document.getElementById('course');
-  var courseVal = courseEl ? courseEl.value : '';
-  if (courseVal === '__new__') {
-    courseVal = 'new:' + (document.getElementById('newCourse').value || '');
+  const $ = (id) => document.getElementById(id);
+
+  function saveDraft() {
+    const draft = {};
+    AUTO_FIELDS.forEach((f) => {
+      const el = $(f);
+      draft[f] = el ? el.value : '';
+    });
+    const courseEl = $('course');
+    let courseVal = courseEl ? courseEl.value : '';
+    if (courseVal === '__new__') courseVal = 'new:' + ($('newCourse').value || '');
+    draft.course = courseVal;
+    draft.type = ($('type') || {}).value || 'note';
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(draft));
+    const st = $('status');
+    const now = new Date();
+    st.textContent = '草稿已保存 ' + now.getHours() + ':' + String(now.getMinutes()).padStart(2, '0');
+    st.className = 'status';
   }
-  draft.course = courseVal;
-  draft.type = (document.getElementById('type') || {}).value || 'note';
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(draft));
-  var st = document.getElementById('status');
-  var now = new Date();
-  st.textContent = '草稿已保存 ' + now.getHours() + ':' + String(now.getMinutes()).padStart(2, '0');
-  st.style.color = '#8a8a9a';
-}
 
-function onDraftInput() {
-  clearTimeout(saveTimer);
-  saveTimer = setTimeout(saveDraft, 2000);
-}
+  function onDraftInput() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(saveDraft, 2000);
+  }
 
-// 恢复草稿
-function tryRestoreDraft() {
-  try {
-    var raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return;
-    var draft = JSON.parse(raw);
-    if (!draft.title && !draft.content) return;
-    if (!confirm('检测到未发布的草稿，是否恢复？\n（点"取消"将丢弃草稿）')) {
-      localStorage.removeItem(STORAGE_KEY);
+  function tryRestoreDraft() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      const draft = JSON.parse(raw);
+      if (!draft.title && !draft.content) return;
+      if (!confirm('检测到未发布的草稿，是否恢复？\n（点“取消”将丢弃草稿）')) {
+        localStorage.removeItem(STORAGE_KEY);
+        return;
+      }
+      AUTO_FIELDS.forEach((f) => {
+        const el = $(f);
+        if (el && draft[f]) el.value = draft[f];
+      });
+      if (draft.course) {
+        const sel = $('course');
+        const addOption = (v) => {
+          const exists = Array.from(sel.options).some((o) => o.value === v);
+          if (!exists) sel.innerHTML += '<option value="' + v + '">' + v + '</option>';
+        };
+        if (draft.course.startsWith('new:')) {
+          const nc = $('newCourse');
+          nc.value = draft.course.slice(4);
+          nc.style.display = 'block';
+          addOption(nc.value);
+          sel.value = nc.value;
+        } else {
+          addOption(draft.course);
+          sel.value = draft.course;
+        }
+      }
+      if (draft.image) $('image').value = draft.image;
+      if (draft.type) $('type').value = draft.type;
+      $('status').textContent = '草稿已恢复';
+    } catch (e) { /* 草稿损坏就当没有 */ }
+  }
+
+  AUTO_FIELDS.forEach((f) => {
+    const el = $(f);
+    if (el) el.addEventListener('input', onDraftInput);
+  });
+
+  fetch('/api/notes?limit=1')
+    .then((r) => r.json())
+    .then((data) => {
+      const sel = $('course');
+      const newOpt = sel.querySelector('option[value="__new__"]');
+      (data.courses || []).forEach((c) => {
+        const o = document.createElement('option');
+        o.value = c;
+        o.textContent = c;
+        sel.insertBefore(o, newOpt);
+      });
+      tryRestoreDraft();
+    })
+    .catch(() => { /* 课程列表拿不到不影响写作 */ });
+
+  $('course').addEventListener('change', function () {
+    const nc = $('newCourse');
+    if (this.value === '__new__') { nc.style.display = 'block'; nc.focus(); }
+    else { nc.style.display = 'none'; }
+    onDraftInput();
+  });
+  $('newCourse').addEventListener('input', onDraftInput);
+
+  $('togglePreview').addEventListener('click', function () {
+    const preview = $('preview');
+    const textarea = $('content');
+    if (preview.style.display === 'block') {
+      preview.style.display = 'none';
+      textarea.style.display = 'block';
+      this.textContent = '预览';
+    } else {
+      preview.innerHTML = md2html(textarea.value);
+      preview.style.display = 'block';
+      textarea.style.display = 'none';
+      this.textContent = '编辑';
+    }
+  });
+
+  function md2html(md) {
+    return md
+      .replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>')
+      .replace(/`([^`]+)`/g, '<code>$1</code>')
+      .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+      .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+      .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g, '<em>$1</em>')
+      .replace(/^- (.+)$/gm, '<li>$1</li>')
+      .replace(/\n\n/g, '</p><p>')
+      .replace(/\n/g, '<br>');
+  }
+
+  $('saveBtn').addEventListener('click', async () => {
+    const status = $('status');
+    const title = $('title').value.trim();
+    if (!title) {
+      status.textContent = '标题不能为空';
+      status.className = 'status err';
       return;
     }
-    AUTO_FIELDS.forEach(function(f) {
-      var el = document.getElementById(f);
-      if (el && draft[f]) el.value = draft[f];
+
+    let course = $('course').value;
+    if (course === '__new__') course = $('newCourse').value.trim();
+
+    const tags = $('tags').value.split(',').map((t) => t.trim()).filter(Boolean);
+    const imageVal = $('image').value.trim();
+
+    status.textContent = '保存中…';
+    status.className = 'status';
+
+    const res = await fetch('/api/notes', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify({
+        title,
+        content: $('content').value,
+        course,
+        tags,
+        type: $('type').value,
+        metadata: imageVal ? { image: imageVal } : {},
+      }),
     });
-    if (draft.course) {
-      var sel = document.getElementById('course');
-      // 检查是否为新增课程
-      if (draft.course.startsWith('new:')) {
-        var nc = document.getElementById('newCourse');
-        nc.value = draft.course.slice(4);
-        nc.style.display = 'block';
-        // 已存在的选项不重复加
-        var exists = Array.from(sel.options).some(function(o) { return o.value === nc.value; });
-        if (!exists) {
-          sel.innerHTML += '<option value="' + nc.value + '">' + nc.value + '</option>';
-        }
-        sel.value = nc.value;
-      } else if (draft.course) {
-        // 如果该分类尚未加载，先临时添加
-        var exists = Array.from(sel.options).some(function(o) { return o.value === draft.course; });
-        if (!exists && draft.course) {
-          sel.innerHTML += '<option value="' + draft.course + '">' + draft.course + '</option>';
-        }
-        sel.value = draft.course;
-      }
+
+    if (res.ok) {
+      localStorage.removeItem(STORAGE_KEY);
+      status.textContent = '发布成功，正在返回…';
+      status.className = 'status ok';
+      setTimeout(() => { window.location.href = '/admin/notes'; }, 900);
+    } else {
+      const err = await res.json().catch(() => ({}));
+      status.textContent = '保存失败：' + (err.error || '');
+      status.className = 'status err';
     }
-    var imgEl = document.getElementById('image');
-    if (imgEl && draft.image) imgEl.value = draft.image;
-    var typeEl = document.getElementById('type');
-    if (typeEl && draft.type) typeEl.value = draft.type;
-    document.getElementById('status').textContent = '草稿已恢复';
-  } catch(e) {}
-}
-
-// ── 自动保存输入监听 ──
-AUTO_FIELDS.forEach(function(f) {
-  var el = document.getElementById(f);
-  if (el) el.addEventListener('input', onDraftInput);
-});
-
-// ── 加载课程列表 ──
-fetch('/api/notes?limit=1').then(function(r) { return r.json(); }).then(function(data) {
-  var sel = document.getElementById('course');
-  (data.courses || []).forEach(function(c) {
-    sel.innerHTML += '<option value="' + c + '">' + c + '</option>';
   });
-  // 课程加载完成后尝试恢复草稿
-  tryRestoreDraft();
-});
-
-document.getElementById('course').addEventListener('change', function() {
-  var nc = document.getElementById('newCourse');
-  if (this.value === '__new__') { nc.style.display = 'block'; nc.focus(); }
-  else { nc.style.display = 'none'; }
-  onDraftInput();
-});
-
-document.getElementById('newCourse').addEventListener('input', onDraftInput);
-
-document.getElementById('togglePreview').addEventListener('click', function() {
-  var preview = document.getElementById('preview');
-  var textarea = document.getElementById('content');
-  if (preview.style.display === 'block') {
-    preview.style.display = 'none';
-    textarea.style.display = 'block';
-    this.textContent = '预览';
-  } else {
-    var md = textarea.value;
-    preview.innerHTML = md2html(md);
-    preview.style.display = 'block';
-    textarea.style.display = 'none';
-    this.textContent = '编辑';
-  }
-});
-
-function md2html(md) {
-  return md
-    .replace(/</g, '&lt;').replace(/>/g, '&gt;')
-    .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>')
-    .replace(/`([^`]+)`/g, '<code>$1</code>')
-    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
-    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
-    .replace(/^# (.+)$/gm, '<h1>$1</h1>')
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*(.+?)\*/g, '<em>$1</em>')
-    .replace(/^- (.+)$/gm, '<li>$1</li>')
-    .replace(/\n\n/g, '</p><p>')
-    .replace(/\n/g, '<br>');
-}
-
-document.getElementById('saveBtn').addEventListener('click', async function() {
-  var status = document.getElementById('status');
-  var title = document.getElementById('title').value.trim();
-  if (!title) { status.textContent = '标题不能为空'; return; }
-
-  var courseEl = document.getElementById('course');
-  var course = courseEl.value;
-  if (course === '__new__') {
-    course = document.getElementById('newCourse').value.trim();
-  }
-
-  var tags = document.getElementById('tags').value.split(',').map(function(t) { return t.trim(); }).filter(Boolean);
-  var imageVal = document.getElementById('image').value.trim();
-
-  status.textContent = '保存中...';
-  var res = await fetch('/api/notes', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      title: title,
-      content: document.getElementById('content').value,
-      course: course,
-      tags: tags,
-      type: document.getElementById('type').value,
-      metadata: imageVal ? { image: imageVal } : {}
-    })
-  });
-  if (res.ok) {
-    localStorage.removeItem(STORAGE_KEY);
-    status.textContent = '发布成功！';
-    setTimeout(function() { window.location.href = '/admin/notes'; }, 1000);
-  } else {
-    var err = await res.json();
-    status.textContent = '保存失败: ' + (err.error || '');
-  }
-});
-// ── Logout ──
-document.getElementById('logoutBtn')?.addEventListener('click', async (e) => {
-  e.preventDefault();
-  if (!confirm('确定退出管理后台？')) return;
-  await fetch('/api/admin/logout', { method: 'POST' });
-  window.location.href = '/admin/login';
-});
 </script>
-<script is:inline src="/admin-pending-badge.js" defer></script>
-</body>
-</html>
